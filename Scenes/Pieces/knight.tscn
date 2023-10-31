@@ -1,0 +1,20 @@
+[gd_scene load_steps=5 format=3 uid="uid://mmfbtn66fy8v"]
+
+[ext_resource type="Texture2D" uid="uid://dyaby14uethli" path="res://Assets/Sprites/knight_w.png" id="1_adx1s"]
+[ext_resource type="Script" path="res://Scripts/Piece.cs" id="1_wrm1m"]
+[ext_resource type="Texture2D" uid="uid://753wm1giqxs3" path="res://Assets/Sprites/knight_b.png" id="2_5qgey"]
+[ext_resource type="Shape2D" uid="uid://dg5lhu0e8vi5l" path="res://Assets/piece_shape.tres" id="2_8kpaj"]
+
+[node name="Knight" type="CharacterBody2D"]
+input_pickable = true
+motion_mode = 1
+script = ExtResource("1_wrm1m")
+metadata/Piece_Type = "knight"
+metadata/Player = 0
+metadata/Black_Texture = ExtResource("2_5qgey")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_adx1s")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = ExtResource("2_8kpaj")

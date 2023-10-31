@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://ih4nan5mbpr3"]
+
+[ext_resource type="Shape2D" uid="uid://dg5lhu0e8vi5l" path="res://Assets/piece_shape.tres" id="1_8ubja"]
+[ext_resource type="Texture2D" uid="uid://bdkg843gprh4y" path="res://Assets/Sprites/Pawn B.png" id="2_h2bjk"]
+
+[node name="MoveCheck" type="Area2D"]
+input_pickable = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = ExtResource("1_8ubja")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_h2bjk")

@@ -1,0 +1,54 @@
+[gd_scene load_steps=6 format=3 uid="uid://bv6dc3t6eingm"]
+
+[ext_resource type="Script" path="res://Scripts/MainMenu.cs" id="1_1p1iq"]
+[ext_resource type="Texture2D" uid="uid://sk6v4qujy3lj" path="res://Assets/logo.png" id="1_eif5b"]
+[ext_resource type="Texture2D" uid="uid://cae4tl4xys48m" path="res://Assets/local_button.png" id="2_6i0ne"]
+[ext_resource type="Texture2D" uid="uid://wolbn5saws5y" path="res://Assets/online_button.png" id="3_ek7xw"]
+[ext_resource type="Texture2D" uid="uid://bqcsk8ymyq7c4" path="res://Assets/options_button.png" id="4_prlk2"]
+
+[node name="Main Menu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_1p1iq")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("1_eif5b")
+
+[node name="Local" type="Button" parent="."]
+layout_mode = 0
+offset_left = 319.0
+offset_top = 136.0
+offset_right = 455.0
+offset_bottom = 208.0
+icon = ExtResource("2_6i0ne")
+
+[node name="Online" type="Button" parent="."]
+layout_mode = 0
+offset_left = 319.0
+offset_top = 215.0
+offset_right = 455.0
+offset_bottom = 287.0
+icon = ExtResource("3_ek7xw")
+
+[node name="Options" type="Button" parent="."]
+layout_mode = 0
+offset_left = 320.0
+offset_top = 294.0
+offset_right = 456.0
+offset_bottom = 366.0
+icon = ExtResource("4_prlk2")
+
+[node name="Label" type="Label" parent="."]
+layout_mode = 0
+offset_left = 5.0
+offset_top = 352.0
+offset_right = 152.0
+offset_bottom = 378.0
+text = "Beta 2 (En Passant)"

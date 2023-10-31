@@ -1,0 +1,20 @@
+[gd_scene load_steps=5 format=3 uid="uid://d3yx4rm7lnh4l"]
+
+[ext_resource type="Script" path="res://Scripts/Piece.cs" id="1_2c54n"]
+[ext_resource type="Texture2D" uid="uid://bsb4hneh7mvba" path="res://Assets/Sprites/queen_w.png" id="1_60ep0"]
+[ext_resource type="Texture2D" uid="uid://d2g7amdadoa6a" path="res://Assets/Sprites/queen_b.png" id="2_8y68i"]
+[ext_resource type="Shape2D" uid="uid://dg5lhu0e8vi5l" path="res://Assets/piece_shape.tres" id="2_yv02i"]
+
+[node name="Queen" type="CharacterBody2D"]
+input_pickable = true
+motion_mode = 1
+script = ExtResource("1_2c54n")
+metadata/Piece_Type = "queen"
+metadata/Player = 0
+metadata/Black_Texture = ExtResource("2_8y68i")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_60ep0")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = ExtResource("2_yv02i")

@@ -1,0 +1,20 @@
+[gd_scene load_steps=5 format=3 uid="uid://gca3h7ok17i8"]
+
+[ext_resource type="Script" path="res://Scripts/Piece.cs" id="1_rlxsy"]
+[ext_resource type="Texture2D" uid="uid://bdkg843gprh4y" path="res://Assets/Sprites/pawn_b.png" id="2_1siva"]
+[ext_resource type="Texture2D" uid="uid://7i04xp1bppgp" path="res://Assets/Sprites/pawn_w.png" id="3_iar37"]
+[ext_resource type="Shape2D" uid="uid://dg5lhu0e8vi5l" path="res://Assets/piece_shape.tres" id="3_mc7ns"]
+
+[node name="Pawn" type="CharacterBody2D"]
+input_pickable = true
+motion_mode = 1
+script = ExtResource("1_rlxsy")
+metadata/Piece_Type = "pawn"
+metadata/Player = 0
+metadata/Black_Texture = ExtResource("2_1siva")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("3_iar37")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = ExtResource("3_mc7ns")

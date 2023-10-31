@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3 uid="uid://udrochcokmvr"]
+
+[ext_resource type="Script" path="res://Scripts/Movement.cs" id="1_vchd8"]
+[ext_resource type="Texture2D" uid="uid://c600wn4ywjkee" path="res://Assets/Sprites/capture.png" id="1_yoq64"]
+[ext_resource type="Shape2D" uid="uid://dg5lhu0e8vi5l" path="res://Assets/piece_shape.tres" id="2_5vffv"]
+
+[node name="Capture" type="CharacterBody2D"]
+input_pickable = true
+motion_mode = 1
+script = ExtResource("1_vchd8")
+metadata/Is_Capture = true
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_yoq64")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = ExtResource("2_5vffv")

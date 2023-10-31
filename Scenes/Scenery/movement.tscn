@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3 uid="uid://34he5epnjvfu"]
+
+[ext_resource type="Script" path="res://Scripts/Movement.cs" id="1_kw4ug"]
+[ext_resource type="Texture2D" uid="uid://kmghm31rdfpi" path="res://Assets/Sprites/movement.png" id="1_x8deb"]
+[ext_resource type="Shape2D" uid="uid://dg5lhu0e8vi5l" path="res://Assets/piece_shape.tres" id="2_5giu0"]
+
+[node name="Movement" type="CharacterBody2D"]
+input_pickable = true
+motion_mode = 1
+script = ExtResource("1_kw4ug")
+metadata/Is_Capture = false
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_x8deb")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = ExtResource("2_5giu0")
