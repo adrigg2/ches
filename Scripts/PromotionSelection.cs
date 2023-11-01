@@ -24,10 +24,10 @@ public partial class PromotionSelection : Control
         bishop.Pressed += BishopPromotion;
         knight.Pressed += KnightPromotion;
 
-        rookPiece = (PackedScene)ResourceLoader.Load("res://Scenes/Pieces/rook.tscn");
-        knightPiece = (PackedScene)ResourceLoader.Load("res://Scenes/Pieces/knight.tscn");
-        bishopPiece = (PackedScene)ResourceLoader.Load("res://Scenes/Pieces/bishop.tscn");
-        queenPiece = (PackedScene)ResourceLoader.Load("res://Scenes/Pieces/queen.tscn");
+        rookPiece = (PackedScene)ResourceLoader.Load("res://scenes/pieces/rook.tscn");
+        knightPiece = (PackedScene)ResourceLoader.Load("res://scenes/pieces/knight.tscn");
+        bishopPiece = (PackedScene)ResourceLoader.Load("res://scenes/pieces/bishop.tscn");
+        queenPiece = (PackedScene)ResourceLoader.Load("res://scenes/pieces/queen.tscn");
 
         Node2D newParent = GetNode<Node2D>("../..");
         Node2D master = GetNode<Node2D>("../../../..");

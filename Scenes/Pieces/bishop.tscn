@@ -1,20 +1,20 @@
 [gd_scene load_steps=5 format=3 uid="uid://ca77btc6j5ko2"]
 
-[ext_resource type="Script" path="res://Scripts/Piece.cs" id="1_llapk"]
-[ext_resource type="Shape2D" uid="uid://dg5lhu0e8vi5l" path="res://Assets/piece_shape.tres" id="2_6iumy"]
-[ext_resource type="Texture2D" uid="uid://bi2fmdbq1i1nw" path="res://Assets/Sprites/bishop_b.png" id="2_akxi1"]
-[ext_resource type="Texture2D" uid="uid://ckl1hkr6nxs8s" path="res://Assets/Sprites/bishop_w.png" id="3_ra6s4"]
+[ext_resource type="Script" path="res://scripts/Piece.cs" id="1_01au6"]
+[ext_resource type="Texture2D" uid="uid://bi2fmdbq1i1nw" path="res://assets/sprites/bishop_b.png" id="2_12uiu"]
+[ext_resource type="Texture2D" uid="uid://ckl1hkr6nxs8s" path="res://assets/sprites/bishop_w.png" id="3_oxyek"]
+[ext_resource type="Shape2D" uid="uid://dg5lhu0e8vi5l" path="res://assets/piece_shape.tres" id="4_j5rqa"]
 
 [node name="Bishop" type="CharacterBody2D"]
 input_pickable = true
 motion_mode = 1
-script = ExtResource("1_llapk")
+script = ExtResource("1_01au6")
 metadata/Piece_Type = "bishop"
 metadata/Player = 0
-metadata/Black_Texture = ExtResource("2_akxi1")
+metadata/Black_Texture = ExtResource("2_12uiu")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-texture = ExtResource("3_ra6s4")
+texture = ExtResource("3_oxyek")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = ExtResource("2_6iumy")
+shape = ExtResource("4_j5rqa")

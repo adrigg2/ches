@@ -133,9 +133,9 @@ public partial class Piece : CharacterBody2D
             sprite.Texture = blackTexture;
         }
 
-        movement = (PackedScene)ResourceLoader.Load("res://Scenes/Scenery/movement.tscn");
-        capture = (PackedScene)ResourceLoader.Load("res://Scenes/Scenery/capture.tscn");
-        promotion = (PackedScene)ResourceLoader.Load("res://Scenes/promotion_selection.tscn");
+        movement = (PackedScene)ResourceLoader.Load("res://scenes/scenery/movement.tscn");
+        capture = (PackedScene)ResourceLoader.Load("res://scenes/scenery/capture.tscn");
+        promotion = (PackedScene)ResourceLoader.Load("res://scenes/promotion_selection.tscn");
 
         TileMap board = GetNode<TileMap>("../..");
         Node2D master = GetNode<Node2D>("../../..");
@@ -194,7 +194,6 @@ public partial class Piece : CharacterBody2D
                 }
                 else
                 {
-                    EmitSignal(SignalName.pieceSelected);
                     if (pieceType == "queen" || pieceType == "rook")
                     {
                         StraightMove();
@@ -231,6 +230,7 @@ public partial class Piece : CharacterBody2D
                                 CapturePos(movePos);
                             }
                         }
+
                         movePos = Position + new Vector2(-CELL_PIXELS, -CELL_PIXELS);
                         EmitSignal(SignalName.movementGeneration, movePos);
                         EmitSignal(SignalName.checkArrayCheck, movePos);
@@ -241,6 +241,7 @@ public partial class Piece : CharacterBody2D
                                 CapturePos(movePos);
                             }
                         }
+
                         movePos = Position + i * new Vector2(0, -CELL_PIXELS);
                         EmitSignal(SignalName.movementGeneration, movePos);
                         EmitSignal(SignalName.checkArrayCheck, movePos);
@@ -265,6 +266,7 @@ public partial class Piece : CharacterBody2D
                                 CapturePos(movePos);
                             }
                         }
+
                         movePos = Position + new Vector2(-CELL_PIXELS, CELL_PIXELS);
                         EmitSignal(SignalName.movementGeneration, movePos);
                         EmitSignal(SignalName.checkArrayCheck, movePos);
@@ -275,6 +277,7 @@ public partial class Piece : CharacterBody2D
                                 CapturePos(movePos);
                             }
                         }
+
                         movePos = Position + i * new Vector2(0, CELL_PIXELS);
                         EmitSignal(SignalName.movementGeneration, movePos);
                         EmitSignal(SignalName.checkArrayCheck, movePos);
@@ -303,6 +306,7 @@ public partial class Piece : CharacterBody2D
                             Move(movePos);
                         }
                     }
+
                     movePos = Position + new Vector2(CELL_PIXELS, -CELL_PIXELS);
                     EmitSignal(SignalName.movementGeneration, movePos);
                     EmitSignal(SignalName.checkArrayCheck, movePos);
@@ -313,6 +317,7 @@ public partial class Piece : CharacterBody2D
                             CapturePos(movePos);
                         }
                     }
+
                     movePos = Position + new Vector2(-CELL_PIXELS, -CELL_PIXELS);
                     EmitSignal(SignalName.movementGeneration, movePos);
                     EmitSignal(SignalName.checkArrayCheck, movePos);
@@ -336,6 +341,7 @@ public partial class Piece : CharacterBody2D
                             Move(movePos);
                         }
                     }
+
                     movePos = Position + new Vector2(CELL_PIXELS, CELL_PIXELS);
                     EmitSignal(SignalName.movementGeneration, movePos);
                     EmitSignal(SignalName.checkArrayCheck, movePos);
@@ -346,6 +352,7 @@ public partial class Piece : CharacterBody2D
                             CapturePos(movePos);
                         }
                     }
+
                     movePos = Position + new Vector2(-CELL_PIXELS, CELL_PIXELS);
                     EmitSignal(SignalName.movementGeneration, movePos);
                     EmitSignal(SignalName.checkArrayCheck, movePos);
@@ -1024,146 +1031,55 @@ public partial class Piece : CharacterBody2D
             {
                 movePos = Position - new Vector2(CELL_PIXELS, 0) + new Vector2(0, -(2 * CELL_PIXELS));
                 EmitSignal(SignalName.movementGeneration, movePos);
-                if (movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8 && blockedPosition != player && checkId == 1)
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SEES_ENEMY_KING);
-                }
-                else if (movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8 && blockedPosition == player)
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SEES_FRIENDLY_PIECE);
-                }
-                else
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, PATH);
-                }
+                MovePossibilityCheck();
 
                 movePos = Position + new Vector2(CELL_PIXELS, 0) + new Vector2(0, -(2 * CELL_PIXELS));
                 EmitSignal(SignalName.movementGeneration, movePos);
-                if (movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8 && blockedPosition != player && checkId == 1)
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SEES_ENEMY_KING);
-                }
-                else if (movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8 && blockedPosition == player)
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SEES_FRIENDLY_PIECE);
-                }
-                else
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, PATH);
-                }
+                MovePossibilityCheck();
 
                 movePos = Position - new Vector2(0, CELL_PIXELS) + new Vector2((2 * CELL_PIXELS), 0);
                 EmitSignal(SignalName.movementGeneration, movePos);
-                if (movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8 && blockedPosition != player && checkId == 1)
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SEES_ENEMY_KING);
-                }
-                else if (movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8 && blockedPosition == player)
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SEES_FRIENDLY_PIECE);
-                }
-                else
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, PATH);
-                }
+                MovePossibilityCheck();
 
                 movePos = Position + new Vector2(0, CELL_PIXELS) + new Vector2((2 * CELL_PIXELS), 0);
                 EmitSignal(SignalName.movementGeneration, movePos);
-                if (movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8 && blockedPosition != player && checkId == 1)
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SEES_ENEMY_KING);
-                }
-                else if (movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8 && blockedPosition == player)
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SEES_FRIENDLY_PIECE);
-                }
-                else
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, PATH);
-                }
+                MovePossibilityCheck();
 
                 movePos = Position - new Vector2(CELL_PIXELS, 0) + new Vector2(0, (2 * CELL_PIXELS));
                 EmitSignal(SignalName.movementGeneration, movePos);
-                if (movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8 && blockedPosition != player && checkId == 1)
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SEES_ENEMY_KING);
-                }
-                else if (movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8 && blockedPosition == player)
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SEES_FRIENDLY_PIECE);
-                }
-                else
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, PATH);
-                }
+                MovePossibilityCheck();
 
                 movePos = Position + new Vector2(CELL_PIXELS, 0) + new Vector2(0, (2 * CELL_PIXELS));
                 EmitSignal(SignalName.movementGeneration, movePos);
-                if (movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8 && blockedPosition != player && checkId == 1)
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SEES_ENEMY_KING);
-                }
-                else if (movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8 && blockedPosition == player)
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SEES_FRIENDLY_PIECE);
-                }
-                else
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, PATH);
-                }
+                MovePossibilityCheck();
 
                 movePos = Position - new Vector2(0, CELL_PIXELS) + new Vector2(-(2 * CELL_PIXELS), 0);
                 EmitSignal(SignalName.movementGeneration, movePos);
-                if (movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8 && blockedPosition != player && checkId == 1)
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SEES_ENEMY_KING);
-                }
-                else if (movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8 && blockedPosition == player)
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SEES_FRIENDLY_PIECE);
-                }
-                else
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, PATH);
-                }
+                MovePossibilityCheck();
 
                 movePos = Position + new Vector2(0, CELL_PIXELS) + new Vector2(-(2 * CELL_PIXELS), 0);
                 EmitSignal(SignalName.movementGeneration, movePos);
-                if (movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8 && blockedPosition != player && checkId == 1)
+                MovePossibilityCheck();
+
+                void MovePossibilityCheck()
                 {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SEES_ENEMY_KING);
-                }
-                else if (movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8 && blockedPosition == player)
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SEES_FRIENDLY_PIECE);
-                }
-                else
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, PATH);
+                    bool notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8;
+
+                    if (notOutOfBounds && blockedPosition != player && checkId == 1)
+                    {
+                        checkPosArray[1] = movePos;
+                        CaptureCheck(checkPosArray, Position, 1, SEES_ENEMY_KING);
+                    }
+                    else if (notOutOfBounds && blockedPosition == player)
+                    {
+                        checkPosArray[1] = movePos;
+                        CaptureCheck(checkPosArray, Position, 1, SEES_FRIENDLY_PIECE);
+                    }
+                    else
+                    {
+                        checkPosArray[1] = movePos;
+                        CaptureCheck(checkPosArray, Position, 1, PATH);
+                    }
                 }
             }
 
@@ -1171,106 +1087,50 @@ public partial class Piece : CharacterBody2D
             {
                 movePos = Position - new Vector2(0, CELL_PIXELS);
                 EmitSignal(SignalName.movementGeneration, movePos);
-                if (movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8 && blockedPosition == player)
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SEES_FRIENDLY_PIECE);
-                }
-                else
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, PATH);
-                }
+                MovePossibilityCheck();
 
                 movePos = Position + new Vector2(0, CELL_PIXELS);
                 EmitSignal(SignalName.movementGeneration, movePos);
-                if (movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8 && blockedPosition == player)
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SEES_FRIENDLY_PIECE);
-                }
-                else
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, PATH);
-                }
+                MovePossibilityCheck();
 
                 movePos = Position - new Vector2(CELL_PIXELS, 0);
                 EmitSignal(SignalName.movementGeneration, movePos);
-                if (movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8 && blockedPosition == player)
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SEES_FRIENDLY_PIECE);
-                }
-                else
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, PATH);
-                }
+                MovePossibilityCheck();
 
                 movePos = Position + new Vector2(CELL_PIXELS, 0);
                 EmitSignal(SignalName.movementGeneration, movePos);
-                if (movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8 && blockedPosition == player)
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SEES_FRIENDLY_PIECE);
-                }
-                else
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, PATH);
-                }
+                MovePossibilityCheck();
 
                 movePos = Position - new Vector2(CELL_PIXELS, CELL_PIXELS);
                 EmitSignal(SignalName.movementGeneration, movePos);
-                if (movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8 && blockedPosition == player)
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SEES_FRIENDLY_PIECE);
-                }
-                else
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, PATH);
-                }
+                MovePossibilityCheck();
 
                 movePos = Position + new Vector2(CELL_PIXELS, CELL_PIXELS);
                 EmitSignal(SignalName.movementGeneration, movePos);
-                if (movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8 && blockedPosition == player)
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SEES_FRIENDLY_PIECE);
-                }
-                else
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, PATH);
-                }
+                MovePossibilityCheck();
 
                 movePos = Position - new Vector2(CELL_PIXELS, -CELL_PIXELS);
                 EmitSignal(SignalName.movementGeneration, movePos);
-                if (movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8 && blockedPosition == player)
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SEES_FRIENDLY_PIECE);
-                }
-                else
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, PATH);
-                }
+                MovePossibilityCheck();
 
                 movePos = Position + new Vector2(CELL_PIXELS, -CELL_PIXELS);
                 EmitSignal(SignalName.movementGeneration, movePos);
-                if (movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8 && blockedPosition == player)
+                MovePossibilityCheck();
+
+                void MovePossibilityCheck()
                 {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SEES_FRIENDLY_PIECE);
-                }
-                else
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, PATH);
+                    bool notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8;
+
+                    if (notOutOfBounds && blockedPosition == player)
+                    {
+                        checkPosArray[1] = movePos;
+                        CaptureCheck(checkPosArray, Position, 1, SEES_FRIENDLY_PIECE);
+                    }
+                    else
+                    {
+                        checkPosArray[1] = movePos;
+                        CaptureCheck(checkPosArray, Position, 1, PATH);
+                    }
                 }
             }
 

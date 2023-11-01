@@ -1,10 +1,10 @@
 [gd_scene load_steps=6 format=3 uid="uid://bv6dc3t6eingm"]
 
-[ext_resource type="Script" path="res://Scripts/MainMenu.cs" id="1_1p1iq"]
-[ext_resource type="Texture2D" uid="uid://sk6v4qujy3lj" path="res://Assets/logo.png" id="1_eif5b"]
-[ext_resource type="Texture2D" uid="uid://cae4tl4xys48m" path="res://Assets/local_button.png" id="2_6i0ne"]
-[ext_resource type="Texture2D" uid="uid://wolbn5saws5y" path="res://Assets/online_button.png" id="3_ek7xw"]
-[ext_resource type="Texture2D" uid="uid://bqcsk8ymyq7c4" path="res://Assets/options_button.png" id="4_prlk2"]
+[ext_resource type="Script" path="res://scripts/MainMenu.cs" id="1_1p1iq"]
+[ext_resource type="Texture2D" uid="uid://sk6v4qujy3lj" path="res://assets/logo.png" id="1_eif5b"]
+[ext_resource type="Texture2D" uid="uid://cae4tl4xys48m" path="res://assets/local_button.png" id="2_6i0ne"]
+[ext_resource type="Texture2D" uid="uid://wolbn5saws5y" path="res://assets/online_button.png" id="3_ek7xw"]
+[ext_resource type="Texture2D" uid="uid://bqcsk8ymyq7c4" path="res://assets/options_button.png" id="4_prlk2"]
 
 [node name="Main Menu" type="Control"]
 layout_mode = 3

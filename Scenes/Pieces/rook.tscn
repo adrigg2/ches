@@ -1,9 +1,9 @@
 [gd_scene load_steps=5 format=3 uid="uid://bqtiubomaw007"]
 
-[ext_resource type="Script" path="res://Scripts/Piece.cs" id="1_3cd40"]
-[ext_resource type="Texture2D" uid="uid://b6kegkgmui144" path="res://Assets/Sprites/rook_w.png" id="1_l7rnk"]
-[ext_resource type="Shape2D" uid="uid://dg5lhu0e8vi5l" path="res://Assets/piece_shape.tres" id="2_hql7u"]
-[ext_resource type="Texture2D" uid="uid://cwucewicglrsn" path="res://Assets/Sprites/rook_b.png" id="2_we2y6"]
+[ext_resource type="Script" path="res://scripts/Piece.cs" id="1_3cd40"]
+[ext_resource type="Texture2D" uid="uid://b6kegkgmui144" path="res://assets/sprites/rook_w.png" id="1_l7rnk"]
+[ext_resource type="Shape2D" uid="uid://dg5lhu0e8vi5l" path="res://assets/piece_shape.tres" id="2_hql7u"]
+[ext_resource type="Texture2D" uid="uid://cwucewicglrsn" path="res://assets/sprites/rook_b.png" id="2_we2y6"]
 
 [node name="Rook" type="CharacterBody2D"]
 input_pickable = true

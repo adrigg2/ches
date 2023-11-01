@@ -37,7 +37,7 @@ public partial class Board : TileMap
 
         EmitSignal(SignalName.boardCellCount, 8, 8);
 
-        player = (PackedScene)ResourceLoader.Load("res://Scenes/player.tscn");
+        player = (PackedScene)ResourceLoader.Load("res://scenes/player.tscn");
 
         for (int i = 1; i < 3; i++)
         {

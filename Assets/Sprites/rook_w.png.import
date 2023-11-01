@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b6kegkgmui144"
-path="res://.godot/imported/rook_w.png-1e60695a37d1fd06e815dade19f259b4.ctex"
+path="res://.godot/imported/rook_w.png-13567cc4334b2b17b9f1751e6f009246.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/Sprites/rook_w.png"
-dest_files=["res://.godot/imported/rook_w.png-1e60695a37d1fd06e815dade19f259b4.ctex"]
+source_file="res://assets/sprites/rook_w.png"
+dest_files=["res://.godot/imported/rook_w.png-13567cc4334b2b17b9f1751e6f009246.ctex"]
 
 [params]
 

@@ -47,12 +47,12 @@ public partial class Player : Node2D
         Connect("checkFinished", master1);
         Connect("checkmate", master2);
 
-        pawn = (PackedScene)ResourceLoader.Load("res://Scenes/Pieces/pawn.tscn");
-        rook = (PackedScene)ResourceLoader.Load("res://Scenes/Pieces/rook.tscn");
-        knight = (PackedScene)ResourceLoader.Load("res://Scenes/Pieces/knight.tscn");
-        bishop = (PackedScene)ResourceLoader.Load("res://Scenes/Pieces/bishop.tscn");
-        king = (PackedScene)ResourceLoader.Load("res://Scenes/Pieces/king.tscn");
-        queen = (PackedScene)ResourceLoader.Load("res://Scenes/Pieces/queen.tscn");
+        pawn = (PackedScene)ResourceLoader.Load("res://scenes/pieces/pawn.tscn");
+        rook = (PackedScene)ResourceLoader.Load("res://scenes/pieces/rook.tscn");
+        knight = (PackedScene)ResourceLoader.Load("res://scenes/pieces/knight.tscn");
+        bishop = (PackedScene)ResourceLoader.Load("res://scenes/pieces/bishop.tscn");
+        king = (PackedScene)ResourceLoader.Load("res://scenes/pieces/king.tscn");
+        queen = (PackedScene)ResourceLoader.Load("res://scenes/pieces/queen.tscn");
 
         if (playerNum == 1)
         {

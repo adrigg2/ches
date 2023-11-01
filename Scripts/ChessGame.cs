@@ -34,7 +34,7 @@ public partial class ChessGame : Node2D
 
     public override void _Ready()
 	{
-        board = (PackedScene)ResourceLoader.Load("res://Scenes/Scenery/board.tscn");
+        board = (PackedScene)ResourceLoader.Load("res://scenes/scenery/board.tscn");
         TileMap board_ = (TileMap)board.Instantiate();
         AddChild(board_);
         board_.Position = new Vector2(256, 64);

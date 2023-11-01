@@ -1,19 +1,19 @@
 [gd_scene load_steps=10 format=3 uid="uid://dvgrvy1lc6671"]
 
-[ext_resource type="Script" path="res://Scripts/PromotionSelection.cs" id="1_jdoeg"]
-[ext_resource type="Texture2D" uid="uid://bsb4hneh7mvba" path="res://Assets/Sprites/queen_w.png" id="2_omdqc"]
-[ext_resource type="Texture2D" uid="uid://d2g7amdadoa6a" path="res://Assets/Sprites/queen_b.png" id="3_2o5x1"]
-[ext_resource type="Texture2D" uid="uid://b6kegkgmui144" path="res://Assets/Sprites/rook_w.png" id="4_p7txj"]
-[ext_resource type="Texture2D" uid="uid://cwucewicglrsn" path="res://Assets/Sprites/rook_b.png" id="5_yby7r"]
-[ext_resource type="Texture2D" uid="uid://ckl1hkr6nxs8s" path="res://Assets/Sprites/bishop_w.png" id="6_mdfnw"]
-[ext_resource type="Texture2D" uid="uid://bi2fmdbq1i1nw" path="res://Assets/Sprites/bishop_b.png" id="7_03vxl"]
-[ext_resource type="Texture2D" uid="uid://dyaby14uethli" path="res://Assets/Sprites/knight_w.png" id="8_yp8uj"]
-[ext_resource type="Texture2D" uid="uid://753wm1giqxs3" path="res://Assets/Sprites/knight_b.png" id="9_3ptsm"]
+[ext_resource type="Script" path="res://scripts/PromotionSelection.cs" id="1_45qbu"]
+[ext_resource type="Texture2D" uid="uid://bsb4hneh7mvba" path="res://assets/sprites/queen_w.png" id="2_j4uxb"]
+[ext_resource type="Texture2D" uid="uid://d2g7amdadoa6a" path="res://assets/sprites/queen_b.png" id="3_6qhtm"]
+[ext_resource type="Texture2D" uid="uid://b6kegkgmui144" path="res://assets/sprites/rook_w.png" id="4_xebrr"]
+[ext_resource type="Texture2D" uid="uid://cwucewicglrsn" path="res://assets/sprites/rook_b.png" id="5_nk6ns"]
+[ext_resource type="Texture2D" uid="uid://ckl1hkr6nxs8s" path="res://assets/sprites/bishop_w.png" id="6_63lqi"]
+[ext_resource type="Texture2D" uid="uid://bi2fmdbq1i1nw" path="res://assets/sprites/bishop_b.png" id="7_17s2u"]
+[ext_resource type="Texture2D" uid="uid://dyaby14uethli" path="res://assets/sprites/knight_w.png" id="8_mwgrs"]
+[ext_resource type="Texture2D" uid="uid://753wm1giqxs3" path="res://assets/sprites/knight_b.png" id="9_i2bs8"]
 
 [node name="PromotionSelection" type="Control"]
 layout_mode = 3
 anchors_preset = 0
-script = ExtResource("1_jdoeg")
+script = ExtResource("1_45qbu")
 
 [node name="SelectionContainer" type="VBoxContainer" parent="."]
 layout_mode = 0
@@ -22,20 +22,20 @@ offset_bottom = 40.0
 
 [node name="Queen" type="Button" parent="SelectionContainer"]
 layout_mode = 2
-icon = ExtResource("2_omdqc")
-metadata/Black_Texture = ExtResource("3_2o5x1")
+icon = ExtResource("2_j4uxb")
+metadata/Black_Texture = ExtResource("3_6qhtm")
 
 [node name="Rook" type="Button" parent="SelectionContainer"]
 layout_mode = 2
-icon = ExtResource("4_p7txj")
-metadata/Black_Texture = ExtResource("5_yby7r")
+icon = ExtResource("4_xebrr")
+metadata/Black_Texture = ExtResource("5_nk6ns")
 
 [node name="Bishop" type="Button" parent="SelectionContainer"]
 layout_mode = 2
-icon = ExtResource("6_mdfnw")
-metadata/Black_Texture = ExtResource("7_03vxl")
+icon = ExtResource("6_63lqi")
+metadata/Black_Texture = ExtResource("7_17s2u")
 
 [node name="Knight" type="Button" parent="SelectionContainer"]
 layout_mode = 2
-icon = ExtResource("8_yp8uj")
-metadata/Black_Texture = ExtResource("9_3ptsm")
+icon = ExtResource("8_mwgrs")
+metadata/Black_Texture = ExtResource("9_i2bs8")

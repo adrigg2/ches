@@ -15,7 +15,7 @@ public partial class MainMenu : Control
 
     private void LocalSelected()
     {
-        GetTree().ChangeSceneToFile("res://Scenes/chess_game.tscn");
+        GetTree().ChangeSceneToFile("res://scenes/chess_game.tscn");
     }
 
     private void OnlineSelected()
