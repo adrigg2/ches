@@ -1142,7 +1142,7 @@ public partial class Piece : CharacterBody2D
                     EmitSignal(SignalName.movementGeneration, movePos);
                     if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition != 0 && blockedPosition != player && checkId != 1))
                     {
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i), PATH);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, PATH);
                         break;
                     }
                     else if (blockedPosition != 0 && blockedPosition != player && checkId == 1)
@@ -1169,7 +1169,7 @@ public partial class Piece : CharacterBody2D
                     EmitSignal(SignalName.movementGeneration, movePos);
                     if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition != 0 && blockedPosition != player && checkId != 1))
                     {
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i), PATH);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, PATH);
                         break;
                     }
                     else if (blockedPosition != 0 && blockedPosition != player && checkId == 1)
@@ -1196,7 +1196,7 @@ public partial class Piece : CharacterBody2D
                     EmitSignal(SignalName.movementGeneration, movePos);
                     if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition != 0 && blockedPosition != player && checkId != 1))
                     {
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i), PATH);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, PATH);
                         break;
                     }
                     else if (blockedPosition != 0 && blockedPosition != player && checkId == 1)
@@ -1223,7 +1223,7 @@ public partial class Piece : CharacterBody2D
                     EmitSignal(SignalName.movementGeneration, movePos);
                     if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition != 0 && blockedPosition != player && checkId != 1))
                     {
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i), PATH);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, PATH);
                         break;
                     }
                     else if (blockedPosition != 0 && blockedPosition != player && checkId == 1)
@@ -1250,10 +1250,16 @@ public partial class Piece : CharacterBody2D
                 for (int i = -1; i > -8; i--)
                 {
                     movePos = Position + i * new Vector2(CELL_PIXELS, CELL_PIXELS);
+
+                    if (movePos == new Vector2(0, 0))
+                    {
+                        GD.Print($"TEST loop {Name} {player} {i}");
+                    }
+
                     EmitSignal(SignalName.movementGeneration, movePos);
                     if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition != 0 && blockedPosition != player && checkId != 1))
                     {
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i), PATH);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, PATH);
                         break;
                     }
                     else if (blockedPosition != 0 && blockedPosition != player && checkId == 1)
@@ -1277,10 +1283,16 @@ public partial class Piece : CharacterBody2D
                 for (int i = 1; i < 8; i++)
                 {
                     movePos = Position + i * new Vector2(CELL_PIXELS, CELL_PIXELS);
+
+                    if (movePos == new Vector2(0, 0))
+                    {
+                        GD.Print($"TEST loop {Name} {player} {i}");
+                    }
+
                     EmitSignal(SignalName.movementGeneration, movePos);
                     if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition != 0 && blockedPosition != player && checkId != 1))
                     {
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i), PATH);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, PATH);
                         break;
                     }
                     else if (blockedPosition != 0 && blockedPosition != player && checkId == 1)
@@ -1304,10 +1316,16 @@ public partial class Piece : CharacterBody2D
                 for (int i = -1; i > -8; i--)
                 {
                     movePos = Position + i * new Vector2(CELL_PIXELS, -CELL_PIXELS);
+
+                    if (movePos == new Vector2(0, 0))
+                    {
+                        GD.Print($"TEST loop {Name} {player} {i}");
+                    }
+
                     EmitSignal(SignalName.movementGeneration, movePos);
                     if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition != 0 && blockedPosition != player && checkId != 1))
                     {
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i), PATH);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, PATH);
                         break;
                     }
                     else if (blockedPosition != 0 && blockedPosition != player && checkId == 1)
@@ -1331,10 +1349,16 @@ public partial class Piece : CharacterBody2D
                 for (int i = 1; i < 8; i++)
                 {
                     movePos = Position + i * new Vector2(CELL_PIXELS, -CELL_PIXELS);
+
+                    if (movePos == new Vector2(0, 0))
+                    {
+                        GD.Print($"TEST loop {Name} {player} {i}");
+                    }
+
                     EmitSignal(SignalName.movementGeneration, movePos);
                     if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition != 0 && blockedPosition != player && checkId != 1))
                     {
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i), PATH);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, PATH);
                         break;
                     }
                     else if (blockedPosition != 0 && blockedPosition != player && checkId == 1)
@@ -1370,9 +1394,9 @@ public partial class Piece : CharacterBody2D
                     arrPos = board.LocalToMap(capturePos[i]);
                     GD.Print($"{arrPos} {Name} check array set");
 
-                    if (arrPos == new Vector2I(7, 4))
+                    if (capturePos[i] == new Vector2(0, 0) || arrPos == new Vector2I(0, 0))
                     {
-                        GD.Print($"{Name}, {checkSituation} SEES (7, 4)");
+                        GD.Print($"TEST check {Name} {player} {i}");
                     }
 
                     if (checkSituation == SEES_FRIENDLY_PIECE)
