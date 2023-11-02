@@ -846,7 +846,7 @@ public partial class Piece : CharacterBody2D
         }
         else
         {
-            EmitSignal(SignalName.pieceMoved, newPosition, oldPos, id, false);            
+            EmitSignal(SignalName.pieceMoved, newPosition, oldPos, id, false);
         }
 
         Vector2[] oldPositions = { oldPos, newPosition };
@@ -1957,7 +1957,9 @@ public partial class Piece : CharacterBody2D
         GD.Print("Finish castling 2");
         if (position == Position)
         {
+            Vector2 oldPos = Position;
             Position = newPosition;
+            EmitSignal(SignalName.pieceMoved, newPosition, oldPos, id, false);
         }
     }
 }
