@@ -81,8 +81,6 @@ public partial class Piece : CharacterBody2D
     PackedScene movement;
     PackedScene capture;
     PackedScene promotion;
-    Texture2D blackTexture;
-    Sprite2D sprite;
     Vector2 movePos;
     Vector2 oldPos1 = new Vector2();
     Vector2 newPos = new Vector2();
@@ -96,8 +94,6 @@ public partial class Piece : CharacterBody2D
 
     public override void _Ready()
     {
-        sprite = GetNode<Sprite2D>("Sprite2D");
-
         pieceType = (string)GetMeta("Piece_Type");
         player = (int)GetMeta("Player");
 
@@ -126,10 +122,10 @@ public partial class Piece : CharacterBody2D
             id = player * 10 + 5;
         }
 
-        blackTexture = (Texture2D)GetMeta("Black_Texture");
-
         if (player == 2)
         {
+            Sprite2D sprite = GetNode<Sprite2D>("Sprite2D");
+            Texture2D blackTexture = (Texture2D)GetMeta("Black_Texture");
             sprite.Texture = blackTexture;
         }
 
