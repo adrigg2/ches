@@ -36,10 +36,8 @@ public partial class PromotionSelection : Control
         GetParent().RemoveChild(this);
         newParent.AddChild(this);
 
-        Callable playerController = new Callable(newParent, "ConnectPromotedPiece");
-        Callable master1 = new Callable(master, "ConnectPromotedPiece");
-        Connect("pawnPromotion", playerController);
-        Connect("pawnPromotion", master1);
+        Connect("pawnPromotion", new Callable(newParent, "ConnectPromotedPiece"));
+        Connect("pawnPromotion", new Callable(master, "ConnectPromotedPiece"));
 
         int player = (int)pawn.Get("player");
 

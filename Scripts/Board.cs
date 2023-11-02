@@ -27,13 +27,9 @@ public partial class Board : TileMap
     public override void _Ready()
 	{
         Node2D master = GetNode<Node2D>("..");
-        Node2D master1 = GetNode<Node2D>("..");
-        Callable master_ = new Callable(master, "BoardCellCount");
-        Callable master1_ = new Callable(master1, "UpdateBoard");
-        Callable master2_ = new Callable(master1, "PlayersSet");
-        Connect("boardCellCount", master_);
-        Connect("updateBoard", master1_);
-        Connect("playersSet", master2_);
+        Connect("boardCellCount", new Callable(master, "BoardCellCount"));
+        Connect("updateBoard", new Callable(master, "UpdateBoard"));
+        Connect("playersSet", new Callable(master, "PlayersSet"));
 
         EmitSignal(SignalName.boardCellCount, 8, 8);
 
@@ -46,25 +42,6 @@ public partial class Board : TileMap
             AddChild(player_);
         }
         EmitSignal(SignalName.playersSet);
-    }
-
-    public void ConncectChildren()
-    {
-        foreach (Node player_ in GetChildren())
-        {
-            if (player_.HasMeta("player"))
-            {
-                foreach (Node piece_ in player_.GetChildren())
-                {
-                    if (piece_.HasMeta("Piece_Type"))
-                    {
-                        Callable piece = new Callable(piece_, "SetCheck");
-                        Connect("setCheck", piece);
-                        EmitSignal(SignalName.setCheck, 8, 8);
-                    }
-                }
-            }
-        }
     }
 
     public void UpdateTiles(Vector2 position, Vector2I cellAtlas)

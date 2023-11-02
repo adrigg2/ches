@@ -20,18 +20,15 @@ public partial class Movement : CharacterBody2D
         TileMap newParent = GetNode<TileMap>("../../..");
         CharacterBody2D ogParent = (CharacterBody2D)GetParent();
 
-        Callable _ogParent = new Callable(ogParent, "MovementSelected");
-        Connect("moveSelected", _ogParent);
+        Connect("moveSelected", new Callable(ogParent, "MovementSelected"));
 
         GetParent().RemoveChild(this);
         newParent.AddChild(this);
 
         isCapture = (bool)GetMeta("Is_Capture");
 
-        Callable _master = new Callable(master, "DisableMovement");
-        Callable _master1 = new Callable(master, "Capture");
-        Connect("pieceSelected", _master);
-        Connect("capture", _master1);
+        Connect("pieceSelected", new Callable(master, "DisableMovement"));
+        Connect("capture", new Callable(master, "Capture"));
     }
     public override void _InputEvent(Viewport viewport, InputEvent @event, int shapeIdx)
     {

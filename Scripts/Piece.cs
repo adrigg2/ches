@@ -136,36 +136,21 @@ public partial class Piece : CharacterBody2D
         Node2D master = GetNode<Node2D>("../../..");
         Node2D playerController = GetNode<Node2D>("..");
 
-        Callable master0 = new Callable(master, "DisableMovement");
-        Callable master1 = new Callable(master, "UpdateBoard");
-        Callable master2 = new Callable(master, "MovementCheck");
-        Callable master3 = new Callable(master, "Check");
-        Callable master4 = new Callable(master, "CheckCheck");
-        Callable master5 = new Callable(master, "CheckArrayCheck");
-        Callable master6 = new Callable(master, "ClearEnPassant");
-        Callable board0 = new Callable(board, "UpdateTiles");
-        Callable board1 = new Callable(board, "StorePos");
-        Callable playerController0 = new Callable(playerController, "CheckUpdate");
-        Callable playerController1 = new Callable(playerController, "PlayerInCheck");
-        Callable playerController2 = new Callable(playerController, "CheckmateCheck");
-        Callable playerController3 = new Callable(playerController, "CastlingSetup");
-        Callable playerController4 = new Callable(playerController, "AllowCastling");
-        Callable playerController5 = new Callable(playerController, "Castle");
-        Connect("pieceSelected", master0);
-        Connect("pieceMoved", master1);
-        Connect("movementGeneration", master2);
-        Connect("updateCheck", master3);
-        Connect("checkCheck", master4);
-        Connect("checkArrayCheck", master5);
-        Connect("clearEnPassant", master6);
-        Connect("updateTiles", board0);
-        Connect("storeOldPositions", board1);
-        Connect("checkUpdated", playerController0);
-        Connect("playerInCheck", playerController1);
-        Connect("checkmateCheck", playerController2);
-        Connect("castlingSetup", playerController3);
-        Connect("allowCastling", playerController4);
-        Connect("moveRook", playerController5);
+        Connect("pieceSelected", new Callable(master, "DisableMovement"));
+        Connect("pieceMoved", new Callable(master, "UpdateBoard"));
+        Connect("movementGeneration", new Callable(master, "MovementCheck"));
+        Connect("updateCheck", new Callable(master, "MovementCheck"));
+        Connect("checkCheck", new Callable(master, "CheckCheck"));
+        Connect("checkArrayCheck", new Callable(master, "CheckArrayCheck"));
+        Connect("clearEnPassant", new Callable(master, "ClearEnPassant"));
+        Connect("updateTiles", new Callable(board, "UpdateTiles"));
+        Connect("storeOldPositions", new Callable(board, "StorePos"));
+        Connect("checkUpdated", new Callable(playerController, "CheckUpdate"));
+        Connect("playerInCheck", new Callable(playerController, "PlayerInCheck"));
+        Connect("checkmateCheck", new Callable(playerController, "CheckmateCheck"));
+        Connect("castlingSetup", new Callable(playerController, "CastlingSetup"));
+        Connect("allowCastling", new Callable(playerController, "AllowCastling"));
+        Connect("moveRook", new Callable(playerController, "Castle"));
     }
 
     public override void _InputEvent(Viewport viewport, InputEvent @event, int shapeIdx)
@@ -896,15 +881,13 @@ public partial class Piece : CharacterBody2D
     {
         if (pieceType == "pawn" && enPassant && (_capturePos == Position - new Vector2 (0, CELL_PIXELS) || _capturePos == Position + new Vector2(0, CELL_PIXELS)))
         {
-            Callable _ogCapture = new Callable(_capture, "Captured");
-            Connect("tree_exited", _ogCapture);
+            Connect("tree_exited", new Callable(_capture, "Captured"));
             EmitSignal(SignalName.clearEnPassant, player);
             QueueFree();
         }
         else if (_capturePos == Position)
         {
-            Callable _ogCapture = new Callable(_capture, "Captured");
-            Connect("tree_exited", _ogCapture);
+            Connect("tree_exited", new Callable(_capture, "Captured"));
             QueueFree();
         }
     }

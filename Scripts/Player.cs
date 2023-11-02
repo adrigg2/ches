@@ -40,12 +40,9 @@ public partial class Player : Node2D
         GD.Print(playerNum, "player");
 
         Node2D master = GetNode<Node2D>("../..");
-        Callable master_ = new Callable(master, "UpdateBoard");
-        Callable master1 = new Callable(master, "CheckFinished");
-        Callable master2 = new Callable(master, "Checkmate");
-        Connect("updateBoard", master_);
-        Connect("checkFinished", master1);
-        Connect("checkmate", master2);
+        Connect("updateBoard", new Callable(master, "UpdateBoard"));
+        Connect("checkFinished", new Callable(master, "CheckFinished"));
+        Connect("checkmate", new Callable(master, "Checkmate"));
 
         pawn = (PackedScene)ResourceLoader.Load("res://scenes/pieces/pawn.tscn");
         rook = (PackedScene)ResourceLoader.Load("res://scenes/pieces/rook.tscn");
@@ -112,14 +109,10 @@ public partial class Player : Node2D
 
         piece.SetMeta("Player", playerNum);
         AddChild(piece);
-        Callable pieceCallable = new Callable(piece, "SetCheck");
-        Callable pieceCallable1 = new Callable(piece, "FirstMovementCheck");
-        Callable pieceCallable2 = new Callable(piece, "Castling");
-        Callable pieceCallable3 = new Callable(piece, "Castle");
-        Connect("check", pieceCallable);
-        Connect("checkRook", pieceCallable1);
-        Connect("castlingAllowed", pieceCallable2);
-        Connect("finishCastling", pieceCallable3);
+        Connect("check", new Callable(piece, "SetCheck"));
+        Connect("checkRook", new Callable(piece, "FirstMovementCheck"));
+        Connect("castlingAllowed", new Callable(piece, "Castling"));
+        Connect("finishCastling", new Callable(piece, "Castle"));
         int id = (int)piece.Get("id");
         cell = icell + i * cells;
         ipos = SetPos(cell);
@@ -205,14 +198,10 @@ public partial class Player : Node2D
     public void ConnectPromotedPiece(CharacterBody2D piece)
     {
         GD.Print($"Connecting {piece.Name} to player");
-        Callable pieceCallable = new Callable(piece, "SetCheck");
-        Callable pieceCallable1 = new Callable(piece, "FirstMovementCheck");
-        Callable pieceCallable2 = new Callable(piece, "Castling");
-        Callable pieceCallable3 = new Callable(piece, "Castle");
-        Connect("check", pieceCallable);
-        Connect("checkRook", pieceCallable1);
-        Connect("castlingAllowed", pieceCallable2);
-        Connect("finishCastling", pieceCallable3);
+        Connect("check", new Callable(piece, "SetCheck"));
+        Connect("checkRook", new Callable(piece, "FirstMovementCheck"));
+        Connect("castlingAllowed", new Callable(piece, "Castling"));
+        Connect("finishCastling", new Callable(piece, "Castle"));
         GD.Print($"Finished connecting {piece.Name} to player");
     }
 }

@@ -52,8 +52,7 @@ public partial class ChessGame : Node2D
         {
             if (moveOption.HasMeta("Is_Capture"))
             {
-                Callable moveOption_ = new Callable(moveOption, "DestroyMovePos");
-                Connect("destroyMovement", moveOption_);
+                Connect("destroyMovement", new Callable(moveOption, "DestroyMovePos"));
             }
         }
         GD.Print("Loop ended");
@@ -148,18 +147,12 @@ public partial class ChessGame : Node2D
                     if (piece_.HasMeta("Piece_Type"))
                     {
                         GD.Print("Piece ", piece_.Name);
-                        Callable piece = new Callable(piece_, "MovementCheck");
-                        Callable piece1 = new Callable(piece_, "ChangeTurn");
-                        Callable piece2 = new Callable(piece_, "Capture");
-                        Callable piece3 = new Callable(piece_, "Check");
-                        Callable piece4 = new Callable(piece_, "CheckCheckState");
-                        Callable piece5 = new Callable(piece_, "CheckCheck");
-                        Connect("moveCheck", piece);
-                        Connect("changeTurn", piece1);
-                        Connect("setCapture", piece2);
-                        Connect("returnCheck", piece3);
-                        Connect("checkCheck", piece4);
-                        Connect("returnCheckArray", piece5);
+                        Connect("moveCheck", new Callable(piece_, "MovementCheck"));
+                        Connect("changeTurn", new Callable(piece_, "ChangeTurn"));
+                        Connect("setCapture", new Callable(piece_, "Capture"));
+                        Connect("returnCheck", new Callable(piece_, "Check"));
+                        Connect("checkCheck", new Callable(piece_, "CheckCheckState"));
+                        Connect("returnCheckArray", new Callable(piece_, "CheckCheck"));
                     }
                 }
             }
@@ -328,18 +321,12 @@ public partial class ChessGame : Node2D
         Camera2D camera = GetNode<Camera2D>("Camera2D");
 
         GD.Print($"Connecting {piece.Name} to master");
-        Callable piece0 = new Callable(piece, "MovementCheck");
-        Callable piece1 = new Callable(piece, "ChangeTurn");
-        Callable piece2 = new Callable(piece, "Capture");
-        Callable piece3 = new Callable(piece, "Check");
-        Callable piece4 = new Callable(piece, "CheckCheckState");
-        Callable piece5 = new Callable(piece, "CheckCheck");
-        Connect("moveCheck", piece0);
-        Connect("changeTurn", piece1);
-        Connect("setCapture", piece2);
-        Connect("returnCheck", piece3);
-        Connect("checkCheck", piece4);
-        Connect("returnCheckArray", piece5);
+        Connect("moveCheck", new Callable(piece, "MovementCheck"));
+        Connect("changeTurn", new Callable(piece, "ChangeTurn"));
+        Connect("setCapture", new Callable(piece, "Capture"));
+        Connect("returnCheck", new Callable(piece, "Check"));
+        Connect("checkCheck", new Callable(piece, "CheckCheckState"));
+        Connect("returnCheckArray", new Callable(piece, "CheckCheck"));
         GD.Print($"Finished connecting {piece.Name} to master");
 
         if (player == 1)
