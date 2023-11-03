@@ -10,7 +10,7 @@ public partial class ChessGame : Node2D
     public delegate void destroyMovementEventHandler();
 
     [Signal]
-    public delegate void moveCheckEventHandler();
+    public delegate void moveCheckEventHandler(); //DELETE
 
     [Signal]
     public delegate void changeTurnEventHandler();
@@ -127,12 +127,13 @@ public partial class ChessGame : Node2D
         DebugTracking(); //DEBUG
     }
 
-    public void MovementCheck(Vector2 posCheck)
+    public int MovementCheck(Vector2 posCheck) //REWRITE
     {
         Vector2I arrPos;
         TileMap board_ = GetNode<TileMap>("Board");
         arrPos = board_.LocalToMap(posCheck);
-        EmitSignal(SignalName.moveCheck, boardCells[arrPos.X, arrPos.Y]);
+        //EmitSignal(SignalName.moveCheck, boardCells[arrPos.X, arrPos.Y]);
+        return boardCells[arrPos.X, arrPos.Y];
     }
 
     public void PlayersSet()
@@ -147,12 +148,13 @@ public partial class ChessGame : Node2D
                     if (piece_.HasMeta("Piece_Type"))
                     {
                         GD.Print("Piece ", piece_.Name);
-                        Connect("moveCheck", new Callable(piece_, "MovementCheck"));
                         Connect("changeTurn", new Callable(piece_, "ChangeTurn"));
                         Connect("setCapture", new Callable(piece_, "Capture"));
                         Connect("returnCheck", new Callable(piece_, "Check"));
                         Connect("checkCheck", new Callable(piece_, "CheckCheckState"));
                         Connect("returnCheckArray", new Callable(piece_, "CheckCheck"));
+
+                        piece_.Set("movementCheck", new Callable(this, "MovementCheck"));
                     }
                 }
             }
@@ -321,7 +323,7 @@ public partial class ChessGame : Node2D
         Camera2D camera = GetNode<Camera2D>("Camera2D");
 
         GD.Print($"Connecting {piece.Name} to master");
-        Connect("moveCheck", new Callable(piece, "MovementCheck"));
+        Connect("moveCheck", new Callable(piece, "MovementCheck")); //DELETE
         Connect("changeTurn", new Callable(piece, "ChangeTurn"));
         Connect("setCapture", new Callable(piece, "Capture"));
         Connect("returnCheck", new Callable(piece, "Check"));
