@@ -18,9 +18,6 @@ public partial class ChessGame : Node2D
     [Signal]
     public delegate void checkCheckEventHandler();
 
-    [Signal]
-    public delegate void returnCheckArrayEventHandler();
-
     PackedScene board;
 
     int[,] boardCells;
@@ -144,10 +141,10 @@ public partial class ChessGame : Node2D
                         Connect("changeTurn", new Callable(piece, "ChangeTurn"));
                         Connect("setCapture", new Callable(piece, "Capture"));
                         Connect("checkCheck", new Callable(piece, "CheckCheckState"));
-                        Connect("returnCheckArray", new Callable(piece, "CheckCheck"));
 
                         piece.Set("movementCheck", new Callable(this, "MovementCheck"));
                         piece.Set("checkCheck", new Callable(this, "CheckCheck"));
+                        piece.Set("checkArrayCheck", new Callable(this, "CheckArrayCheck"));
                     }
                 }
             }
@@ -249,14 +246,14 @@ public partial class ChessGame : Node2D
         EmitSignal(SignalName.checkCheck);
     }
 
-    public void CheckArrayCheck(Vector2 posCheck)
+    public int CheckArrayCheck(Vector2 posCheck) //REWRITE
     {
         GD.Print("CheckArrayCheck in process");
         Vector2I arrPos;
         TileMap board_ = GetNode<TileMap>("Board");
         arrPos = board_.LocalToMap(posCheck);
         GD.Print("Check array ", boardCellsCheck[arrPos.X, arrPos.Y]);
-        EmitSignal(SignalName.returnCheckArray, boardCellsCheck[arrPos.X, arrPos.Y]);
+        return boardCellsCheck[arrPos.X, arrPos.Y];
     }
 
     public void Checkmate(int looser)
@@ -319,11 +316,11 @@ public partial class ChessGame : Node2D
         Connect("changeTurn", new Callable(piece, "ChangeTurn"));
         Connect("setCapture", new Callable(piece, "Capture"));
         Connect("checkCheck", new Callable(piece, "CheckCheckState"));
-        Connect("returnCheckArray", new Callable(piece, "CheckCheck"));
         GD.Print($"Finished connecting {piece.Name} to master");
 
         piece.Set("movementCheck", new Callable(this, "MovementCheck"));
         piece.Set("checkCheck", new Callable(this, "CheckCheck"));
+        piece.Set("checkArrayCheck", new Callable(this, "CheckArrayCheck"));
 
         if (player == 1)
         {
