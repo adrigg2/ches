@@ -10,9 +10,6 @@ public partial class ChessGame : Node2D
     public delegate void destroyMovementEventHandler();
 
     [Signal]
-    public delegate void moveCheckEventHandler(); //DELETE
-
-    [Signal]
     public delegate void changeTurnEventHandler();
 
     [Signal]
@@ -127,12 +124,11 @@ public partial class ChessGame : Node2D
         DebugTracking(); //DEBUG
     }
 
-    public int MovementCheck(Vector2 posCheck) //REWRITE
+    public int MovementCheck(Vector2 posCheck)
     {
         Vector2I arrPos;
         TileMap board_ = GetNode<TileMap>("Board");
         arrPos = board_.LocalToMap(posCheck);
-        //EmitSignal(SignalName.moveCheck, boardCells[arrPos.X, arrPos.Y]);
         return boardCells[arrPos.X, arrPos.Y];
     }
 
@@ -323,13 +319,14 @@ public partial class ChessGame : Node2D
         Camera2D camera = GetNode<Camera2D>("Camera2D");
 
         GD.Print($"Connecting {piece.Name} to master");
-        Connect("moveCheck", new Callable(piece, "MovementCheck")); //DELETE
         Connect("changeTurn", new Callable(piece, "ChangeTurn"));
         Connect("setCapture", new Callable(piece, "Capture"));
         Connect("returnCheck", new Callable(piece, "Check"));
         Connect("checkCheck", new Callable(piece, "CheckCheckState"));
         Connect("returnCheckArray", new Callable(piece, "CheckCheck"));
         GD.Print($"Finished connecting {piece.Name} to master");
+
+        piece.Set("movementCheck", new Callable(this, "MovementCheck"));
 
         if (player == 1)
         {
