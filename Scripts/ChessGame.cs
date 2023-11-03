@@ -16,9 +16,6 @@ public partial class ChessGame : Node2D
     public delegate void setCaptureEventHandler();
 
     [Signal]
-    public delegate void returnCheckEventHandler();
-
-    [Signal]
     public delegate void checkCheckEventHandler();
 
     [Signal]
@@ -139,18 +136,18 @@ public partial class ChessGame : Node2D
         {
             if (player_.HasMeta("player"))
             {
-                foreach (Node piece_ in player_.GetChildren())
+                foreach (Node piece in player_.GetChildren())
                 {
-                    if (piece_.HasMeta("Piece_Type"))
+                    if (piece.HasMeta("Piece_Type"))
                     {
-                        GD.Print("Piece ", piece_.Name);
-                        Connect("changeTurn", new Callable(piece_, "ChangeTurn"));
-                        Connect("setCapture", new Callable(piece_, "Capture"));
-                        Connect("returnCheck", new Callable(piece_, "Check"));
-                        Connect("checkCheck", new Callable(piece_, "CheckCheckState"));
-                        Connect("returnCheckArray", new Callable(piece_, "CheckCheck"));
+                        GD.Print("Piece ", piece.Name);
+                        Connect("changeTurn", new Callable(piece, "ChangeTurn"));
+                        Connect("setCapture", new Callable(piece, "Capture"));
+                        Connect("checkCheck", new Callable(piece, "CheckCheckState"));
+                        Connect("returnCheckArray", new Callable(piece, "CheckCheck"));
 
-                        piece_.Set("movementCheck", new Callable(this, "MovementCheck"));
+                        piece.Set("movementCheck", new Callable(this, "MovementCheck"));
+                        piece.Set("checkCheck", new Callable(this, "CheckCheck"));
                     }
                 }
             }
@@ -237,14 +234,14 @@ public partial class ChessGame : Node2D
         DebugTracking(); //DEBUG
     }
 
-    public void CheckCheck(Vector2 posCheck)
+    public int CheckCheck(Vector2 posCheck)
     {
         Vector2I arrPos;
         TileMap board_ = GetNode<TileMap>("Board");
         arrPos = board_.LocalToMap(posCheck);
         GD.Print(arrPos, " check check");
         GD.Print(boardCellsCheck[arrPos.X, arrPos.Y], " check check");
-        EmitSignal(SignalName.returnCheck, boardCellsCheck[arrPos.X, arrPos.Y]);
+        return boardCellsCheck[arrPos.X, arrPos.Y];
     }
 
     public void CheckFinished()
@@ -321,12 +318,12 @@ public partial class ChessGame : Node2D
         GD.Print($"Connecting {piece.Name} to master");
         Connect("changeTurn", new Callable(piece, "ChangeTurn"));
         Connect("setCapture", new Callable(piece, "Capture"));
-        Connect("returnCheck", new Callable(piece, "Check"));
         Connect("checkCheck", new Callable(piece, "CheckCheckState"));
         Connect("returnCheckArray", new Callable(piece, "CheckCheck"));
         GD.Print($"Finished connecting {piece.Name} to master");
 
         piece.Set("movementCheck", new Callable(this, "MovementCheck"));
+        piece.Set("checkCheck", new Callable(this, "CheckCheck"));
 
         if (player == 1)
         {

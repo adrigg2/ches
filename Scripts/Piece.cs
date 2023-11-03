@@ -14,9 +14,6 @@ public partial class Piece : CharacterBody2D
     public delegate void updateCheckEventHandler();
 
     [Signal]
-    public delegate void checkCheckEventHandler();
-
-    [Signal]
     public delegate void checkUpdatedEventHandler();
 
     [Signal]
@@ -76,6 +73,7 @@ public partial class Piece : CharacterBody2D
     const int KING_IN_CHECK = 8;
 
     public Callable movementCheck;
+    public Callable checkCheck;
 
     PackedScene movement;
     PackedScene capture;
@@ -135,8 +133,7 @@ public partial class Piece : CharacterBody2D
 
         Connect("pieceSelected", new Callable(master, "DisableMovement"));
         Connect("pieceMoved", new Callable(master, "UpdateBoard"));
-        Connect("updateCheck", new Callable(master, "MovementCheck"));
-        Connect("checkCheck", new Callable(master, "CheckCheck"));
+        Connect("updateCheck", new Callable(master, "Check"));
         Connect("checkArrayCheck", new Callable(master, "CheckArrayCheck"));
         Connect("clearEnPassant", new Callable(master, "ClearEnPassant"));
         Connect("updateTiles", new Callable(board, "UpdateTiles"));
@@ -1457,10 +1454,13 @@ public partial class Piece : CharacterBody2D
         EmitSignal(SignalName.checkUpdated);
     }
 
-    public void Check(int check)
+    public void CheckCheckState()
     {
         if (pieceType == "king" && turn == player)
         {
+            GD.Print(player, " is checking wether he is on check");
+            int check = (int)checkCheck.Call(Position);
+
             if (check == KING_IN_CHECK)
             {
                 isInCheck = true;
@@ -1469,15 +1469,6 @@ public partial class Piece : CharacterBody2D
                 EmitSignal(SignalName.updateTiles, Position, new Vector2I(1, 2));
                 EmitSignal(SignalName.playerInCheck, true);
             }
-        }
-    }
-
-    public void CheckCheckState()
-    {
-        if (pieceType == "king" && turn == player)
-        {
-            GD.Print(player, " is checking wether he is on check");
-            EmitSignal(SignalName.checkCheck, Position);
         }
     }
 
