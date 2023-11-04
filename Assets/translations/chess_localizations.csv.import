@@ -1,0 +1,17 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://djcy4gcv6rwp7"
+
+[deps]
+
+files=["res://assets/translations/chess_localizations.en.translation", "res://assets/translations/chess_localizations.es.translation"]
+
+source_file="res://assets/translations/chess_localizations.csv"
+dest_files=["res://assets/translations/chess_localizations.en.translation", "res://assets/translations/chess_localizations.es.translation"]
+
+[params]
+
+compress=true
+delimiter=0

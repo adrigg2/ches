@@ -39,6 +39,10 @@ piece_interaction={
 ]
 }
 
+[internationalization]
+
+locale/translations=PackedStringArray("res://assets/translations/chess_localizations.csv", "res://assets/translations/chess_localizations.en.translation", "res://assets/translations/chess_localizations.es.translation")
+
 [rendering]
 
 textures/canvas_textures/default_texture_filter=0
