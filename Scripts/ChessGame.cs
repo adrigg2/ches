@@ -90,6 +90,7 @@ public partial class ChessGame : Node2D
         Vector2I oldArrPos;
         TileMap board_ = GetNode<TileMap>("Board");
         Camera2D camera = GetNode<Camera2D>("Camera2D");
+        Button reset = GetNode<Button>("Button");
 
         arrPos = board_.LocalToMap(piecePos);
         oldArrPos = board_.LocalToMap(oldPos);
@@ -106,11 +107,15 @@ public partial class ChessGame : Node2D
             if (player / 10 == 1)
             {
                 camera.Zoom = new Vector2(-1, -1);
+                reset.Scale = new Vector2(-1, -1);
+                reset.Position = new Vector2(748, 91);
                 EmitSignal(SignalName.changeTurn, 2);
             } 
             else if (player / 10 == 2)
             {
-                camera.Zoom = new Vector2(1, 1);
+                camera.Zoom = new Vector2(1, 1);                
+                reset.Scale = new Vector2(1, 1);
+                reset.Position = new Vector2(20, 293);
                 EmitSignal(SignalName.changeTurn, 1);
             }
         }
@@ -261,24 +266,27 @@ public partial class ChessGame : Node2D
         Label winnerText = GetNode<Label>("EndGame");
         Label debug1 = GetNode<Label>("DebugTracker"); //DEBUG
         Label debug2 = GetNode<Label>("DebugTracker2"); //DEBUG
-        Camera2D camera = GetNode<Camera2D>("Camera2D");
         Button button = GetNode<Button>("Button");
-
-        camera.Zoom = new Vector2(1, 1);
 
         winnerText.Visible = true;
         winnerText.MoveToFront();
+        button.MoveToFront();
         if (looser == 1)
         {
             winnerText.Text = "Black Wins";
-        } 
+            winnerText.Position = new Vector2(125, 102);
+            winnerText.Scale = new Vector2(6.12f, 2.72f);
+            button.Position = new Vector2(316, 215);
+            button.Scale = new Vector2(1, 1);
+        }
         else if (looser == 2)
         {
             winnerText.Text = "White Wins";
+            winnerText.Position = new Vector2(643, 282);
+            winnerText.Scale = new Vector2(-6.12f, -2.72f);
+            button.Position = new Vector2(452, 169);
+            button.Scale = new Vector2(-1, -1);
         }
-
-        button.Position = new Vector2(316, 215);
-        button.MoveToFront();
 
         debug1.Visible = false; //DEBUG
         debug2.Visible = false; //DEBUG
