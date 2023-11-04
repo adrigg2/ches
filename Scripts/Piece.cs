@@ -2,6 +2,8 @@ using Godot;
 using System;
 using System.Runtime.CompilerServices;
 
+namespace Chess;
+
 public partial class Piece : CharacterBody2D
 {
     [Signal]
@@ -26,7 +28,10 @@ public partial class Piece : CharacterBody2D
     public delegate void updateTilesEventHandler();
 
     [Signal]
-    public delegate void storeOldPositionsEventHandler();
+    public delegate void storePositionsEventHandler();
+
+    [Signal]
+    public delegate void clearOldPositionsEventHandler();
 
     [Signal]
     public delegate void castlingSetupEventHandler();
@@ -144,7 +149,8 @@ public partial class Piece : CharacterBody2D
         Connect("updateCheck", new Callable(master, "Check"));
         Connect("clearEnPassant", new Callable(master, "ClearEnPassant"));
         Connect("updateTiles", new Callable(board, "UpdateTiles"));
-        Connect("storeOldPositions", new Callable(board, "StorePos"));
+        Connect("storePositions", new Callable(board, "StorePositions"));
+        Connect("clearOldPositions", new Callable(board, "ClearOldPositions"));
         Connect("checkUpdated", new Callable(playerController, "CheckUpdate"));
         Connect("playerInCheck", new Callable(playerController, "PlayerInCheck"));
         Connect("checkmateCheck", new Callable(playerController, "CheckmateCheck"));
@@ -777,7 +783,8 @@ public partial class Piece : CharacterBody2D
         }
 
         Vector2[] oldPositions = { oldPos, newPosition };
-        EmitSignal(SignalName.storeOldPositions, oldPositions);
+        EmitSignal(SignalName.clearOldPositions);
+        EmitSignal(SignalName.storePositions, oldPositions);
         EmitSignal(SignalName.updateTiles, oldPos, new Vector2I(0, 1));
         EmitSignal(SignalName.updateTiles, newPosition, new Vector2I(1, 1));
     }

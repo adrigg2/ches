@@ -4,6 +4,8 @@ using System.Diagnostics.Metrics;
 using System.IO.Enumeration;
 using System.Xml;
 
+namespace Chess;
+
 public partial class ChessGame : Node2D
 {
     [Signal]

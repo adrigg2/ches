@@ -1,6 +1,9 @@
 using Godot;
 using System;
+using System.Linq;
 using System.Net.NetworkInformation;
+
+namespace Chess;
 
 public partial class Board : TileMap
 {
@@ -16,7 +19,7 @@ public partial class Board : TileMap
     [Signal]
     public delegate void playersSetEventHandler();
 
-    Vector2[] oldPositions;
+    Godot.Collections.Array oldPositions = new Godot.Collections.Array();
     PackedScene player;
 
     public override void _EnterTree()
@@ -74,15 +77,21 @@ public partial class Board : TileMap
         }
     }
 
-    public void StorePos(Vector2[] positions)
+    public void StorePositions(Vector2[] positions)
     {
-        if (oldPositions != null)
+        foreach (Vector2 pos in positions)
         {
-            foreach (Vector2 pos in oldPositions)
-            {
-                UpdateTiles(pos, new Vector2I(0, 0));
-            }
+            oldPositions.Add(pos);
         }
-        oldPositions = positions;
+    }
+
+    public void ClearOldPositions()
+    {
+        foreach (Vector2 pos in oldPositions)
+        {
+            UpdateTiles(pos, new Vector2I(0, 0));
+        }
+
+        oldPositions.Clear();
     }
 }

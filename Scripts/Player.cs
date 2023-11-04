@@ -2,6 +2,8 @@ using Godot;
 using GodotPlugins.Game;
 using System;
 
+namespace Chess;
+
 public partial class Player : Node2D
 {
     [Signal]

@@ -1,5 +1,8 @@
 using Godot;
 using System;
+using Chess;
+
+namespace Chess;
 
 public partial class Movement : CharacterBody2D
 {
