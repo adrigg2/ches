@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="Chess"
+config/name="Ches (with a  single s)"
 run/main_scene="res://scenes/main_menu.tscn"
 config/features=PackedStringArray("4.1", "C#", "Forward Plus")
 boot_splash/show_image=false
@@ -41,7 +41,10 @@ piece_interaction={
 
 [internationalization]
 
-locale/translations=PackedStringArray("res://assets/translations/chess_localizations.csv", "res://assets/translations/chess_localizations.en.translation", "res://assets/translations/chess_localizations.es.translation")
+locale/translation_remaps={
+"res://assets/options_button.png": PackedStringArray("res://assets/optionsbutton_es.png:es")
+}
+locale/translations=PackedStringArray("res://assets/translations/chess_localizations.en.translation", "res://assets/translations/chess_localizations.es.translation")
 
 [rendering]
 

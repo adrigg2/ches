@@ -275,7 +275,7 @@ public partial class ChessGame : Node2D
         button.MoveToFront();
         if (looser == 1)
         {
-            winnerText.Text = "Black Wins";
+            winnerText.Text = Tr("BLACK");
             winnerText.Position = new Vector2(125, 102);
             winnerText.Scale = new Vector2(6.12f, 2.72f);
             button.Position = new Vector2(316, 215);
@@ -283,7 +283,7 @@ public partial class ChessGame : Node2D
         }
         else if (looser == 2)
         {
-            winnerText.Text = "White Wins";
+            winnerText.Text = Tr("WHITE");
             winnerText.Position = new Vector2(643, 282);
             winnerText.Scale = new Vector2(-6.12f, -2.72f);
             button.Position = new Vector2(452, 169);
