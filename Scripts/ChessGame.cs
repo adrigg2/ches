@@ -276,16 +276,16 @@ public partial class ChessGame : Node2D
         if (looser == 1)
         {
             winnerText.Text = Tr("BLACK");
-            winnerText.Position = new Vector2(125, 102);
-            winnerText.Scale = new Vector2(6.12f, 2.72f);
+            winnerText.Position = new Vector2(0, 0);
+            winnerText.Scale = new Vector2(1, 1);
             button.Position = new Vector2(316, 215);
             button.Scale = new Vector2(1, 1);
         }
         else if (looser == 2)
         {
             winnerText.Text = Tr("WHITE");
-            winnerText.Position = new Vector2(643, 282);
-            winnerText.Scale = new Vector2(-6.12f, -2.72f);
+            winnerText.Position = new Vector2(768, 384);
+            winnerText.Scale = new Vector2(-1, -1);
             button.Position = new Vector2(452, 169);
             button.Scale = new Vector2(-1, -1);
         }

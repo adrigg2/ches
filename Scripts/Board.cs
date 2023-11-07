@@ -21,6 +21,7 @@ public partial class Board : TileMap
 
     Godot.Collections.Array oldPositions = new Godot.Collections.Array();
     PackedScene player;
+    Vector2 selectedPosition = new Vector2(-1, -1);
 
     public override void _EnterTree()
     {
@@ -71,18 +72,25 @@ public partial class Board : TileMap
                 }
             }
         }
+        else if (cellAtlas == new Vector2I(0, 3))
+        {
+            if (selectedPosition != new Vector2(-1,-1))
+            {
+                UpdateTiles(selectedPosition, new Vector2I(0, 0));
+            }
+
+            selectedPosition = position;
+            SetCell(0, cellCoords, 0, cellAtlas);
+        }
         else
         {
             SetCell(0, cellCoords, 0, cellAtlas);
         }
     }
 
-    public void StorePositions(Vector2[] positions)
+    public void StorePositions(Vector2 positions)
     {
-        foreach (Vector2 pos in positions)
-        {
-            oldPositions.Add(pos);
-        }
+        oldPositions.Add(positions);
     }
 
     public void ClearOldPositions()

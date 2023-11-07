@@ -166,6 +166,7 @@ public partial class Piece : CharacterBody2D
             if (turn == player)
             {
                 EmitSignal(SignalName.pieceSelected);
+                EmitSignal(SignalName.updateTiles, Position, new Vector2I(0, 3));
                 if (pieceType == "pawn")
                 {
                     PawnMovement();
@@ -739,6 +740,9 @@ public partial class Piece : CharacterBody2D
         Vector2 oldPos;
         oldPos = Position;
         Position = newPosition;
+
+        EmitSignal(SignalName.clearOldPositions);
+
         if (firstMovement == true)
         {
             firstMovement = false;
@@ -782,9 +786,8 @@ public partial class Piece : CharacterBody2D
             EmitSignal(SignalName.pieceMoved, newPosition, oldPos, id, false);
         }
 
-        Vector2[] oldPositions = { oldPos, newPosition };
-        EmitSignal(SignalName.clearOldPositions);
-        EmitSignal(SignalName.storePositions, oldPositions);
+        EmitSignal(SignalName.storePositions, oldPos);
+        EmitSignal(SignalName.storePositions, newPosition);
         EmitSignal(SignalName.updateTiles, oldPos, new Vector2I(0, 1));
         EmitSignal(SignalName.updateTiles, newPosition, new Vector2I(1, 1));
     }
@@ -1036,7 +1039,7 @@ public partial class Piece : CharacterBody2D
                     blockedPosition = moveCheck / 10;
                     checkId = moveCheck % 10;
 
-                    if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition != 0 && blockedPosition != player && checkId != 1))
+                    if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition > 0 && blockedPosition != player && checkId != 1))
                     {
                         CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, PATH);
                         break;
@@ -1066,7 +1069,7 @@ public partial class Piece : CharacterBody2D
                     blockedPosition = moveCheck / 10;
                     checkId = moveCheck % 10;
 
-                    if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition != 0 && blockedPosition != player && checkId != 1))
+                    if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition > 0 && blockedPosition != player && checkId != 1))
                     {
                         CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, PATH);
                         break;
@@ -1096,7 +1099,7 @@ public partial class Piece : CharacterBody2D
                     blockedPosition = moveCheck / 10;
                     checkId = moveCheck % 10;
 
-                    if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition != 0 && blockedPosition != player && checkId != 1))
+                    if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition > 0 && blockedPosition != player && checkId != 1))
                     {
                         CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, PATH);
                         break;
@@ -1126,7 +1129,7 @@ public partial class Piece : CharacterBody2D
                     blockedPosition = moveCheck / 10;
                     checkId = moveCheck % 10;
 
-                    if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition != 0 && blockedPosition != player && checkId != 1))
+                    if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition > 0 && blockedPosition != player && checkId != 1))
                     {
                         CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, PATH);
                         break;
@@ -1164,7 +1167,7 @@ public partial class Piece : CharacterBody2D
                     blockedPosition = moveCheck / 10;
                     checkId = moveCheck % 10;
 
-                    if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition != 0 && blockedPosition != player && checkId != 1))
+                    if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition > 0 && blockedPosition != player && checkId != 1))
                     {
                         CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, PATH);
                         break;
@@ -1194,7 +1197,7 @@ public partial class Piece : CharacterBody2D
                     blockedPosition = moveCheck / 10;
                     checkId = moveCheck % 10;
 
-                    if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition != 0 && blockedPosition != player && checkId != 1))
+                    if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition > 0 && blockedPosition != player && checkId != 1))
                     {
                         CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, PATH);
                         break;
@@ -1224,7 +1227,7 @@ public partial class Piece : CharacterBody2D
                     blockedPosition = moveCheck / 10;
                     checkId = moveCheck % 10;
 
-                    if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition != 0 && blockedPosition != player && checkId != 1))
+                    if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition > 0 && blockedPosition != player && checkId != 1))
                     {
                         CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, PATH);
                         break;
@@ -1254,7 +1257,7 @@ public partial class Piece : CharacterBody2D
                     blockedPosition = moveCheck / 10;
                     checkId = moveCheck % 10;
 
-                    if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition != 0 && blockedPosition != player && checkId != 1))
+                    if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition > 0 && blockedPosition != player && checkId != 1))
                     {
                         CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, PATH);
                         break;
@@ -1310,6 +1313,8 @@ public partial class Piece : CharacterBody2D
                     }
                     else if (checkSituation == SEES_ENEMY_KING)
                     {
+                        EmitSignal(SignalName.updateTiles, Position, new Vector2I(0, 2));
+                        EmitSignal(SignalName.storePositions, Position);
                         if (i != maxIndex)
                         {
                             EmitSignal(SignalName.updateCheck, arrPos, checkSituation, false, false);
