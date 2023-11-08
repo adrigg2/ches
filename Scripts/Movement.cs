@@ -15,7 +15,7 @@ public partial class Movement : CharacterBody2D
     [Signal]
     public delegate void captureEventHandler();
 
-    bool isCapture;
+    private bool _isCapture;
 
     public override void _Ready()
     {
@@ -28,7 +28,7 @@ public partial class Movement : CharacterBody2D
         GetParent().RemoveChild(this);
         newParent.AddChild(this);
 
-        isCapture = (bool)GetMeta("Is_Capture");
+        _isCapture = (bool)GetMeta("Is_Capture");
 
         Connect("pieceSelected", new Callable(master, "DisableMovement"));
         Connect("capture", new Callable(master, "Capture"));
@@ -37,7 +37,7 @@ public partial class Movement : CharacterBody2D
     {
         if (@event.IsActionPressed("piece_interaction"))
         {
-            if (isCapture == true)
+            if (_isCapture == true)
             {
                 EmitSignal(SignalName.capture, Position, this);
             }

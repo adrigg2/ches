@@ -47,98 +47,95 @@ public partial class Piece : CharacterBody2D
 
 
     [Export]
-    int turn = 1;
+    private int _turn = 1;
 
     [Export]
-    int id;
+    private int _id;
 
     [Export]
-    bool checkUpdatedCheck = false;
+    private bool _checkUpdatedCheck = false;
 
     [Export]
-    bool checkmate = false;
+    private bool _checkmate = false;
 
     [Export]
-    bool firstMovement = true;
+    private bool _firstMovement = true;
 
     [Export]
-    int player;
+    private int _player;
 
     [Export]
-    bool isInCheck = false;
+    private bool _isInCheck = false;
 
-    const int CELL_PIXELS = 32;
-    const int SEES_FRIENDLY_PIECE = 1;
-    const int PATH = 2;
-    const int PROTECTED = 3;
-    const int SEES_ENEMY_KING = 4;
-    const int PROTECTED_AND_SEES = 5;
-    const int NOT_PROTECTED_AND_SEES = 6;
-    const int NOT_PROTECTED = 7;
-    const int KING_IN_CHECK = 8;
+    const int CellPixels = 32;
+    const int SeesFriendlyPiece = 1;
+    const int Path = 2;
+    const int Potected = 3;
+    const int SeesEnemyKing = 4;
+    const int ProtectedAndSees = 5;
+    const int NotProtectedAndSees = 6;
+    const int NotProtected = 7;
+    const int KingInCheck = 8;
 
-    public Callable movementCheck;
-    public Callable checkCheck;
-    public Callable checkArrayCheck;
+    private PackedScene _movement;
+    private PackedScene _capture;
+    private PackedScene _promotion;
+    private Vector2 _pawnVector;
+    private string _pieceType;
+    private bool _enPassant = false;
 
-    PackedScene movement;
-    PackedScene capture;
-    PackedScene promotion;
-    Vector2 oldPos1 = new Vector2();
-    Vector2 newPos = new Vector2();
-    Vector2 checkPos;
-    Vector2 pawnVector;
-    string pieceType;
-    bool enPassant = false;
+    public static Callable MovementCheck { get; set; }
+    public static Callable CheckCheck { get; set; }
+    public static Callable CheckArrayCheck { get; set; }
 
     public override void _Ready()
     {
-        pieceType = (string)GetMeta("Piece_Type");
-        player = (int)GetMeta("Player");
+        _pieceType = (string)GetMeta("Piece_Type");
+        _player = (int)GetMeta("Player");
 
-        if (pieceType == "pawn")
+        if (_pieceType == "pawn")
         {
-            id = player * 10;
-            if (player == 1)
+            _id = _player * 10;
+            if (_player == 1)
             {
-                pawnVector = new Vector2(1, -1);
+                _pawnVector = new Vector2(1, -1);
             }
             else
             {
-                pawnVector = new Vector2(1, 1);
+                _pawnVector = new Vector2(1, 1);
             }
         }
-        else if (pieceType == "king")
+        else if (_pieceType == "king")
         {
-            id = player * 10 + 1;
+            _id = _player * 10 + 1;
         }
-        else if (pieceType == "queen")
+        else if (_pieceType == "queen")
         {
-            id = player * 10 + 2;
+            _id = _player * 10 + 2;
         }
-        else if (pieceType == "rook")
+        else if (_pieceType == "rook")
         {
-            id = player * 10 + 3;
+            _id = _player * 10 + 3;
         }
-        else if (pieceType == "bishop")
+        else if (_pieceType == "bishop")
         {
-            id = player * 10 + 4;
+            _id = _player * 10 + 4;
         }
-        else if (pieceType == "knight")
+        else if (_pieceType == "knight")
         {
-            id = player * 10 + 5;
+            _id = _player * 10 + 5;
         }
 
-        if (player == 2)
+        if (_player == 2)
         {
             Sprite2D sprite = GetNode<Sprite2D>("Sprite2D");
             Texture2D blackTexture = (Texture2D)GetMeta("Black_Texture");
             sprite.Texture = blackTexture;
         }
 
-        movement = (PackedScene)ResourceLoader.Load("res://scenes/scenery/movement.tscn");
-        capture = (PackedScene)ResourceLoader.Load("res://scenes/scenery/capture.tscn");
-        promotion = (PackedScene)ResourceLoader.Load("res://scenes/promotion_selection.tscn");
+        _movement = (PackedScene)ResourceLoader.Load("res://scenes/scenery/movement.tscn");
+        _capture = (PackedScene)ResourceLoader.Load("res://scenes/scenery/capture.tscn");
+        _promotion = (PackedScene)ResourceLoader.Load("res://scenes/promotion_selection.tscn");
 
         TileMap board = GetNode<TileMap>("../..");
         Node2D master = GetNode<Node2D>("../../..");
@@ -163,30 +160,30 @@ public partial class Piece : CharacterBody2D
     {
         if (@event.IsActionPressed("piece_interaction"))
         {
-            if (turn == player)
+            if (_turn == _player)
             {
                 EmitSignal(SignalName.pieceSelected);
                 EmitSignal(SignalName.updateTiles, Position, new Vector2I(0, 3));
-                if (pieceType == "pawn")
+                if (_pieceType == "pawn")
                 {
                     PawnMovement();
                 }
-                else if (pieceType == "knight")
+                else if (_pieceType == "knight")
                 {
                     KnightMovement();
                 }
-                else if (pieceType == "king")
+                else if (_pieceType == "king")
                 {
                     KingMovement();
                 }
                 else
                 {
-                    if (pieceType == "queen" || pieceType == "rook")
+                    if (_pieceType == "queen" || _pieceType == "rook")
                     {
                         StraightMove();
                     }
 
-                    if (pieceType == "queen" || pieceType == "bishop")
+                    if (_pieceType == "queen" || _pieceType == "bishop")
                     {
                         DiagonalMove();
                     }
@@ -202,7 +199,7 @@ public partial class Piece : CharacterBody2D
         {
             Vector2 movePos;
 
-            if (firstMovement == true)
+            if (_firstMovement == true)
             {
                 for (int i = 1; i <= 2; i++)
                 {
@@ -210,18 +207,18 @@ public partial class Piece : CharacterBody2D
                     int blockedPosition;
                     int positionSituation;
 
-                    movePos = Position + new Vector2(CELL_PIXELS, CELL_PIXELS) * pawnVector;
+                    movePos = Position + new Vector2(CellPixels, CellPixels) * _pawnVector;
                     CheckMovement();
 
-                    movePos = Position + new Vector2(-CELL_PIXELS, CELL_PIXELS) * pawnVector;
+                    movePos = Position + new Vector2(-CellPixels, CellPixels) * _pawnVector;
                     CheckMovement();
 
-                    movePos = Position + i * new Vector2(0, CELL_PIXELS) * pawnVector;
-                    moveCheck = (int)movementCheck.Call(movePos);
+                    movePos = Position + i * new Vector2(0, CellPixels) * _pawnVector;
+                    moveCheck = (int)MovementCheck.Call(movePos);
                     blockedPosition = moveCheck / 10;
-                    positionSituation = (int)checkArrayCheck.Call(movePos);
+                    positionSituation = (int)CheckArrayCheck.Call(movePos);
 
-                    if (!isInCheck || positionSituation == SEES_ENEMY_KING)
+                    if (!_isInCheck || positionSituation == SeesEnemyKing)
                     {
                         if (blockedPosition != 0)
                         {
@@ -233,13 +230,13 @@ public partial class Piece : CharacterBody2D
             }
             else
             {                
-                movePos = Position + new Vector2(0, CELL_PIXELS) * pawnVector;
+                movePos = Position + new Vector2(0, CellPixels) * _pawnVector;
                 CheckMovement();
 
-                movePos = Position + new Vector2(CELL_PIXELS, CELL_PIXELS) * pawnVector;
+                movePos = Position + new Vector2(CellPixels, CellPixels) * _pawnVector;
                 CheckMovement();
 
-                movePos = Position + new Vector2(-CELL_PIXELS, CELL_PIXELS) * pawnVector;
+                movePos = Position + new Vector2(-CellPixels, CellPixels) * _pawnVector;
                 CheckMovement();
             }
 
@@ -252,23 +249,23 @@ public partial class Piece : CharacterBody2D
 
                 if (movePos.X != Position.X)
                 {
-                    moveCheck = (int)movementCheck.Call(movePos);
+                    moveCheck = (int)MovementCheck.Call(movePos);
                     blockedPosition = moveCheck / 10;
-                    positionSituation = (int)checkArrayCheck.Call(movePos);
-                    notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8;
+                    positionSituation = (int)CheckArrayCheck.Call(movePos);
+                    notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * 8 && movePos.Y < CellPixels * 8;
 
-                    if (!isInCheck || positionSituation == PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED_AND_SEES)
+                    if (!_isInCheck || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
                     {
-                        if (notOutOfBounds && blockedPosition != 0 && Math.Abs(blockedPosition) != player)
+                        if (notOutOfBounds && blockedPosition != 0 && Math.Abs(blockedPosition) != _player)
                         {
                             CapturePos(movePos);
                         }
                     }
                     else if (blockedPosition < 0)
                     {
-                        positionSituation = (int)checkArrayCheck.Call(movePos + new Vector2(0, 32) * -pawnVector);
+                        positionSituation = (int)CheckArrayCheck.Call(movePos + new Vector2(0, 32) * -_pawnVector);
 
-                        if ((positionSituation == PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED_AND_SEES) && notOutOfBounds)
+                        if ((positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees) && notOutOfBounds)
                         {
                             CapturePos(movePos);
                         }
@@ -276,11 +273,11 @@ public partial class Piece : CharacterBody2D
                 }
                 else
                 {
-                    moveCheck = (int)movementCheck.Call(movePos);
+                    moveCheck = (int)MovementCheck.Call(movePos);
                     blockedPosition = moveCheck / 10;
-                    positionSituation = (int)checkArrayCheck.Call(movePos);
+                    positionSituation = (int)CheckArrayCheck.Call(movePos);
 
-                    if (!isInCheck || positionSituation == SEES_ENEMY_KING)
+                    if (!_isInCheck || positionSituation == SeesEnemyKing)
                     {
                         if (blockedPosition <= 0)
                         {
@@ -295,8 +292,8 @@ public partial class Piece : CharacterBody2D
         {
             Vector2 movePos;
 
-            movePos = Position - new Vector2(CELL_PIXELS, 0) + new Vector2(0, -(2 * CELL_PIXELS));
-            if (!isInCheck)
+            movePos = Position - new Vector2(CellPixels, 0) + new Vector2(0, -(2 * CellPixels));
+            if (!_isInCheck)
             {
                 CheckMovement();
             }
@@ -305,8 +302,8 @@ public partial class Piece : CharacterBody2D
                 MovementInCheck();
             }
 
-            movePos = Position + new Vector2(CELL_PIXELS, 0) + new Vector2(0, -(2 * CELL_PIXELS));
-            if (!isInCheck)
+            movePos = Position + new Vector2(CellPixels, 0) + new Vector2(0, -(2 * CellPixels));
+            if (!_isInCheck)
             {
                 CheckMovement();
             }
@@ -315,8 +312,8 @@ public partial class Piece : CharacterBody2D
                 MovementInCheck();
             }
 
-            movePos = Position - new Vector2(0, CELL_PIXELS) + new Vector2((2 * CELL_PIXELS), 0);
-            if (!isInCheck)
+            movePos = Position - new Vector2(0, CellPixels) + new Vector2((2 * CellPixels), 0);
+            if (!_isInCheck)
             {
                 CheckMovement();
             }
@@ -325,8 +322,8 @@ public partial class Piece : CharacterBody2D
                 MovementInCheck();
             }
 
-            movePos = Position + new Vector2(0, CELL_PIXELS) + new Vector2((2 * CELL_PIXELS), 0);
-            if (!isInCheck)
+            movePos = Position + new Vector2(0, CellPixels) + new Vector2((2 * CellPixels), 0);
+            if (!_isInCheck)
             {
                 CheckMovement();
             }
@@ -335,8 +332,8 @@ public partial class Piece : CharacterBody2D
                 MovementInCheck();
             }
 
-            movePos = Position - new Vector2(CELL_PIXELS, 0) + new Vector2(0, (2 * CELL_PIXELS));
-            if (!isInCheck)
+            movePos = Position - new Vector2(CellPixels, 0) + new Vector2(0, (2 * CellPixels));
+            if (!_isInCheck)
             {
                 CheckMovement();
             }
@@ -345,8 +342,8 @@ public partial class Piece : CharacterBody2D
                 MovementInCheck();
             }
 
-            movePos = Position + new Vector2(CELL_PIXELS, 0) + new Vector2(0, (2 * CELL_PIXELS));
-            if (!isInCheck)
+            movePos = Position + new Vector2(CellPixels, 0) + new Vector2(0, (2 * CellPixels));
+            if (!_isInCheck)
             {
                 CheckMovement();
             }
@@ -355,8 +352,8 @@ public partial class Piece : CharacterBody2D
                 MovementInCheck();
             }
 
-            movePos = Position - new Vector2(0, CELL_PIXELS) + new Vector2(-(2 * CELL_PIXELS), 0);
-            if (!isInCheck)
+            movePos = Position - new Vector2(0, CellPixels) + new Vector2(-(2 * CellPixels), 0);
+            if (!_isInCheck)
             {
                 CheckMovement();
             }
@@ -365,8 +362,8 @@ public partial class Piece : CharacterBody2D
                 MovementInCheck();
             }
 
-            movePos = Position + new Vector2(0, CELL_PIXELS) + new Vector2(-(2 * CELL_PIXELS), 0);
-            if (!isInCheck)
+            movePos = Position + new Vector2(0, CellPixels) + new Vector2(-(2 * CellPixels), 0);
+            if (!_isInCheck)
             {
                 CheckMovement();
             }
@@ -377,16 +374,16 @@ public partial class Piece : CharacterBody2D
 
             void CheckMovement()
             {
-                int moveCheck = (int)movementCheck.Call(movePos);
+                int moveCheck = (int)MovementCheck.Call(movePos);
                 int blockedPosition = moveCheck / 10;
 
-                bool notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8;
+                bool notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * 8 && movePos.Y < CellPixels * 8;
 
                 if (notOutOfBounds && blockedPosition <= 0)
                 {
                     Move(movePos);
                 }
-                else if (notOutOfBounds && blockedPosition > 0 && blockedPosition != player)
+                else if (notOutOfBounds && blockedPosition > 0 && blockedPosition != _player)
                 {
                     CapturePos(movePos);
                 }
@@ -394,18 +391,18 @@ public partial class Piece : CharacterBody2D
 
             void MovementInCheck()
             {
-                int moveCheck = (int)movementCheck.Call(movePos);
+                int moveCheck = (int)MovementCheck.Call(movePos);
                 int blockedPosition = moveCheck / 10;
-                int positionSituation = (int)checkArrayCheck.Call(movePos);
+                int positionSituation = (int)CheckArrayCheck.Call(movePos);
 
-                bool notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8;
-                bool canTakeAttackingPiece = positionSituation == PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED_AND_SEES;
+                bool notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * 8 && movePos.Y < CellPixels * 8;
+                bool canTakeAttackingPiece = positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees;
 
-                if (notOutOfBounds && blockedPosition <= 0 && positionSituation == SEES_ENEMY_KING)
+                if (notOutOfBounds && blockedPosition <= 0 && positionSituation == SeesEnemyKing)
                 {
                     Move(movePos);
                 }
-                else if (notOutOfBounds && blockedPosition > 0 && blockedPosition != player && canTakeAttackingPiece)
+                else if (notOutOfBounds && blockedPosition > 0 && blockedPosition != _player && canTakeAttackingPiece)
                 {
                     CapturePos(movePos);
                 }
@@ -416,31 +413,31 @@ public partial class Piece : CharacterBody2D
         {
             Vector2 movePos;
 
-            movePos = Position - new Vector2(0, CELL_PIXELS);
+            movePos = Position - new Vector2(0, CellPixels);
             CheckMovement();
 
-            movePos = Position + new Vector2(0, CELL_PIXELS);
+            movePos = Position + new Vector2(0, CellPixels);
             CheckMovement();
 
-            movePos = Position - new Vector2(CELL_PIXELS, 0);
+            movePos = Position - new Vector2(CellPixels, 0);
             CheckMovement();
 
-            movePos = Position + new Vector2(CELL_PIXELS, 0);
+            movePos = Position + new Vector2(CellPixels, 0);
             CheckMovement();
 
-            movePos = Position - new Vector2(CELL_PIXELS, CELL_PIXELS);
+            movePos = Position - new Vector2(CellPixels, CellPixels);
             CheckMovement();
 
-            movePos = Position + new Vector2(CELL_PIXELS, CELL_PIXELS);
+            movePos = Position + new Vector2(CellPixels, CellPixels);
             CheckMovement();
 
-            movePos = Position - new Vector2(CELL_PIXELS, -CELL_PIXELS);
+            movePos = Position - new Vector2(CellPixels, -CellPixels);
             CheckMovement();
 
-            movePos = Position + new Vector2(CELL_PIXELS, -CELL_PIXELS);
+            movePos = Position + new Vector2(CellPixels, -CellPixels);
             CheckMovement();
 
-            if (firstMovement && !isInCheck)
+            if (_firstMovement && !_isInCheck)
             {
                 int moveCheck;
                 int blockedPosition;
@@ -452,23 +449,23 @@ public partial class Piece : CharacterBody2D
 
                 for (int i = -1; i > -8; i--)
                 {
-                    movePos = Position + i * new Vector2(CELL_PIXELS, 0);
+                    movePos = Position + i * new Vector2(CellPixels, 0);
 
-                    moveCheck = (int)movementCheck.Call(movePos);
+                    moveCheck = (int)MovementCheck.Call(movePos);
                     blockedPosition = moveCheck / 10;
                     checkId = moveCheck % 10;
-                    positionSituation = (int)checkArrayCheck.Call(movePos);
+                    positionSituation = (int)CheckArrayCheck.Call(movePos);
 
-                    outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8;
-                    notRook = blockedPosition == player && checkId != 3;
-                    enemyPiece = blockedPosition != 0 && blockedPosition != player;
+                    outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
+                    notRook = blockedPosition == _player && checkId != 3;
+                    enemyPiece = blockedPosition != 0 && blockedPosition != _player;
 
-                    if (outOfBounds || notRook || enemyPiece || positionSituation == PATH)
+                    if (outOfBounds || notRook || enemyPiece || positionSituation == Path)
                     {
                         GD.Print($"Castling not initiated, {blockedPosition}, {checkId}, {movePos}, {positionSituation}");
                         break;
                     }
-                    else if (blockedPosition == player && checkId == 3)
+                    else if (blockedPosition == _player && checkId == 3)
                     {
                         GD.Print("Castling initiated");
                         EmitSignal(SignalName.castlingSetup, movePos);
@@ -477,23 +474,23 @@ public partial class Piece : CharacterBody2D
 
                 for (int i = 1; i < 8; i++)
                 {
-                    movePos = Position + i * new Vector2(CELL_PIXELS, 0);
+                    movePos = Position + i * new Vector2(CellPixels, 0);
 
-                    moveCheck = (int)movementCheck.Call(movePos);
+                    moveCheck = (int)MovementCheck.Call(movePos);
                     blockedPosition = moveCheck / 10;
                     checkId = moveCheck % 10;
-                    positionSituation = (int)checkArrayCheck.Call(movePos);
+                    positionSituation = (int)CheckArrayCheck.Call(movePos);
 
-                    outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8;
-                    notRook = blockedPosition == player && checkId != 3;
-                    enemyPiece = blockedPosition != 0 && blockedPosition != player;
+                    outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
+                    notRook = blockedPosition == _player && checkId != 3;
+                    enemyPiece = blockedPosition != 0 && blockedPosition != _player;
 
-                    if (outOfBounds || notRook || enemyPiece || positionSituation == PATH)
+                    if (outOfBounds || notRook || enemyPiece || positionSituation == Path)
                     {
                         GD.Print($"Castling not initiated, {blockedPosition}, {checkId}, {movePos}, {positionSituation}");
                         break;
                     }
-                    else if (blockedPosition == player && checkId == 3)
+                    else if (blockedPosition == _player && checkId == 3)
                     {
                         GD.Print("Castling initiated");
                         EmitSignal(SignalName.castlingSetup, movePos);
@@ -503,18 +500,18 @@ public partial class Piece : CharacterBody2D
 
             void CheckMovement()
             {
-                int moveCheck = (int)movementCheck.Call(movePos);
+                int moveCheck = (int)MovementCheck.Call(movePos);
                 int blockedPosition = moveCheck / 10;
-                int checkPosition = (int)checkArrayCheck.Call(movePos);
+                int checkPosition = (int)CheckArrayCheck.Call(movePos);
 
-                bool notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8;
+                bool notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * 8 && movePos.Y < CellPixels * 8;
 
 
-                if (notOutOfBounds && blockedPosition <= 0 && checkPosition != SEES_ENEMY_KING && checkPosition != PATH)
+                if (notOutOfBounds && blockedPosition <= 0 && checkPosition != SeesEnemyKing && checkPosition != Path)
                 {
                     Move(movePos);
                 }
-                else if (notOutOfBounds && blockedPosition > 0 && blockedPosition != player && checkPosition != PROTECTED && checkPosition != PROTECTED_AND_SEES)
+                else if (notOutOfBounds && blockedPosition > 0 && blockedPosition != _player && checkPosition != Potected && checkPosition != ProtectedAndSees)
                 {
                     CapturePos(movePos);
                 }
@@ -528,7 +525,7 @@ public partial class Piece : CharacterBody2D
 
             for (int i = -1; i > -8; i--)
             {
-                movePos = Position + i * new Vector2(0, CELL_PIXELS);
+                movePos = Position + i * new Vector2(0, CellPixels);
                 moveSituation = MoveDiagonalStraight(movePos);
 
                 if (moveSituation == 0)
@@ -548,7 +545,7 @@ public partial class Piece : CharacterBody2D
 
             for (int i = 1; i < 8; i++)
             {
-                movePos = Position + i * new Vector2(0, CELL_PIXELS);
+                movePos = Position + i * new Vector2(0, CellPixels);
                 moveSituation = MoveDiagonalStraight(movePos);
 
                 if (moveSituation == 0)
@@ -568,7 +565,7 @@ public partial class Piece : CharacterBody2D
 
             for (int i = -1; i > -8; i--)
             {
-                movePos = Position + i * new Vector2(CELL_PIXELS, 0);
+                movePos = Position + i * new Vector2(CellPixels, 0);
                 moveSituation = MoveDiagonalStraight(movePos);
 
                 if (moveSituation == 0)
@@ -588,7 +585,7 @@ public partial class Piece : CharacterBody2D
 
             for (int i = 1; i < 8; i++)
             {
-                movePos = Position + i * new Vector2(CELL_PIXELS, 0);
+                movePos = Position + i * new Vector2(CellPixels, 0);
                 moveSituation = MoveDiagonalStraight(movePos);
 
                 if (moveSituation == 0)
@@ -614,7 +611,7 @@ public partial class Piece : CharacterBody2D
 
             for (int i = -1; i > -8; i--)
             {
-                movePos = Position + i * new Vector2(CELL_PIXELS, CELL_PIXELS);
+                movePos = Position + i * new Vector2(CellPixels, CellPixels);
                 moveSituation = MoveDiagonalStraight(movePos);
 
                 if (moveSituation == 0)
@@ -634,7 +631,7 @@ public partial class Piece : CharacterBody2D
 
             for (int i = 1; i < 8; i++)
             {
-                movePos = Position + i * new Vector2(CELL_PIXELS, CELL_PIXELS);
+                movePos = Position + i * new Vector2(CellPixels, CellPixels);
                 moveSituation = MoveDiagonalStraight(movePos);
 
                 if (moveSituation == 0)
@@ -654,7 +651,7 @@ public partial class Piece : CharacterBody2D
 
             for (int i = -1; i > -8; i--)
             {
-                movePos = Position + i * new Vector2(CELL_PIXELS, -CELL_PIXELS);
+                movePos = Position + i * new Vector2(CellPixels, -CellPixels);
                 moveSituation = MoveDiagonalStraight(movePos);
 
                 if (moveSituation == 0)
@@ -674,7 +671,7 @@ public partial class Piece : CharacterBody2D
 
             for (int i = 1; i < 8; i++)
             {
-                movePos = Position + i * new Vector2(CELL_PIXELS, -CELL_PIXELS);
+                movePos = Position + i * new Vector2(CellPixels, -CellPixels);
                 moveSituation = MoveDiagonalStraight(movePos);
 
                 if (moveSituation == 0)
@@ -693,24 +690,24 @@ public partial class Piece : CharacterBody2D
             }
         }
 
-        int MoveDiagonalStraight(Vector2 _movePos)
+        int MoveDiagonalStraight(Vector2 movePos)
         {
-            bool outOfBounds = _movePos.X < 0 || _movePos.Y < 0 || _movePos.X > CELL_PIXELS * 8 || _movePos.Y > CELL_PIXELS * 8;
-            int moveCheck = (int)movementCheck.Call(_movePos);
+            bool outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
+            int moveCheck = (int)MovementCheck.Call(movePos);
             int blockedPos = moveCheck / 10;
-            int positionSituation = (int)checkArrayCheck.Call(_movePos);
+            int positionSituation = (int)CheckArrayCheck.Call(movePos);
 
-            if (!isInCheck || positionSituation == SEES_ENEMY_KING || positionSituation == PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED_AND_SEES || blockedPos == player)
+            if (!_isInCheck || positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees || blockedPos == _player)
             {
-                if (outOfBounds || blockedPos == player)
+                if (outOfBounds || blockedPos == _player)
                 {
                     return 0;
                 }
-                else if ((!isInCheck && blockedPos > 0) || positionSituation == PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED_AND_SEES)
+                else if ((!_isInCheck && blockedPos > 0) || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
                 {
                     return 2;
                 }
-                else if (!isInCheck || positionSituation == SEES_ENEMY_KING)
+                else if (!_isInCheck || positionSituation == SeesEnemyKing)
                 {
                     return 1;
                 }
@@ -719,19 +716,19 @@ public partial class Piece : CharacterBody2D
             return 0;
         }
 
-        void Move(Vector2 _movePos)
+        void Move(Vector2 movePos)
         {
-            CharacterBody2D _movement = (CharacterBody2D)movement.Instantiate();
-            AddChild(_movement);
-            GD.Print(_movePos);
-            _movement.Position = _movePos;
+            CharacterBody2D movement = (CharacterBody2D)_movement.Instantiate();
+            AddChild(movement);
+            GD.Print(movePos);
+            movement.Position = movePos;
         }
 
-        void CapturePos(Vector2 _movePos)
+        void CapturePos(Vector2 movePos)
         {
-            CharacterBody2D _capture = (CharacterBody2D)capture.Instantiate();
-            AddChild(_capture);
-            _capture.Position = _movePos;
+            CharacterBody2D capture = (CharacterBody2D)_capture.Instantiate();
+            AddChild(capture);
+            capture.Position = movePos;
         }
     }
 
@@ -743,47 +740,47 @@ public partial class Piece : CharacterBody2D
 
         EmitSignal(SignalName.clearOldPositions);
 
-        if (firstMovement == true)
+        if (_firstMovement == true)
         {
-            firstMovement = false;
-            if (pieceType == "pawn" && Position == oldPos + new Vector2(0, 2 * CELL_PIXELS))
+            _firstMovement = false;
+            if (_pieceType == "pawn" && Position == oldPos + new Vector2(0, 2 * CellPixels))
             {
-                EmitSignal(SignalName.pieceMoved, newPosition - new Vector2(0, CELL_PIXELS), oldPos, -id, false);
-                enPassant = true;
+                EmitSignal(SignalName.pieceMoved, newPosition - new Vector2(0, CellPixels), oldPos, -_id, false);
+                _enPassant = true;
             }
-            else if (pieceType == "pawn" && Position == oldPos + new Vector2(0, -2 * CELL_PIXELS))
+            else if (_pieceType == "pawn" && Position == oldPos + new Vector2(0, -2 * CellPixels))
             {
-                EmitSignal(SignalName.pieceMoved, newPosition + new Vector2(0, CELL_PIXELS), oldPos, -id, false);
-                enPassant = true;
+                EmitSignal(SignalName.pieceMoved, newPosition + new Vector2(0, CellPixels), oldPos, -_id, false);
+                _enPassant = true;
             }
         }
-        if (pieceType == "king")
+        if (_pieceType == "king")
         {
-            if (oldPos == Position + new Vector2(-2 * CELL_PIXELS, 0) || oldPos == Position + new Vector2(2 * CELL_PIXELS, 0))
+            if (oldPos == Position + new Vector2(-2 * CellPixels, 0) || oldPos == Position + new Vector2(2 * CellPixels, 0))
             {
                 EmitSignal(SignalName.moveRook, newPosition);
             }
         }
-        if (pieceType == "pawn" && (newPosition.Y < CELL_PIXELS || newPosition.Y > CELL_PIXELS * 7))
+        if (_pieceType == "pawn" && (newPosition.Y < CellPixels || newPosition.Y > CellPixels * 7))
         {
-            Control promotionSelection = (Control)promotion.Instantiate();
+            Control promotionSelection = (Control)_promotion.Instantiate();
             AddChild(promotionSelection);
 
-            if (player == 2)
+            if (_player == 2)
             {
                 promotionSelection.Scale = new Vector2(-1, -1);
-                promotionSelection.Position = Position - new Vector2(CELL_PIXELS, 0);
+                promotionSelection.Position = Position - new Vector2(CellPixels, 0);
             }
             else
             {
-                promotionSelection.Position = Position + new Vector2(CELL_PIXELS, 0);
+                promotionSelection.Position = Position + new Vector2(CellPixels, 0);
             }
             
-            EmitSignal(SignalName.pieceMoved, newPosition, oldPos, id, true);
+            EmitSignal(SignalName.pieceMoved, newPosition, oldPos, _id, true);
         }
         else
         {
-            EmitSignal(SignalName.pieceMoved, newPosition, oldPos, id, false);
+            EmitSignal(SignalName.pieceMoved, newPosition, oldPos, _id, false);
         }
 
         EmitSignal(SignalName.storePositions, oldPos);
@@ -794,18 +791,17 @@ public partial class Piece : CharacterBody2D
 
     public void ChangeTurn(int newTurn)
     {
-        turn = newTurn;
-        checkUpdatedCheck = false;
-        checkmate = false;
+        _turn = newTurn;
+        _checkUpdatedCheck = false;
+        _checkmate = false;
 
-        if (isInCheck && pieceType == "king")
+        if (_isInCheck && _pieceType == "king")
         {
-            isInCheck = false;
-            EmitSignal(SignalName.updateTiles, checkPos, new Vector2I(0, 0));
+            _isInCheck = false;
             EmitSignal(SignalName.playerInCheck, false);
         }
 
-        if (turn == 2)
+        if (_turn == 2)
         {
             Scale = new Vector2(-1, -1);
         } 
@@ -814,10 +810,10 @@ public partial class Piece : CharacterBody2D
             Scale = new Vector2(1, 1);
         }
 
-        if (turn == player && pieceType == "pawn" && enPassant)
+        if (_turn == _player && _pieceType == "pawn" && _enPassant)
         {
-            EmitSignal(SignalName.clearEnPassant, player);
-            enPassant = false;
+            EmitSignal(SignalName.clearEnPassant, _player);
+            _enPassant = false;
         }
 
         UpdateCheck();
@@ -825,10 +821,10 @@ public partial class Piece : CharacterBody2D
 
     public void Capture(Vector2 _capturePos, CharacterBody2D _capture)
     {
-        if (pieceType == "pawn" && enPassant && (_capturePos == Position - new Vector2 (0, CELL_PIXELS) || _capturePos == Position + new Vector2(0, CELL_PIXELS)))
+        if (_pieceType == "pawn" && _enPassant && (_capturePos == Position - new Vector2 (0, CellPixels) || _capturePos == Position + new Vector2(0, CellPixels)))
         {
             Connect("tree_exited", new Callable(_capture, "Captured"));
-            EmitSignal(SignalName.clearEnPassant, player);
+            EmitSignal(SignalName.clearEnPassant, _player);
             QueueFree();
         }
         else if (_capturePos == Position)
@@ -840,35 +836,35 @@ public partial class Piece : CharacterBody2D
 
     public void UpdateCheck()
     {
-        if (player != turn)
+        if (_player != _turn)
         {
             Vector2[] checkPosArray = new Vector2[8];
-            if (pieceType == "pawn")
+            if (_pieceType == "pawn")
             {
-                GD.Print(player, " ", pieceType, " is check");
+                GD.Print(_player, " ", _pieceType, " is check");
                 PawnCheck();
             }
-            else if (pieceType == "knight")
+            else if (_pieceType == "knight")
             {
-                GD.Print(player, " ", pieceType, " is check");
+                GD.Print(_player, " ", _pieceType, " is check");
                 KnightCheck();
             }
-            else if (pieceType == "king")
+            else if (_pieceType == "king")
             {
-                GD.Print(player, " ", pieceType, " is check");
+                GD.Print(_player, " ", _pieceType, " is check");
                 KingCheck();
             }
             else
             {
-                if (pieceType == "queen" || pieceType == "rook")
+                if (_pieceType == "queen" || _pieceType == "rook")
                 {
-                    GD.Print(player, " ", pieceType, " is check");
+                    GD.Print(_player, " ", _pieceType, " is check");
                     StraightCheck();
                 }
 
-                if (pieceType == "queen" || pieceType == "bishop")
+                if (_pieceType == "queen" || _pieceType == "bishop")
                 {
-                    GD.Print(player, " ", pieceType, " is check");
+                    GD.Print(_player, " ", _pieceType, " is check");
                     DiagonalCheck();
                 }
             }
@@ -879,47 +875,50 @@ public partial class Piece : CharacterBody2D
                 int moveCheck;
                 int blockedPosition;
                 int checkId;
+                bool notOutOfBounds;
                 
-                movePos = Position + new Vector2(CELL_PIXELS, CELL_PIXELS) * pawnVector;
-                moveCheck = (int)movementCheck.Call(movePos);
+                movePos = Position + new Vector2(CellPixels, CellPixels) * _pawnVector;
+                moveCheck = (int)MovementCheck.Call(movePos);
                 blockedPosition = moveCheck / 10;
                 checkId = moveCheck % 10;
+                notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * 8 && movePos.Y < CellPixels * 8;
 
-                if (movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8 && blockedPosition != player && checkId == 1)
+                if (notOutOfBounds && blockedPosition != _player && checkId == 1)
                 {
                     checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SEES_ENEMY_KING);
+                    CaptureCheck(checkPosArray, Position, 1, SeesEnemyKing);
                 }
-                else if (movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8 && blockedPosition == player)
+                else if (notOutOfBounds && blockedPosition == _player)
                 {
                     checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SEES_FRIENDLY_PIECE);
+                    CaptureCheck(checkPosArray, Position, 1, SeesFriendlyPiece);
                 }
                 else
                 {
                     checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, PATH);
+                    CaptureCheck(checkPosArray, Position, 1, Path);
                 }
 
-                movePos = Position + new Vector2(-CELL_PIXELS, CELL_PIXELS) * pawnVector;
-                moveCheck = (int)movementCheck.Call(movePos);
+                movePos = Position + new Vector2(-CellPixels, CellPixels) * _pawnVector;
+                moveCheck = (int)MovementCheck.Call(movePos);
                 blockedPosition = moveCheck / 10;
                 checkId = moveCheck % 10;
+                notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * 8 && movePos.Y < CellPixels * 8;
 
-                if (movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8 && blockedPosition != player && checkId == 1)
+                if (notOutOfBounds && blockedPosition != _player && checkId == 1)
                 {
                     checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SEES_ENEMY_KING);
+                    CaptureCheck(checkPosArray, Position, 1, SeesEnemyKing);
                 }
-                else if (movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8 && blockedPosition == player)
+                else if (notOutOfBounds && blockedPosition == _player)
                 {
                     checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SEES_FRIENDLY_PIECE);
+                    CaptureCheck(checkPosArray, Position, 1, SeesFriendlyPiece);
                 }
                 else
                 {
                     checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, PATH);
+                    CaptureCheck(checkPosArray, Position, 1, Path);
                 }
             }
 
@@ -927,52 +926,52 @@ public partial class Piece : CharacterBody2D
             {
                 Vector2 movePos;
 
-                movePos = Position - new Vector2(CELL_PIXELS, 0) + new Vector2(0, -(2 * CELL_PIXELS));
+                movePos = Position - new Vector2(CellPixels, 0) + new Vector2(0, -(2 * CellPixels));
                 MovePossibilityCheck();
 
-                movePos = Position + new Vector2(CELL_PIXELS, 0) + new Vector2(0, -(2 * CELL_PIXELS));
+                movePos = Position + new Vector2(CellPixels, 0) + new Vector2(0, -(2 * CellPixels));
                 MovePossibilityCheck();
 
-                movePos = Position - new Vector2(0, CELL_PIXELS) + new Vector2((2 * CELL_PIXELS), 0);
+                movePos = Position - new Vector2(0, CellPixels) + new Vector2((2 * CellPixels), 0);
                 MovePossibilityCheck();
 
-                movePos = Position + new Vector2(0, CELL_PIXELS) + new Vector2((2 * CELL_PIXELS), 0);
+                movePos = Position + new Vector2(0, CellPixels) + new Vector2((2 * CellPixels), 0);
                 MovePossibilityCheck();
 
-                movePos = Position - new Vector2(CELL_PIXELS, 0) + new Vector2(0, (2 * CELL_PIXELS));
+                movePos = Position - new Vector2(CellPixels, 0) + new Vector2(0, (2 * CellPixels));
                 MovePossibilityCheck();
 
-                movePos = Position + new Vector2(CELL_PIXELS, 0) + new Vector2(0, (2 * CELL_PIXELS));
+                movePos = Position + new Vector2(CellPixels, 0) + new Vector2(0, (2 * CellPixels));
                 MovePossibilityCheck();
 
-                movePos = Position - new Vector2(0, CELL_PIXELS) + new Vector2(-(2 * CELL_PIXELS), 0);
+                movePos = Position - new Vector2(0, CellPixels) + new Vector2(-(2 * CellPixels), 0);
                 MovePossibilityCheck();
 
-                movePos = Position + new Vector2(0, CELL_PIXELS) + new Vector2(-(2 * CELL_PIXELS), 0);
+                movePos = Position + new Vector2(0, CellPixels) + new Vector2(-(2 * CellPixels), 0);
                 MovePossibilityCheck();
 
                 void MovePossibilityCheck()
                 {
-                    int moveCheck = (int)movementCheck.Call(movePos);
+                    int moveCheck = (int)MovementCheck.Call(movePos);
                     int blockedPosition = moveCheck / 10;
                     int checkId = moveCheck % 10;
 
-                    bool notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8;
+                    bool notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * 8 && movePos.Y < CellPixels * 8;
 
-                    if (notOutOfBounds && blockedPosition != player && checkId == 1)
+                    if (notOutOfBounds && blockedPosition != _player && checkId == 1)
                     {
                         checkPosArray[1] = movePos;
-                        CaptureCheck(checkPosArray, Position, 1, SEES_ENEMY_KING);
+                        CaptureCheck(checkPosArray, Position, 1, SeesEnemyKing);
                     }
-                    else if (notOutOfBounds && blockedPosition == player)
+                    else if (notOutOfBounds && blockedPosition == _player)
                     {
                         checkPosArray[1] = movePos;
-                        CaptureCheck(checkPosArray, Position, 1, SEES_FRIENDLY_PIECE);
+                        CaptureCheck(checkPosArray, Position, 1, SeesFriendlyPiece);
                     }
                     else
                     {
                         checkPosArray[1] = movePos;
-                        CaptureCheck(checkPosArray, Position, 1, PATH);
+                        CaptureCheck(checkPosArray, Position, 1, Path);
                     }
                 }
             }
@@ -981,46 +980,46 @@ public partial class Piece : CharacterBody2D
             {
                 Vector2 movePos;
 
-                movePos = Position - new Vector2(0, CELL_PIXELS);
+                movePos = Position - new Vector2(0, CellPixels);
                 MovePossibilityCheck();
 
-                movePos = Position + new Vector2(0, CELL_PIXELS);
+                movePos = Position + new Vector2(0, CellPixels);
                 MovePossibilityCheck();
 
-                movePos = Position - new Vector2(CELL_PIXELS, 0);
+                movePos = Position - new Vector2(CellPixels, 0);
                 MovePossibilityCheck();
 
-                movePos = Position + new Vector2(CELL_PIXELS, 0);
+                movePos = Position + new Vector2(CellPixels, 0);
                 MovePossibilityCheck();
 
-                movePos = Position - new Vector2(CELL_PIXELS, CELL_PIXELS);
+                movePos = Position - new Vector2(CellPixels, CellPixels);
                 MovePossibilityCheck();
 
-                movePos = Position + new Vector2(CELL_PIXELS, CELL_PIXELS);
+                movePos = Position + new Vector2(CellPixels, CellPixels);
                 MovePossibilityCheck();
 
-                movePos = Position - new Vector2(CELL_PIXELS, -CELL_PIXELS);
+                movePos = Position - new Vector2(CellPixels, -CellPixels);
                 MovePossibilityCheck();
 
-                movePos = Position + new Vector2(CELL_PIXELS, -CELL_PIXELS);
+                movePos = Position + new Vector2(CellPixels, -CellPixels);
                 MovePossibilityCheck();
 
                 void MovePossibilityCheck()
                 {
-                    int moveCheck = (int)movementCheck.Call(movePos);
+                    int moveCheck = (int)MovementCheck.Call(movePos);
                     int blockedPosition = moveCheck / 10;
 
-                    bool notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8;
+                    bool notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * 8 && movePos.Y < CellPixels * 8;
 
-                    if (notOutOfBounds && blockedPosition == player)
+                    if (notOutOfBounds && blockedPosition == _player)
                     {
                         checkPosArray[1] = movePos;
-                        CaptureCheck(checkPosArray, Position, 1, SEES_FRIENDLY_PIECE);
+                        CaptureCheck(checkPosArray, Position, 1, SeesFriendlyPiece);
                     }
                     else
                     {
                         checkPosArray[1] = movePos;
-                        CaptureCheck(checkPosArray, Position, 1, PATH);
+                        CaptureCheck(checkPosArray, Position, 1, Path);
                     }
                 }
             }
@@ -1031,29 +1030,31 @@ public partial class Piece : CharacterBody2D
                 int moveCheck;
                 int blockedPosition;
                 int checkId;
+                bool outOfBounds;
 
                 for (int i = -1; i > -8; i--)
                 {
-                    movePos = Position + i * new Vector2(0, CELL_PIXELS); 
-                    moveCheck = (int)movementCheck.Call(movePos);
+                    movePos = Position + i * new Vector2(0, CellPixels); 
+                    moveCheck = (int)MovementCheck.Call(movePos);
                     blockedPosition = moveCheck / 10;
                     checkId = moveCheck % 10;
+                    outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                    if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition > 0 && blockedPosition != player && checkId != 1))
+                    if (outOfBounds || (blockedPosition > 0 && blockedPosition != _player && checkId != 1))
                     {
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, PATH);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, Path);
                         break;
                     }
-                    else if (blockedPosition != 0 && blockedPosition != player && checkId == 1)
+                    else if (blockedPosition != 0 && blockedPosition != _player && checkId == 1)
                     {
                         checkPosArray[Math.Abs(i)] = movePos;
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SEES_ENEMY_KING);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesEnemyKing);
                         break;
                     }
-                    else if (blockedPosition == player)
+                    else if (blockedPosition == _player)
                     {
                         checkPosArray[Math.Abs(i)] = movePos;
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SEES_FRIENDLY_PIECE);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesFriendlyPiece);
                         break;
                     }
                     else
@@ -1064,26 +1065,27 @@ public partial class Piece : CharacterBody2D
 
                 for (int i = 1; i < 8; i++)
                 {
-                    movePos = Position + i * new Vector2(0, CELL_PIXELS);
-                    moveCheck = (int)movementCheck.Call(movePos);
+                    movePos = Position + i * new Vector2(0, CellPixels);
+                    moveCheck = (int)MovementCheck.Call(movePos);
                     blockedPosition = moveCheck / 10;
                     checkId = moveCheck % 10;
+                    outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                    if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition > 0 && blockedPosition != player && checkId != 1))
+                    if (outOfBounds || (blockedPosition > 0 && blockedPosition != _player && checkId != 1))
                     {
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, PATH);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, Path);
                         break;
                     }
-                    else if (blockedPosition != 0 && blockedPosition != player && checkId == 1)
+                    else if (blockedPosition != 0 && blockedPosition != _player && checkId == 1)
                     {
                         checkPosArray[Math.Abs(i)] = movePos;
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SEES_ENEMY_KING);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesEnemyKing);
                         break;
                     }
-                    else if (blockedPosition == player)
+                    else if (blockedPosition == _player)
                     {
                         checkPosArray[Math.Abs(i)] = movePos;
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SEES_FRIENDLY_PIECE);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesFriendlyPiece);
                         break;
                     }
                     else
@@ -1094,26 +1096,27 @@ public partial class Piece : CharacterBody2D
 
                 for (int i = -1; i > -8; i--)
                 {
-                    movePos = Position + i * new Vector2(CELL_PIXELS, 0);
-                    moveCheck = (int)movementCheck.Call(movePos);
+                    movePos = Position + i * new Vector2(CellPixels, 0);
+                    moveCheck = (int)MovementCheck.Call(movePos);
                     blockedPosition = moveCheck / 10;
                     checkId = moveCheck % 10;
+                    outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                    if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition > 0 && blockedPosition != player && checkId != 1))
+                    if (outOfBounds || (blockedPosition > 0 && blockedPosition != _player && checkId != 1))
                     {
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, PATH);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, Path);
                         break;
                     }
-                    else if (blockedPosition != 0 && blockedPosition != player && checkId == 1)
+                    else if (blockedPosition != 0 && blockedPosition != _player && checkId == 1)
                     {
                         checkPosArray[Math.Abs(i)] = movePos;
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SEES_ENEMY_KING);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesEnemyKing);
                         break;
                     }
-                    else if (blockedPosition == player)
+                    else if (blockedPosition == _player)
                     {
                         checkPosArray[Math.Abs(i)] = movePos;
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SEES_FRIENDLY_PIECE);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesFriendlyPiece);
                         break;
                     }
                     else
@@ -1124,26 +1127,27 @@ public partial class Piece : CharacterBody2D
 
                 for (int i = 1; i < 8; i++)
                 {
-                    movePos = Position + i * new Vector2(CELL_PIXELS, 0);
-                    moveCheck = (int)movementCheck.Call(movePos);
+                    movePos = Position + i * new Vector2(CellPixels, 0);
+                    moveCheck = (int)MovementCheck.Call(movePos);
                     blockedPosition = moveCheck / 10;
                     checkId = moveCheck % 10;
+                    outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                    if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition > 0 && blockedPosition != player && checkId != 1))
+                    if (outOfBounds || (blockedPosition > 0 && blockedPosition != _player && checkId != 1))
                     {
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, PATH);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, Path);
                         break;
                     }
-                    else if (blockedPosition != 0 && blockedPosition != player && checkId == 1)
+                    else if (blockedPosition != 0 && blockedPosition != _player && checkId == 1)
                     {
                         checkPosArray[Math.Abs(i)] = movePos;
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SEES_ENEMY_KING);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesEnemyKing);
                         break;
                     }
-                    else if (blockedPosition == player)
+                    else if (blockedPosition == _player)
                     {
                         checkPosArray[Math.Abs(i)] = movePos;
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SEES_FRIENDLY_PIECE);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesFriendlyPiece);
                         break;
                     }
                     else
@@ -1159,29 +1163,31 @@ public partial class Piece : CharacterBody2D
                 int moveCheck;
                 int blockedPosition;
                 int checkId;
+                bool outOfBounds;
 
                 for (int i = -1; i > -8; i--)
                 {
-                    movePos = Position + i * new Vector2(CELL_PIXELS, CELL_PIXELS); 
-                    moveCheck = (int)movementCheck.Call(movePos);
+                    movePos = Position + i * new Vector2(CellPixels, CellPixels); 
+                    moveCheck = (int)MovementCheck.Call(movePos);
                     blockedPosition = moveCheck / 10;
                     checkId = moveCheck % 10;
+                    outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                    if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition > 0 && blockedPosition != player && checkId != 1))
+                    if (outOfBounds || (blockedPosition > 0 && blockedPosition != _player && checkId != 1))
                     {
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, PATH);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, Path);
                         break;
                     }
-                    else if (blockedPosition != 0 && blockedPosition != player && checkId == 1)
+                    else if (blockedPosition != 0 && blockedPosition != _player && checkId == 1)
                     {
                         checkPosArray[Math.Abs(i)] = movePos;
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SEES_ENEMY_KING);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesEnemyKing);
                         break;
                     }
-                    else if (blockedPosition == player)
+                    else if (blockedPosition == _player)
                     {
                         checkPosArray[Math.Abs(i)] = movePos;
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SEES_FRIENDLY_PIECE);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesFriendlyPiece);
                         break;
                     }
                     else
@@ -1192,26 +1198,27 @@ public partial class Piece : CharacterBody2D
 
                 for (int i = 1; i < 8; i++)
                 {
-                    movePos = Position + i * new Vector2(CELL_PIXELS, CELL_PIXELS);
-                    moveCheck = (int)movementCheck.Call(movePos);
+                    movePos = Position + i * new Vector2(CellPixels, CellPixels);
+                    moveCheck = (int)MovementCheck.Call(movePos);
                     blockedPosition = moveCheck / 10;
                     checkId = moveCheck % 10;
+                    outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                    if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition > 0 && blockedPosition != player && checkId != 1))
+                    if (outOfBounds || (blockedPosition > 0 && blockedPosition != _player && checkId != 1))
                     {
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, PATH);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, Path);
                         break;
                     }
-                    else if (blockedPosition != 0 && blockedPosition != player && checkId == 1)
+                    else if (blockedPosition != 0 && blockedPosition != _player && checkId == 1)
                     {
                         checkPosArray[Math.Abs(i)] = movePos;
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SEES_ENEMY_KING);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesEnemyKing);
                         break;
                     }
-                    else if (blockedPosition == player)
+                    else if (blockedPosition == _player)
                     {
                         checkPosArray[Math.Abs(i)] = movePos;
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SEES_FRIENDLY_PIECE);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesFriendlyPiece);
                         break;
                     }
                     else
@@ -1222,26 +1229,27 @@ public partial class Piece : CharacterBody2D
 
                 for (int i = -1; i > -8; i--)
                 {
-                    movePos = Position + i * new Vector2(CELL_PIXELS, -CELL_PIXELS);
-                    moveCheck = (int)movementCheck.Call(movePos);
+                    movePos = Position + i * new Vector2(CellPixels, -CellPixels);
+                    moveCheck = (int)MovementCheck.Call(movePos);
                     blockedPosition = moveCheck / 10;
                     checkId = moveCheck % 10;
+                    outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                    if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition > 0 && blockedPosition != player && checkId != 1))
+                    if (outOfBounds || (blockedPosition > 0 && blockedPosition != _player && checkId != 1))
                     {
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, PATH);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, Path);
                         break;
                     }
-                    else if (blockedPosition != 0 && blockedPosition != player && checkId == 1)
+                    else if (blockedPosition != 0 && blockedPosition != _player && checkId == 1)
                     {
                         checkPosArray[Math.Abs(i)] = movePos;
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SEES_ENEMY_KING);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesEnemyKing);
                         break;
                     }
-                    else if (blockedPosition == player)
+                    else if (blockedPosition == _player)
                     {
                         checkPosArray[Math.Abs(i)] = movePos;
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SEES_FRIENDLY_PIECE);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesFriendlyPiece);
                         break;
                     }
                     else
@@ -1252,26 +1260,27 @@ public partial class Piece : CharacterBody2D
 
                 for (int i = 1; i < 8; i++)
                 {
-                    movePos = Position + i * new Vector2(CELL_PIXELS, -CELL_PIXELS);
-                    moveCheck = (int)movementCheck.Call(movePos);
+                    movePos = Position + i * new Vector2(CellPixels, -CellPixels);
+                    moveCheck = (int)MovementCheck.Call(movePos);
                     blockedPosition = moveCheck / 10;
                     checkId = moveCheck % 10;
+                    outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                    if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || (blockedPosition > 0 && blockedPosition != player && checkId != 1))
+                    if (outOfBounds || (blockedPosition > 0 && blockedPosition != _player && checkId != 1))
                     {
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, PATH);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, Path);
                         break;
                     }
-                    else if (blockedPosition != 0 && blockedPosition != player && checkId == 1)
+                    else if (blockedPosition != 0 && blockedPosition != _player && checkId == 1)
                     {
                         checkPosArray[Math.Abs(i)] = movePos;
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SEES_ENEMY_KING);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesEnemyKing);
                         break;
                     }
-                    else if (blockedPosition == player)
+                    else if (blockedPosition == _player)
                     {
                         checkPosArray[Math.Abs(i)] = movePos;
-                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SEES_FRIENDLY_PIECE);
+                        CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesFriendlyPiece);
                         break;
                     }
                     else
@@ -1297,10 +1306,10 @@ public partial class Piece : CharacterBody2D
 
                     if (capturePos[i] == new Vector2(0, 0) || arrPos == new Vector2I(0, 0))
                     {
-                        GD.Print($"TEST check {Name} {player} {i}");
+                        GD.Print($"TEST check {Name} {_player} {i}");
                     }
 
-                    if (checkSituation == SEES_FRIENDLY_PIECE)
+                    if (checkSituation == SeesFriendlyPiece)
                     {
                         if (i != maxIndex)
                         {
@@ -1311,7 +1320,7 @@ public partial class Piece : CharacterBody2D
                             EmitSignal(SignalName.updateCheck, arrPos, checkSituation, true, true);
                         }
                     }
-                    else if (checkSituation == SEES_ENEMY_KING)
+                    else if (checkSituation == SeesEnemyKing)
                     {
                         EmitSignal(SignalName.updateTiles, Position, new Vector2I(0, 2));
                         EmitSignal(SignalName.storePositions, Position);
@@ -1321,7 +1330,7 @@ public partial class Piece : CharacterBody2D
                         }
                         else
                         {
-                            EmitSignal(SignalName.updateCheck, arrPos, KING_IN_CHECK, false, false);
+                            EmitSignal(SignalName.updateCheck, arrPos, KingInCheck, false, false);
                         }
                     }
                     else
@@ -1332,23 +1341,23 @@ public partial class Piece : CharacterBody2D
             }
         }
 
-        checkUpdatedCheck = true;
+        _checkUpdatedCheck = true;
         EmitSignal(SignalName.checkUpdated);
     }
 
     public void CheckCheckState()
     {
-        if (pieceType == "king" && turn == player)
+        if (_pieceType == "king" && _turn == _player)
         {
-            GD.Print(player, " is checking wether he is on check");
-            int check = (int)checkCheck.Call(Position);
+            GD.Print(_player, " is checking wether he is on check");
+            int check = (int)CheckCheck.Call(Position);
 
-            if (check == KING_IN_CHECK)
+            if (check == KingInCheck)
             {
-                isInCheck = true;
-                GD.Print(player, " is in check");
-                checkPos = Position;
+                _isInCheck = true;
+                GD.Print(_player, " is in check");
                 EmitSignal(SignalName.updateTiles, Position, new Vector2I(1, 2));
+                EmitSignal(SignalName.storePositions, Position);
                 EmitSignal(SignalName.playerInCheck, true);
             }
         }
@@ -1356,8 +1365,8 @@ public partial class Piece : CharacterBody2D
 
     public void SetCheck(bool inCheck)
     {
-        isInCheck = inCheck;
-        if (isInCheck)
+        _isInCheck = inCheck;
+        if (_isInCheck)
         {
             CheckCheckmate();
         }
@@ -1365,26 +1374,26 @@ public partial class Piece : CharacterBody2D
 
     public void CheckCheckmate()
     {
-        if (pieceType == "pawn")
+        if (_pieceType == "pawn")
         {
             PawnMateCheck();
         }
-        else if (pieceType == "knight")
+        else if (_pieceType == "knight")
         {
             KnightMateCheck();
         }
-        else if (pieceType == "king")
+        else if (_pieceType == "king")
         {
             KingMateCheck();
         }
         else
         {
-            if (pieceType == "queen" || pieceType == "rook")
+            if (_pieceType == "queen" || _pieceType == "rook")
             {
                 StraightMateCheck();
             }
 
-            if (pieceType == "queen" || pieceType == "bishop")
+            if (_pieceType == "queen" || _pieceType == "bishop")
             {
                 DiagonalMateCheck();
             }
@@ -1399,50 +1408,50 @@ public partial class Piece : CharacterBody2D
             int moveCheck;
             int blockedPosition;
 
-            if (firstMovement == true)
+            if (_firstMovement == true)
             {
                 for (int i = 1; i <= 2; i++)
                 {
-                    movePos = Position + new Vector2(CELL_PIXELS, CELL_PIXELS) * pawnVector;
-                    positionSituation = (int)checkArrayCheck.Call(movePos);
-                    moveCheck = (int)movementCheck.Call(movePos);
+                    movePos = Position + new Vector2(CellPixels, CellPixels) * _pawnVector;
+                    positionSituation = (int)CheckArrayCheck.Call(movePos);
+                    moveCheck = (int)MovementCheck.Call(movePos);
                     blockedPosition = moveCheck / 10;
 
-                    if (positionSituation == PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED_AND_SEES)
+                    if (positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
                     {
                         return;
                     }
                     else if (blockedPosition < 0)
                     {
-                        positionSituation = (int)checkArrayCheck.Call(movePos + new Vector2(0, 32) * -pawnVector);
-                        if (positionSituation == PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED_AND_SEES)
+                        positionSituation = (int)CheckArrayCheck.Call(movePos + new Vector2(0, 32) * -_pawnVector);
+                        if (positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
                         {
                             return;
                         }
                     }
 
-                    movePos = Position + new Vector2(-CELL_PIXELS, CELL_PIXELS) * pawnVector;
-                    positionSituation = (int)checkArrayCheck.Call(movePos);
-                    moveCheck = (int)movementCheck.Call(movePos);
+                    movePos = Position + new Vector2(-CellPixels, CellPixels) * _pawnVector;
+                    positionSituation = (int)CheckArrayCheck.Call(movePos);
+                    moveCheck = (int)MovementCheck.Call(movePos);
                     blockedPosition = moveCheck / 10;
 
-                    if (positionSituation == PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED_AND_SEES)
+                    if (positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
                     {
                         return;
                     }
                     else if (blockedPosition < 0)
                     {
-                        positionSituation = (int)checkArrayCheck.Call(movePos + new Vector2(0, 32) * -pawnVector);
-                        if (positionSituation == PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED_AND_SEES)
+                        positionSituation = (int)CheckArrayCheck.Call(movePos + new Vector2(0, 32) * -_pawnVector);
+                        if (positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
                         {
                             return;
                         }
                     }
 
-                    movePos = Position + i * new Vector2(0, CELL_PIXELS) * pawnVector;
-                    positionSituation = (int)checkArrayCheck.Call(movePos);
+                    movePos = Position + i * new Vector2(0, CellPixels) * _pawnVector;
+                    positionSituation = (int)CheckArrayCheck.Call(movePos);
 
-                    if (positionSituation == SEES_ENEMY_KING)
+                    if (positionSituation == SeesEnemyKing)
                     {
                         return;
                     }
@@ -1450,52 +1459,52 @@ public partial class Piece : CharacterBody2D
             }
             else
             {
-                movePos = Position + new Vector2(0, CELL_PIXELS) * pawnVector;
-                positionSituation = (int)checkArrayCheck.Call(movePos);
+                movePos = Position + new Vector2(0, CellPixels) * _pawnVector;
+                positionSituation = (int)CheckArrayCheck.Call(movePos);
 
-                if (positionSituation == SEES_ENEMY_KING)
+                if (positionSituation == SeesEnemyKing)
                 {
                     return;
                 }
 
-                movePos = Position + new Vector2(CELL_PIXELS, CELL_PIXELS) * pawnVector;
-                positionSituation = (int)checkArrayCheck.Call(movePos);
-                moveCheck = (int)movementCheck.Call(movePos);
+                movePos = Position + new Vector2(CellPixels, CellPixels) * _pawnVector;
+                positionSituation = (int)CheckArrayCheck.Call(movePos);
+                moveCheck = (int)MovementCheck.Call(movePos);
                 blockedPosition = moveCheck / 10;
 
-                if (positionSituation == PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED_AND_SEES)
+                if (positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
                 {
                     return;
                 }
                 else if (blockedPosition < 0)
                 {
-                    positionSituation = (int)checkArrayCheck.Call(movePos + new Vector2(0, 32) * -pawnVector);
-                    if (positionSituation == PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED_AND_SEES)
+                    positionSituation = (int)CheckArrayCheck.Call(movePos + new Vector2(0, 32) * -_pawnVector);
+                    if (positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
                     {
                         return;
                     }
                 }
 
-                movePos = Position + new Vector2(-CELL_PIXELS, CELL_PIXELS) * pawnVector;
-                positionSituation = (int)checkArrayCheck.Call(movePos);
-                moveCheck = (int)movementCheck.Call(movePos);
+                movePos = Position + new Vector2(-CellPixels, CellPixels) * _pawnVector;
+                positionSituation = (int)CheckArrayCheck.Call(movePos);
+                moveCheck = (int)MovementCheck.Call(movePos);
                 blockedPosition = moveCheck / 10;
 
-                if (positionSituation == PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED_AND_SEES)
+                if (positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
                 {
                     return;
                 }
                 else if (blockedPosition < 0)
                 {
-                    positionSituation = (int)checkArrayCheck.Call(movePos + new Vector2(0, 32) * -pawnVector);
-                    if (positionSituation == PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED_AND_SEES)
+                    positionSituation = (int)CheckArrayCheck.Call(movePos + new Vector2(0, 32) * -_pawnVector);
+                    if (positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
                     {
                         return;
                     }
                 }
             }
 
-            checkmate = true;
+            _checkmate = true;
         }
 
         void KnightMateCheck()
@@ -1503,71 +1512,71 @@ public partial class Piece : CharacterBody2D
             Vector2 movePos;
             int positionSituation;
 
-            movePos = Position - new Vector2(CELL_PIXELS, 0) + new Vector2(0, -(2 * CELL_PIXELS));
-            positionSituation = (int)checkArrayCheck.Call(movePos);
+            movePos = Position - new Vector2(CellPixels, 0) + new Vector2(0, -(2 * CellPixels));
+            positionSituation = (int)CheckArrayCheck.Call(movePos);
 
-            if (positionSituation == SEES_ENEMY_KING || positionSituation == PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED_AND_SEES)
+            if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
             {
                 return;
             }
 
-            movePos = Position + new Vector2(CELL_PIXELS, 0) + new Vector2(0, -(2 * CELL_PIXELS));
-            positionSituation = (int)checkArrayCheck.Call(movePos);
+            movePos = Position + new Vector2(CellPixels, 0) + new Vector2(0, -(2 * CellPixels));
+            positionSituation = (int)CheckArrayCheck.Call(movePos);
 
-            if (positionSituation == SEES_ENEMY_KING || positionSituation == PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED_AND_SEES)
+            if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
             {
                 return;
             }
 
-            movePos = Position - new Vector2(0, CELL_PIXELS) + new Vector2((2 * CELL_PIXELS), 0);
-            positionSituation = (int)checkArrayCheck.Call(movePos);
+            movePos = Position - new Vector2(0, CellPixels) + new Vector2((2 * CellPixels), 0);
+            positionSituation = (int)CheckArrayCheck.Call(movePos);
 
-            if (positionSituation == SEES_ENEMY_KING || positionSituation == PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED_AND_SEES)
+            if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
             {
                 return;
             }
 
-            movePos = Position + new Vector2(0, CELL_PIXELS) + new Vector2((2 * CELL_PIXELS), 0);
-            positionSituation = (int)checkArrayCheck.Call(movePos);
+            movePos = Position + new Vector2(0, CellPixels) + new Vector2((2 * CellPixels), 0);
+            positionSituation = (int)CheckArrayCheck.Call(movePos);
 
-            if (positionSituation == SEES_ENEMY_KING || positionSituation == PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED_AND_SEES)
+            if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
             {
                 return;
             }
 
-            movePos = Position - new Vector2(CELL_PIXELS, 0) + new Vector2(0, (2 * CELL_PIXELS));
-            positionSituation = (int)checkArrayCheck.Call(movePos);
+            movePos = Position - new Vector2(CellPixels, 0) + new Vector2(0, (2 * CellPixels));
+            positionSituation = (int)CheckArrayCheck.Call(movePos);
 
-            if (positionSituation == SEES_ENEMY_KING || positionSituation == PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED_AND_SEES)
+            if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
             {
                 return;
             }
 
-            movePos = Position + new Vector2(CELL_PIXELS, 0) + new Vector2(0, (2 * CELL_PIXELS));
-            positionSituation = (int)checkArrayCheck.Call(movePos);
+            movePos = Position + new Vector2(CellPixels, 0) + new Vector2(0, (2 * CellPixels));
+            positionSituation = (int)CheckArrayCheck.Call(movePos);
 
-            if (positionSituation == SEES_ENEMY_KING || positionSituation == PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED_AND_SEES)
+            if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
             {
                 return;
             }
 
-            movePos = Position - new Vector2(0, CELL_PIXELS) + new Vector2(-(2 * CELL_PIXELS), 0);
-            positionSituation = (int)checkArrayCheck.Call(movePos);
+            movePos = Position - new Vector2(0, CellPixels) + new Vector2(-(2 * CellPixels), 0);
+            positionSituation = (int)CheckArrayCheck.Call(movePos);
 
-            if (positionSituation == SEES_ENEMY_KING || positionSituation == PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED_AND_SEES)
+            if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
             {
                 return;
             }
 
-            movePos = Position + new Vector2(0, CELL_PIXELS) + new Vector2(-(2 * CELL_PIXELS), 0);
-            positionSituation = (int)checkArrayCheck.Call(movePos);
+            movePos = Position + new Vector2(0, CellPixels) + new Vector2(-(2 * CellPixels), 0);
+            positionSituation = (int)CheckArrayCheck.Call(movePos);
 
-            if (positionSituation == SEES_ENEMY_KING || positionSituation == PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED_AND_SEES)
+            if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
             {
                 return;
             }
 
-            checkmate = true;
+            _checkmate = true;
         }
 
         void KingMateCheck()
@@ -1576,88 +1585,97 @@ public partial class Piece : CharacterBody2D
             int moveCheck;
             int blockedPosition;
             int positionSituation;
+            bool notOutOfBounds;
 
-            movePos = Position - new Vector2(0, CELL_PIXELS);
-            moveCheck = (int)movementCheck.Call(movePos);
+            movePos = Position - new Vector2(0, CellPixels);
+            moveCheck = (int)MovementCheck.Call(movePos);
             blockedPosition = moveCheck / 10;
-            positionSituation = (int)checkArrayCheck.Call(movePos);
+            positionSituation = (int)CheckArrayCheck.Call(movePos);
+            notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * 8 && movePos.Y < CellPixels * 8;
 
-            if ((positionSituation == 0 && blockedPosition == 0 && movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8) || positionSituation == NOT_PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED)
+            if ((positionSituation == 0 && blockedPosition <= 0 && notOutOfBounds) || positionSituation == NotProtectedAndSees || positionSituation == NotProtected)
             {
                 return;
             }
 
-            movePos = Position + new Vector2(0, CELL_PIXELS);
-            moveCheck = (int)movementCheck.Call(movePos);
+            movePos = Position + new Vector2(0, CellPixels);
+            moveCheck = (int)MovementCheck.Call(movePos);
             blockedPosition = moveCheck / 10;
-            positionSituation = (int)checkArrayCheck.Call(movePos);
+            positionSituation = (int)CheckArrayCheck.Call(movePos);
+            notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * 8 && movePos.Y < CellPixels * 8;
 
-            if ((positionSituation == 0 && blockedPosition == 0 && movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8) || positionSituation == NOT_PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED)
+            if ((positionSituation == 0 && blockedPosition <= 0 && notOutOfBounds) || positionSituation == NotProtectedAndSees || positionSituation == NotProtected)
             {
                 return;
             }
 
-            movePos = Position - new Vector2(CELL_PIXELS, 0);
-            moveCheck = (int)movementCheck.Call(movePos);
+            movePos = Position - new Vector2(CellPixels, 0);
+            moveCheck = (int)MovementCheck.Call(movePos);
             blockedPosition = moveCheck / 10;
-            positionSituation = (int)checkArrayCheck.Call(movePos);
+            positionSituation = (int)CheckArrayCheck.Call(movePos);
+            notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * 8 && movePos.Y < CellPixels * 8;
 
-            if ((positionSituation == 0 && blockedPosition == 0 && movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8) || positionSituation == NOT_PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED)
+            if ((positionSituation == 0 && blockedPosition <= 0 && notOutOfBounds) || positionSituation == NotProtectedAndSees || positionSituation == NotProtected)
             {
                 return;
             }
 
-            movePos = Position + new Vector2(CELL_PIXELS, 0);
-            moveCheck = (int)movementCheck.Call(movePos);
+            movePos = Position + new Vector2(CellPixels, 0);
+            moveCheck = (int)MovementCheck.Call(movePos);
             blockedPosition = moveCheck / 10;
-            positionSituation = (int)checkArrayCheck.Call(movePos);
+            positionSituation = (int)CheckArrayCheck.Call(movePos);
+            notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * 8 && movePos.Y < CellPixels * 8;
 
-            if ((positionSituation == 0 && blockedPosition == 0 && movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8) || positionSituation == NOT_PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED)
+            if ((positionSituation == 0 && blockedPosition <= 0 && notOutOfBounds) || positionSituation == NotProtectedAndSees || positionSituation == NotProtected)
             {
                 return;
             }
 
-            movePos = Position - new Vector2(CELL_PIXELS, CELL_PIXELS);
-            moveCheck = (int)movementCheck.Call(movePos);
+            movePos = Position - new Vector2(CellPixels, CellPixels);
+            moveCheck = (int)MovementCheck.Call(movePos);
             blockedPosition = moveCheck / 10;
-            positionSituation = (int)checkArrayCheck.Call(movePos);
+            positionSituation = (int)CheckArrayCheck.Call(movePos);
+            notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * 8 && movePos.Y < CellPixels * 8;
 
-            if ((positionSituation == 0 && blockedPosition == 0 && movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8) || positionSituation == NOT_PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED)
+            if ((positionSituation == 0 && blockedPosition <= 0 && notOutOfBounds) || positionSituation == NotProtectedAndSees || positionSituation == NotProtected)
             {
                 return;
             }
 
-            movePos = Position + new Vector2(CELL_PIXELS, CELL_PIXELS);
-            moveCheck = (int)movementCheck.Call(movePos);
+            movePos = Position + new Vector2(CellPixels, CellPixels);
+            moveCheck = (int)MovementCheck.Call(movePos);
             blockedPosition = moveCheck / 10;
-            positionSituation = (int)checkArrayCheck.Call(movePos);
+            positionSituation = (int)CheckArrayCheck.Call(movePos);
+            notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * 8 && movePos.Y < CellPixels * 8;
 
-            if ((positionSituation == 0 && blockedPosition == 0 && movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8) || positionSituation == NOT_PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED)
+            if ((positionSituation == 0 && blockedPosition <= 0 && notOutOfBounds) || positionSituation == NotProtectedAndSees || positionSituation == NotProtected)
             {
                 return;
             }
 
-            movePos = Position - new Vector2(CELL_PIXELS, -CELL_PIXELS);
-            moveCheck = (int)movementCheck.Call(movePos);
+            movePos = Position - new Vector2(CellPixels, -CellPixels);
+            moveCheck = (int)MovementCheck.Call(movePos);
             blockedPosition = moveCheck / 10;
-            positionSituation = (int)checkArrayCheck.Call(movePos);
+            positionSituation = (int)CheckArrayCheck.Call(movePos);
+            notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * 8 && movePos.Y < CellPixels * 8;
 
-            if ((positionSituation == 0 && blockedPosition == 0 && movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8) || positionSituation == NOT_PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED)
+            if ((positionSituation == 0 && blockedPosition <= 0 && notOutOfBounds) || positionSituation == NotProtectedAndSees || positionSituation == NotProtected)
             {
                 return;
             }
 
-            movePos = Position + new Vector2(CELL_PIXELS, -CELL_PIXELS);
-            moveCheck = (int)movementCheck.Call(movePos);
+            movePos = Position + new Vector2(CellPixels, -CellPixels);
+            moveCheck = (int)MovementCheck.Call(movePos);
             blockedPosition = moveCheck / 10;
-            positionSituation = (int)checkArrayCheck.Call(movePos);
+            positionSituation = (int)CheckArrayCheck.Call(movePos);
+            notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * 8 && movePos.Y < CellPixels * 8;
 
-            if ((positionSituation == 0 && blockedPosition == 0 && movePos.X > 0 && movePos.Y > 0 && movePos.X < CELL_PIXELS * 8 && movePos.Y < CELL_PIXELS * 8) || positionSituation == NOT_PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED)
+            if ((positionSituation == 0 && blockedPosition <= 0 && notOutOfBounds) || positionSituation == NotProtectedAndSees || positionSituation == NotProtected)
             {
                 return;
             }
 
-            checkmate = true;
+            _checkmate = true;
         }
 
         void StraightMateCheck()
@@ -1667,20 +1685,20 @@ public partial class Piece : CharacterBody2D
             int blockedPosition;
             int positionSituation;
 
-            checkmate = false;
+            _checkmate = false;
 
             for (int i = -1; i > -8; i--)
             {
-                movePos = Position + i * new Vector2(0, CELL_PIXELS);
-                moveCheck = (int)movementCheck.Call(movePos);
+                movePos = Position + i * new Vector2(0, CellPixels);
+                moveCheck = (int)MovementCheck.Call(movePos);
                 blockedPosition = moveCheck / 10;
-                positionSituation = (int)checkArrayCheck.Call(movePos);
+                positionSituation = (int)CheckArrayCheck.Call(movePos);
 
-                if (positionSituation == SEES_ENEMY_KING || positionSituation == PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED_AND_SEES)
+                if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
                 {
                     return;
                 }
-                else if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || blockedPosition == player)
+                else if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8 || blockedPosition == _player)
                 {
                     break;
                 }
@@ -1688,16 +1706,16 @@ public partial class Piece : CharacterBody2D
 
             for (int i = 1; i < 8; i++)
             {
-                movePos = Position + i * new Vector2(0, CELL_PIXELS);
-                moveCheck = (int)movementCheck.Call(movePos);
+                movePos = Position + i * new Vector2(0, CellPixels);
+                moveCheck = (int)MovementCheck.Call(movePos);
                 blockedPosition = moveCheck / 10;
-                positionSituation = (int)checkArrayCheck.Call(movePos);
+                positionSituation = (int)CheckArrayCheck.Call(movePos);
 
-                if (positionSituation == SEES_ENEMY_KING || positionSituation == PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED_AND_SEES)
+                if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
                 {
                     return;
                 }
-                else if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || blockedPosition == player)
+                else if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8 || blockedPosition == _player)
                 {
                     break;
                 }
@@ -1705,16 +1723,16 @@ public partial class Piece : CharacterBody2D
 
             for (int i = -1; i > -8; i--)
             {
-                movePos = Position + i * new Vector2(CELL_PIXELS, 0);
-                moveCheck = (int)movementCheck.Call(movePos);
+                movePos = Position + i * new Vector2(CellPixels, 0);
+                moveCheck = (int)MovementCheck.Call(movePos);
                 blockedPosition = moveCheck / 10;
-                positionSituation = (int)checkArrayCheck.Call(movePos);
+                positionSituation = (int)CheckArrayCheck.Call(movePos);
 
-                if (positionSituation == SEES_ENEMY_KING || positionSituation == PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED_AND_SEES)
+                if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
                 {
                     return;
                 }
-                else if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || blockedPosition == player)
+                else if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8 || blockedPosition == _player)
                 {
                     break;
                 }
@@ -1722,22 +1740,22 @@ public partial class Piece : CharacterBody2D
 
             for (int i = 1; i < 8; i++)
             {
-                movePos = Position + i * new Vector2(CELL_PIXELS, 0);
-                moveCheck = (int)movementCheck.Call(movePos);
+                movePos = Position + i * new Vector2(CellPixels, 0);
+                moveCheck = (int)MovementCheck.Call(movePos);
                 blockedPosition = moveCheck / 10;
-                positionSituation = (int)checkArrayCheck.Call(movePos);
+                positionSituation = (int)CheckArrayCheck.Call(movePos);
 
-                if (positionSituation == SEES_ENEMY_KING || positionSituation == PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED_AND_SEES)
+                if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
                 {
                     return;
                 }
-                else if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || blockedPosition == player)
+                else if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8 || blockedPosition == _player)
                 {
                     break;
                 }
             }
 
-            checkmate = true;
+            _checkmate = true;
         }
 
         void DiagonalMateCheck()
@@ -1747,20 +1765,20 @@ public partial class Piece : CharacterBody2D
             int blockedPosition;
             int positionSituation;
 
-            checkmate = false;
+            _checkmate = false;
 
             for (int i = -1; i > -8; i--)
             {
-                movePos = Position + i * new Vector2(CELL_PIXELS, CELL_PIXELS);
-                moveCheck = (int)movementCheck.Call(movePos);
+                movePos = Position + i * new Vector2(CellPixels, CellPixels);
+                moveCheck = (int)MovementCheck.Call(movePos);
                 blockedPosition = moveCheck / 10;
-                positionSituation = (int)checkArrayCheck.Call(movePos);
+                positionSituation = (int)CheckArrayCheck.Call(movePos);
 
-                if (positionSituation == SEES_ENEMY_KING || positionSituation == PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED_AND_SEES)
+                if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
                 {
                     return;
                 }
-                else if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || blockedPosition == player)
+                else if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8 || blockedPosition == _player)
                 {
                     break;
                 }
@@ -1768,16 +1786,16 @@ public partial class Piece : CharacterBody2D
 
             for (int i = 1; i < 8; i++)
             {
-                movePos = Position + i * new Vector2(CELL_PIXELS, CELL_PIXELS);
-                moveCheck = (int)movementCheck.Call(movePos);
+                movePos = Position + i * new Vector2(CellPixels, CellPixels);
+                moveCheck = (int)MovementCheck.Call(movePos);
                 blockedPosition = moveCheck / 10;
-                positionSituation = (int)checkArrayCheck.Call(movePos);
+                positionSituation = (int)CheckArrayCheck.Call(movePos);
 
-                if (positionSituation == SEES_ENEMY_KING || positionSituation == PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED_AND_SEES)
+                if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
                 {
                     return;
                 }
-                else if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || blockedPosition == player)
+                else if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8 || blockedPosition == _player)
                 {
                     break;
                 }
@@ -1785,16 +1803,16 @@ public partial class Piece : CharacterBody2D
 
             for (int i = -1; i > -8; i--)
             {
-                movePos = Position + i * new Vector2(CELL_PIXELS, -CELL_PIXELS);
-                moveCheck = (int)movementCheck.Call(movePos);
+                movePos = Position + i * new Vector2(CellPixels, -CellPixels);
+                moveCheck = (int)MovementCheck.Call(movePos);
                 blockedPosition = moveCheck / 10;
-                positionSituation = (int)checkArrayCheck.Call(movePos);
+                positionSituation = (int)CheckArrayCheck.Call(movePos);
 
-                if (positionSituation == SEES_ENEMY_KING || positionSituation == PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED_AND_SEES)
+                if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
                 {
                     return;
                 }
-                else if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || blockedPosition == player)
+                else if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8 || blockedPosition == _player)
                 {
                     break;
                 }
@@ -1802,22 +1820,22 @@ public partial class Piece : CharacterBody2D
 
             for (int i = 1; i < 8; i++)
             {
-                movePos = Position + i * new Vector2(CELL_PIXELS, -CELL_PIXELS);
-                moveCheck = (int)movementCheck.Call(movePos);
+                movePos = Position + i * new Vector2(CellPixels, -CellPixels);
+                moveCheck = (int)MovementCheck.Call(movePos);
                 blockedPosition = moveCheck / 10;
-                positionSituation = (int)checkArrayCheck.Call(movePos);
+                positionSituation = (int)CheckArrayCheck.Call(movePos);
 
-                if (positionSituation == SEES_ENEMY_KING || positionSituation == PROTECTED_AND_SEES || positionSituation == NOT_PROTECTED_AND_SEES)
+                if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
                 {
                     return;
                 }
-                else if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CELL_PIXELS * 8 || movePos.Y > CELL_PIXELS * 8 || blockedPosition == player)
+                else if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8 || blockedPosition == _player)
                 {
                     break;
                 }
             }
 
-            checkmate = true;
+            _checkmate = true;
         }
     }
 
@@ -1826,7 +1844,7 @@ public partial class Piece : CharacterBody2D
         GD.Print("Check castling");
         if (position == Position)
         {
-            if (firstMovement)
+            if (_firstMovement)
             {
                 GD.Print("castling");
                 EmitSignal(SignalName.allowCastling, true, Position);
@@ -1844,28 +1862,28 @@ public partial class Piece : CharacterBody2D
         TileMap board = GetNode<TileMap>("../..");
         Vector2 movePos;
 
-        GD.Print($"Castling {castlingAllowed} {pieceType}");
-        if (pieceType == "king" && castlingAllowed)
+        GD.Print($"Castling {castlingAllowed} {_pieceType}");
+        if (_pieceType == "king" && castlingAllowed)
         {
             Vector2I cell = board.LocalToMap(rookPosition);
             GD.Print($"Castling cell {cell}");
             if (cell.X == 0)
             {
                 GD.Print("Long castling");
-                movePos = Position + new Vector2(-2 * CELL_PIXELS, 0);
-                CharacterBody2D _movement = (CharacterBody2D)movement.Instantiate();
-                AddChild(_movement);
+                movePos = Position + new Vector2(-2 * CellPixels, 0);
+                CharacterBody2D movement = (CharacterBody2D)_movement.Instantiate();
+                AddChild(movement);
                 GD.Print(movePos);
-                _movement.Position = movePos;
+                movement.Position = movePos;
             }
             else if (cell.X == 7)
             {
                 GD.Print("Short castling");
-                movePos = Position + new Vector2(2 * CELL_PIXELS, 0);
-                CharacterBody2D _movement = (CharacterBody2D)movement.Instantiate();
-                AddChild(_movement);
+                movePos = Position + new Vector2(2 * CellPixels, 0);
+                CharacterBody2D movement = (CharacterBody2D)_movement.Instantiate();
+                AddChild(movement);
                 GD.Print(movePos);
-                _movement.Position = movePos;
+                movement.Position = movePos;
             }
         }
     }
@@ -1877,7 +1895,7 @@ public partial class Piece : CharacterBody2D
         {
             Vector2 oldPos = Position;
             Position = newPosition;
-            EmitSignal(SignalName.pieceMoved, newPosition, oldPos, id, false);
+            EmitSignal(SignalName.pieceMoved, newPosition, oldPos, _id, false);
         }
     }
 }

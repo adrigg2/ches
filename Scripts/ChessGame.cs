@@ -20,20 +20,24 @@ public partial class ChessGame : Node2D
     [Signal]
     public delegate void checkCheckEventHandler();
 
-    PackedScene board;
+    private PackedScene _board;
 
-    int[,] boardCells;
-    int[,] boardCellsCheck;
+    private int[,] _boardCells;
+    private int[,] _boardCellsCheck;
 
     public override void _Ready()
 	{
-        board = (PackedScene)ResourceLoader.Load("res://scenes/scenery/board.tscn");
-        TileMap board_ = (TileMap)board.Instantiate();
-        AddChild(board_);
-        board_.Position = new Vector2(256, 64);
+        _board = (PackedScene)ResourceLoader.Load("res://scenes/scenery/board.tscn");
+        TileMap board = (TileMap)_board.Instantiate();
+        AddChild(board);
+        board.Position = new Vector2(256, 64);
 
         Button button = GetNode<Button>("Button");
         button.Pressed += Reset;
+
+        Piece.MovementCheck = new Callable(this, "MovementCheck");
+        Piece.CheckCheck = new Callable(this, "CheckCheck");
+        Piece.CheckArrayCheck = new Callable(this, "CheckArrayCheck");
     }
 
     public void DisableMovement()
@@ -54,14 +58,14 @@ public partial class ChessGame : Node2D
 
     public void BoardCellCount(int rows, int columns)
     {
-        boardCells = new int[rows, columns];
-        boardCellsCheck = new int[rows, columns];
+        _boardCells = new int[rows, columns];
+        _boardCellsCheck = new int[rows, columns];
         for (int i = 0; i < columns; i++)
         {
             for (int j = 0; j < rows; j++)
             {
-                boardCells[i, j] = 0;
-                boardCellsCheck[i, j] = 0;
+                _boardCells[i, j] = 0;
+                _boardCellsCheck[i, j] = 0;
             }
         }
         DebugTracking(); //DEBUG
@@ -73,17 +77,17 @@ public partial class ChessGame : Node2D
         Label debugTracker2 = GetNode<Label>("DebugTracker2"); //DEBUG
         debugTracker.Text = null;
         debugTracker2.Text = null;
-        for (int i = 0; i < boardCells.GetLength(0); i++)
+        for (int i = 0; i < _boardCells.GetLength(0); i++)
         {
-            for (int j = 0; j < boardCells.GetLength(1); j++)
+            for (int j = 0; j < _boardCells.GetLength(1); j++)
             {
-                debugTracker.Text += (boardCells[j, i] / 10).ToString();
-                debugTracker2.Text += Math.Abs(boardCellsCheck[j, i]).ToString();
+                debugTracker.Text += (_boardCells[j, i] / 10).ToString();
+                debugTracker2.Text += Math.Abs(_boardCellsCheck[j, i]).ToString();
             }
             debugTracker.Text += "\n";
             debugTracker2.Text += "\n";
         }
-        GD.Print($"{boardCellsCheck[7, 4]} SEES (7, 4)");
+        GD.Print($"{_boardCellsCheck[7, 4]} SEES (7, 4)");
     }
 
     public void UpdateBoard(Vector2 piecePos, Vector2 oldPos, int player, bool promotion)
@@ -100,8 +104,8 @@ public partial class ChessGame : Node2D
         GD.Print(arrPos, "new");
         GD.Print(oldArrPos, "old");
 
-        boardCells[arrPos.X, arrPos.Y] = player;
-        boardCells[oldArrPos.X, oldArrPos.Y] = 0;
+        _boardCells[arrPos.X, arrPos.Y] = player;
+        _boardCells[oldArrPos.X, oldArrPos.Y] = 0;
 
         CheckReset();
         if (!promotion)
@@ -130,12 +134,13 @@ public partial class ChessGame : Node2D
         Vector2I arrPos;
         TileMap board_ = GetNode<TileMap>("Board");
         arrPos = board_.LocalToMap(posCheck);
-        return boardCells[arrPos.X, arrPos.Y];
+        return _boardCells[arrPos.X, arrPos.Y];
     }
 
     public void PlayersSet()
     {
         TileMap board = GetNode<TileMap>("Board");
+
         foreach (Node player_ in board.GetChildren())
         {
             if (player_.HasMeta("player"))
@@ -148,14 +153,10 @@ public partial class ChessGame : Node2D
                         Connect("changeTurn", new Callable(piece, "ChangeTurn"));
                         Connect("setCapture", new Callable(piece, "Capture"));
                         Connect("checkCheck", new Callable(piece, "CheckCheckState"));
-
-                        piece.Set("movementCheck", new Callable(this, "MovementCheck"));
-                        piece.Set("checkCheck", new Callable(this, "CheckCheck"));
-                        piece.Set("checkArrayCheck", new Callable(this, "CheckArrayCheck"));
                     }
                 }
             }
-        }        
+        }
     }
 
     public void Capture(Vector2 capturePos, CharacterBody2D capture)
@@ -173,7 +174,7 @@ public partial class ChessGame : Node2D
         const int NOT_PROTECTED = 7;
         const int KING_IN_CHECK = 8;
 
-        int cell = boardCellsCheck[arrPos.X, arrPos.Y];
+        int cell = _boardCellsCheck[arrPos.X, arrPos.Y];
 
         if (pieceCell)
         {
@@ -181,29 +182,29 @@ public partial class ChessGame : Node2D
             {
                 if (cell == PROTECTED)
                 {
-                    boardCellsCheck[arrPos.X, arrPos.Y] = PROTECTED_AND_SEES;
+                    _boardCellsCheck[arrPos.X, arrPos.Y] = PROTECTED_AND_SEES;
                 }
                 else
                 {
-                    boardCellsCheck[arrPos.X, arrPos.Y] = NOT_PROTECTED_AND_SEES;
+                    _boardCellsCheck[arrPos.X, arrPos.Y] = NOT_PROTECTED_AND_SEES;
                 }
             }
             else if (protectedPiece)
             {
                 if (cell == NOT_PROTECTED_AND_SEES)
                 {
-                    boardCellsCheck[arrPos.X, arrPos.Y] = PROTECTED_AND_SEES;
+                    _boardCellsCheck[arrPos.X, arrPos.Y] = PROTECTED_AND_SEES;
                 }
                 else
                 {
-                    boardCellsCheck[arrPos.X, arrPos.Y] = PROTECTED;
+                    _boardCellsCheck[arrPos.X, arrPos.Y] = PROTECTED;
                 }
             }
             else
             {
                 if (cell != PROTECTED && cell != PROTECTED_AND_SEES && cell != NOT_PROTECTED_AND_SEES)
                 {
-                    boardCellsCheck[arrPos.X, arrPos.Y] = NOT_PROTECTED;
+                    _boardCellsCheck[arrPos.X, arrPos.Y] = NOT_PROTECTED;
                 }
             }
         }
@@ -211,15 +212,15 @@ public partial class ChessGame : Node2D
         {
             if (cell == 0 && checkSituation != SEES_ENEMY_KING && checkSituation != KING_IN_CHECK)
             {
-                boardCellsCheck[arrPos.X, arrPos.Y] = PATH;
+                _boardCellsCheck[arrPos.X, arrPos.Y] = PATH;
             }
             else if (checkSituation == SEES_ENEMY_KING)
             {
-                boardCellsCheck[arrPos.X, arrPos.Y] = SEES_ENEMY_KING;
+                _boardCellsCheck[arrPos.X, arrPos.Y] = SEES_ENEMY_KING;
             }
             else if (checkSituation == KING_IN_CHECK)
             {
-                boardCellsCheck[arrPos.X, arrPos.Y] = KING_IN_CHECK;
+                _boardCellsCheck[arrPos.X, arrPos.Y] = KING_IN_CHECK;
             }
         }
 
@@ -228,11 +229,11 @@ public partial class ChessGame : Node2D
 
     public void CheckReset()
     {
-        for (int i = 0; i < boardCells.GetLength(0); i++)
+        for (int i = 0; i < _boardCells.GetLength(0); i++)
         {
-            for (int j = 0; j < boardCells.GetLength(1); j++)
+            for (int j = 0; j < _boardCells.GetLength(1); j++)
             {
-                boardCellsCheck[i, j] = 0;
+                _boardCellsCheck[i, j] = 0;
             }
         }
         DebugTracking(); //DEBUG
@@ -244,8 +245,8 @@ public partial class ChessGame : Node2D
         TileMap board_ = GetNode<TileMap>("Board");
         arrPos = board_.LocalToMap(posCheck);
         GD.Print(arrPos, " check check");
-        GD.Print(boardCellsCheck[arrPos.X, arrPos.Y], " check check");
-        return boardCellsCheck[arrPos.X, arrPos.Y];
+        GD.Print(_boardCellsCheck[arrPos.X, arrPos.Y], " check check");
+        return _boardCellsCheck[arrPos.X, arrPos.Y];
     }
 
     public void CheckFinished()
@@ -259,8 +260,8 @@ public partial class ChessGame : Node2D
         Vector2I arrPos;
         TileMap board_ = GetNode<TileMap>("Board");
         arrPos = board_.LocalToMap(posCheck);
-        GD.Print("Check array ", boardCellsCheck[arrPos.X, arrPos.Y]);
-        return boardCellsCheck[arrPos.X, arrPos.Y];
+        GD.Print("Check array ", _boardCellsCheck[arrPos.X, arrPos.Y]);
+        return _boardCellsCheck[arrPos.X, arrPos.Y];
     }
 
     public void Checkmate(int looser)
@@ -297,7 +298,7 @@ public partial class ChessGame : Node2D
     private void Reset()
     {
         TileMap ogBoard = GetNode<TileMap>("Board");
-        TileMap board_ = (TileMap)board.Instantiate();
+        TileMap board_ = (TileMap)_board.Instantiate();
         Label winnerText = GetNode<Label>("EndGame");
         Label debug1 = GetNode<Label>("DebugTracker"); //DEBUG
         Label debug2 = GetNode<Label>("DebugTracker2"); //DEBUG
@@ -328,10 +329,6 @@ public partial class ChessGame : Node2D
         Connect("checkCheck", new Callable(piece, "CheckCheckState"));
         GD.Print($"Finished connecting {piece.Name} to master");
 
-        piece.Set("movementCheck", new Callable(this, "MovementCheck"));
-        piece.Set("checkCheck", new Callable(this, "CheckCheck"));
-        piece.Set("checkArrayCheck", new Callable(this, "CheckArrayCheck"));
-
         if (player == 1)
         {
             camera.Zoom = new Vector2(-1, -1);
@@ -347,14 +344,14 @@ public partial class ChessGame : Node2D
     public void ClearEnPassant(int player)
     {
         GD.Print("Clearing En Passant");
-        for (int i = 0; i < boardCells.GetLength(0); i++)
+        for (int i = 0; i < _boardCells.GetLength(0); i++)
         {
-            for (int j = 0; j < boardCells.GetLength(1); j++)
+            for (int j = 0; j < _boardCells.GetLength(1); j++)
             {
-                if (boardCells[i, j] / 10 == -player)
+                if (_boardCells[i, j] / 10 == -player)
                 {
                     GD.Print("Cleared En Passant");
-                    boardCells[i, j] = 0;
+                    _boardCells[i, j] = 0;
                 }
             }
         }

@@ -7,12 +7,12 @@ public partial class PromotionSelection : Control
     [Signal]
     public delegate void pawnPromotionEventHandler();
 
-    CharacterBody2D pawn;
+    private CharacterBody2D _pawn;
 
-    PackedScene rookPiece;
-    PackedScene knightPiece;
-    PackedScene bishopPiece;
-    PackedScene queenPiece;
+    private PackedScene _rookPiece;
+    private PackedScene _knightPiece;
+    private PackedScene _bishopPiece;
+    private PackedScene _queenPiece;
 
     public override void _Ready()
 	{
@@ -25,14 +25,14 @@ public partial class PromotionSelection : Control
         bishop.Pressed += BishopPromotion;
         knight.Pressed += KnightPromotion;
 
-        rookPiece = (PackedScene)ResourceLoader.Load("res://scenes/pieces/rook.tscn");
-        knightPiece = (PackedScene)ResourceLoader.Load("res://scenes/pieces/knight.tscn");
-        bishopPiece = (PackedScene)ResourceLoader.Load("res://scenes/pieces/bishop.tscn");
-        queenPiece = (PackedScene)ResourceLoader.Load("res://scenes/pieces/queen.tscn");
+        _rookPiece = (PackedScene)ResourceLoader.Load("res://scenes/pieces/rook.tscn");
+        _knightPiece = (PackedScene)ResourceLoader.Load("res://scenes/pieces/knight.tscn");
+        _bishopPiece = (PackedScene)ResourceLoader.Load("res://scenes/pieces/bishop.tscn");
+        _queenPiece = (PackedScene)ResourceLoader.Load("res://scenes/pieces/queen.tscn");
 
         Node2D newParent = GetNode<Node2D>("../..");
         Node2D master = GetNode<Node2D>("../../../..");
-        pawn = (CharacterBody2D)GetParent();
+        _pawn = (CharacterBody2D)GetParent();
 
         GetParent().RemoveChild(this);
         newParent.AddChild(this);
@@ -40,7 +40,7 @@ public partial class PromotionSelection : Control
         Connect("pawnPromotion", new Callable(newParent, "ConnectPromotedPiece"));
         Connect("pawnPromotion", new Callable(master, "ConnectPromotedPiece"));
 
-        int player = (int)pawn.Get("player");
+        int player = (int)_pawn.Get("player");
 
         if (player == 2)
         {
@@ -53,13 +53,13 @@ public partial class PromotionSelection : Control
 
     private void QueenPromotion()
     {
-        Vector2 position = pawn.Position;
-        int player = (int)pawn.Get("player");
+        Vector2 position = _pawn.Position;
+        int player = (int)_pawn.Get("player");
         Node2D playerController = GetNode<Node2D>("..");
 
-        pawn.QueueFree();
+        _pawn.QueueFree();
 
-        CharacterBody2D queen = (CharacterBody2D)queenPiece.Instantiate();
+        CharacterBody2D queen = (CharacterBody2D)_queenPiece.Instantiate();
         queen.SetMeta("Player", player);
         playerController.AddChild(queen);
         queen.Position = position;
@@ -71,13 +71,13 @@ public partial class PromotionSelection : Control
 
     private void RookPromotion()
     {
-        Vector2 position = pawn.Position;
-        int player = (int)pawn.Get("player");
+        Vector2 position = _pawn.Position;
+        int player = (int)_pawn.Get("player");
         Node2D playerController = GetNode<Node2D>("..");
 
-        pawn.QueueFree();
+        _pawn.QueueFree();
 
-        CharacterBody2D rook = (CharacterBody2D)rookPiece.Instantiate();
+        CharacterBody2D rook = (CharacterBody2D)_rookPiece.Instantiate();
         rook.SetMeta("Player", player);
         playerController.AddChild(rook);
         rook.Position = position;
@@ -89,13 +89,13 @@ public partial class PromotionSelection : Control
 
     private void BishopPromotion()
     {
-        Vector2 position = pawn.Position;
-        int player = (int)pawn.Get("player");
+        Vector2 position = _pawn.Position;
+        int player = (int)_pawn.Get("player");
         Node2D playerController = GetNode<Node2D>("..");
 
-        pawn.QueueFree();
+        _pawn.QueueFree();
 
-        CharacterBody2D bishop = (CharacterBody2D)bishopPiece.Instantiate();
+        CharacterBody2D bishop = (CharacterBody2D)_bishopPiece.Instantiate();
         bishop.SetMeta("Player", player);
         playerController.AddChild(bishop);
         bishop.Position = position;
@@ -107,13 +107,13 @@ public partial class PromotionSelection : Control
 
     private void KnightPromotion()
     {
-        Vector2 position = pawn.Position;
-        int player = (int)pawn.Get("player");
+        Vector2 position = _pawn.Position;
+        int player = (int)_pawn.Get("player");
         Node2D playerController = GetNode<Node2D>("..");
 
-        pawn.QueueFree();
+        _pawn.QueueFree();
 
-        CharacterBody2D knight = (CharacterBody2D)knightPiece.Instantiate();
+        CharacterBody2D knight = (CharacterBody2D)_knightPiece.Instantiate();
         knight.SetMeta("Player", player);
         playerController.AddChild(knight);
         knight.Position = position;

@@ -27,37 +27,37 @@ public partial class Player : Node2D
     [Signal]
     public delegate void finishCastlingEventHandler();
 
-    int playerNum;
-    PackedScene pawn;
-    PackedScene rook;
-    PackedScene knight;
-    PackedScene bishop;
-    PackedScene king;
-    PackedScene queen;
+    private int _playerNum;
+    private PackedScene _pawn;
+    private PackedScene _rook;
+    private PackedScene _knight;
+    private PackedScene _bishop;
+    private PackedScene _king;
+    private PackedScene _queen;
 
     public override void _Ready()
 	{
-		playerNum = (int)GetMeta("player");
+		_playerNum = (int)GetMeta("player");
 
-        GD.Print(playerNum, "player");
+        GD.Print(_playerNum, "player");
 
         Node2D master = GetNode<Node2D>("../..");
         Connect("updateBoard", new Callable(master, "UpdateBoard"));
         Connect("checkFinished", new Callable(master, "CheckFinished"));
         Connect("checkmate", new Callable(master, "Checkmate"));
 
-        pawn = (PackedScene)ResourceLoader.Load("res://scenes/pieces/pawn.tscn");
-        rook = (PackedScene)ResourceLoader.Load("res://scenes/pieces/rook.tscn");
-        knight = (PackedScene)ResourceLoader.Load("res://scenes/pieces/knight.tscn");
-        bishop = (PackedScene)ResourceLoader.Load("res://scenes/pieces/bishop.tscn");
-        king = (PackedScene)ResourceLoader.Load("res://scenes/pieces/king.tscn");
-        queen = (PackedScene)ResourceLoader.Load("res://scenes/pieces/queen.tscn");
+        _pawn = (PackedScene)ResourceLoader.Load("res://scenes/pieces/pawn.tscn");
+        _rook = (PackedScene)ResourceLoader.Load("res://scenes/pieces/rook.tscn");
+        _knight = (PackedScene)ResourceLoader.Load("res://scenes/pieces/knight.tscn");
+        _bishop = (PackedScene)ResourceLoader.Load("res://scenes/pieces/bishop.tscn");
+        _king = (PackedScene)ResourceLoader.Load("res://scenes/pieces/king.tscn");
+        _queen = (PackedScene)ResourceLoader.Load("res://scenes/pieces/queen.tscn");
 
-        if (playerNum == 1)
+        if (_playerNum == 1)
         {
             PlayerSet(6, 7);
         }
-        else if (playerNum == 2)
+        else if (_playerNum == 2)
         {
             PlayerSet(1, 0);
         }
@@ -75,33 +75,33 @@ public partial class Player : Node2D
     {
         for (int i = 0; i < 8; i++)
         {
-            CharacterBody2D _pawn = (CharacterBody2D)pawn.Instantiate();
-            GeneratePiece(_pawn, new Vector2I(0, firstRow), new Vector2I(1, 0), i);
+            CharacterBody2D pawn = (CharacterBody2D)_pawn.Instantiate();
+            GeneratePiece(pawn, new Vector2I(0, firstRow), new Vector2I(1, 0), i);
         }
 
         for (int i = 0; i < 2; i++)
         {
-            CharacterBody2D _rook = (CharacterBody2D)rook.Instantiate();
-            GeneratePiece(_rook, new Vector2I(0, secondRow), new Vector2I(7, 0), i);
+            CharacterBody2D rook = (CharacterBody2D)_rook.Instantiate();
+            GeneratePiece(rook, new Vector2I(0, secondRow), new Vector2I(7, 0), i);
         }
 
         for (int i = 0; i < 2; i++)
         {
-            CharacterBody2D _knight = (CharacterBody2D)knight.Instantiate();
-            GeneratePiece(_knight, new Vector2I(1, secondRow), new Vector2I(5, 0), i);
+            CharacterBody2D knight = (CharacterBody2D)_knight.Instantiate();
+            GeneratePiece(knight, new Vector2I(1, secondRow), new Vector2I(5, 0), i);
         }
 
         for (int i = 0; i < 2; i++)
         {
-            CharacterBody2D _bishop = (CharacterBody2D)bishop.Instantiate();
-            GeneratePiece(_bishop, new Vector2I(2, secondRow), new Vector2I(3, 0), i);
+            CharacterBody2D bishop = (CharacterBody2D)_bishop.Instantiate();
+            GeneratePiece(bishop, new Vector2I(2, secondRow), new Vector2I(3, 0), i);
         }
 
-        CharacterBody2D _king = (CharacterBody2D)king.Instantiate();
-        GeneratePiece(_king, new Vector2I(4, secondRow), new Vector2I(0, 0));
+        CharacterBody2D king = (CharacterBody2D)_king.Instantiate();
+        GeneratePiece(king, new Vector2I(4, secondRow), new Vector2I(0, 0));
 
-        CharacterBody2D _queen = (CharacterBody2D)queen.Instantiate();
-        GeneratePiece(_queen, new Vector2I(3, secondRow), new Vector2I(0, 0));
+        CharacterBody2D queen = (CharacterBody2D)_queen.Instantiate();
+        GeneratePiece(queen, new Vector2I(3, secondRow), new Vector2I(0, 0));
     }
 
     public void GeneratePiece(CharacterBody2D piece, Vector2I icell, Vector2I cells, int i = 0)
@@ -109,13 +109,13 @@ public partial class Player : Node2D
         Vector2 ipos;
         Vector2I cell;
 
-        piece.SetMeta("Player", playerNum);
+        piece.SetMeta("Player", _playerNum);
         AddChild(piece);
         Connect("check", new Callable(piece, "SetCheck"));
         Connect("checkRook", new Callable(piece, "FirstMovementCheck"));
         Connect("castlingAllowed", new Callable(piece, "Castling"));
         Connect("finishCastling", new Callable(piece, "Castle"));
-        int id = (int)piece.Get("id");
+        int id = (int)piece.Get("_id");
         cell = icell + i * cells;
         ipos = SetPos(cell);
         EmitSignal(SignalName.updateBoard, ipos, new Vector2(128, 128), id, false);
@@ -129,7 +129,7 @@ public partial class Player : Node2D
         {
             if (piece.HasMeta("Piece_Type"))
             {
-                if ((bool)piece.Get("checkUpdatedCheck") == false)
+                if ((bool)piece.Get("_checkUpdatedCheck") == false)
                 {
                     checkUpdated = false;
                     break;
@@ -154,7 +154,7 @@ public partial class Player : Node2D
         {
             if (piece.HasMeta("Piece_Type"))
             {
-                if ((bool)piece.Get("checkmate") == false)
+                if ((bool)piece.Get("_checkmate") == false)
                 {
                     checkmate = false;
                     break;
@@ -163,7 +163,7 @@ public partial class Player : Node2D
         }
         if (checkmate)
         {
-            EmitSignal(SignalName.checkmate, playerNum);
+            EmitSignal(SignalName.checkmate, _playerNum);
         }
     }
 

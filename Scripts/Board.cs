@@ -19,9 +19,9 @@ public partial class Board : TileMap
     [Signal]
     public delegate void playersSetEventHandler();
 
-    Godot.Collections.Array oldPositions = new Godot.Collections.Array();
-    PackedScene player;
-    Vector2 selectedPosition = new Vector2(-1, -1);
+    private Godot.Collections.Array _oldPositions = new Godot.Collections.Array();
+    private PackedScene _player;
+    private Vector2 _selectedPosition = new Vector2(-1, -1);
 
     public override void _EnterTree()
     {
@@ -37,11 +37,11 @@ public partial class Board : TileMap
 
         EmitSignal(SignalName.boardCellCount, 8, 8);
 
-        player = (PackedScene)ResourceLoader.Load("res://scenes/player.tscn");
+        _player = (PackedScene)ResourceLoader.Load("res://scenes/player.tscn");
 
         for (int i = 1; i < 3; i++)
         {
-            Node2D player_ = (Node2D)player.Instantiate();
+            Node2D player_ = (Node2D)_player.Instantiate();
             player_.SetMeta("player", i);
             AddChild(player_);
         }
@@ -74,12 +74,12 @@ public partial class Board : TileMap
         }
         else if (cellAtlas == new Vector2I(0, 3))
         {
-            if (selectedPosition != new Vector2(-1,-1))
+            if (_selectedPosition != new Vector2(-1,-1))
             {
-                UpdateTiles(selectedPosition, new Vector2I(0, 0));
+                UpdateTiles(_selectedPosition, new Vector2I(0, 0));
             }
 
-            selectedPosition = position;
+            _selectedPosition = position;
             SetCell(0, cellCoords, 0, cellAtlas);
         }
         else
@@ -90,16 +90,16 @@ public partial class Board : TileMap
 
     public void StorePositions(Vector2 positions)
     {
-        oldPositions.Add(positions);
+        _oldPositions.Add(positions);
     }
 
     public void ClearOldPositions()
     {
-        foreach (Vector2 pos in oldPositions)
+        foreach (Vector2 pos in _oldPositions)
         {
             UpdateTiles(pos, new Vector2I(0, 0));
         }
 
-        oldPositions.Clear();
+        _oldPositions.Clear();
     }
 }
