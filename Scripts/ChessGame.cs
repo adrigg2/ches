@@ -166,61 +166,61 @@ public partial class ChessGame : Node2D
 
     public void Check(Vector2I arrPos, int checkSituation, bool pieceCell, bool protectedPiece)
     {
-        const int PATH = 2;
-        const int PROTECTED = 3;
-        const int SEES_ENEMY_KING = 4;
-        const int PROTECTED_AND_SEES = 5;
-        const int NOT_PROTECTED_AND_SEES = 6;
-        const int NOT_PROTECTED = 7;
-        const int KING_IN_CHECK = 8;
+        const int Path = 2;
+        const int Protected = 3;
+        const int SeesEnemyKing = 4;
+        const int ProtectedAndSees = 5;
+        const int NotProtectedAndSees = 6;
+        const int NotProtected = 7;
+        const int KingInCheck = 8;
 
         int cell = _boardCellsCheck[arrPos.X, arrPos.Y];
 
         if (pieceCell)
         {
-            if (checkSituation == SEES_ENEMY_KING)
+            if (checkSituation == SeesEnemyKing)
             {
-                if (cell == PROTECTED)
+                if (cell == Protected)
                 {
-                    _boardCellsCheck[arrPos.X, arrPos.Y] = PROTECTED_AND_SEES;
+                    _boardCellsCheck[arrPos.X, arrPos.Y] = ProtectedAndSees;
                 }
                 else
                 {
-                    _boardCellsCheck[arrPos.X, arrPos.Y] = NOT_PROTECTED_AND_SEES;
+                    _boardCellsCheck[arrPos.X, arrPos.Y] = NotProtectedAndSees;
                 }
             }
             else if (protectedPiece)
             {
-                if (cell == NOT_PROTECTED_AND_SEES)
+                if (cell == NotProtectedAndSees)
                 {
-                    _boardCellsCheck[arrPos.X, arrPos.Y] = PROTECTED_AND_SEES;
+                    _boardCellsCheck[arrPos.X, arrPos.Y] = ProtectedAndSees;
                 }
                 else
                 {
-                    _boardCellsCheck[arrPos.X, arrPos.Y] = PROTECTED;
+                    _boardCellsCheck[arrPos.X, arrPos.Y] = Protected;
                 }
             }
             else
             {
-                if (cell != PROTECTED && cell != PROTECTED_AND_SEES && cell != NOT_PROTECTED_AND_SEES)
+                if (cell != Protected && cell != ProtectedAndSees && cell != NotProtectedAndSees)
                 {
-                    _boardCellsCheck[arrPos.X, arrPos.Y] = NOT_PROTECTED;
+                    _boardCellsCheck[arrPos.X, arrPos.Y] = NotProtected;
                 }
             }
         }
         else
         {
-            if (cell == 0 && checkSituation != SEES_ENEMY_KING && checkSituation != KING_IN_CHECK)
+            if (cell == 0 && checkSituation != SeesEnemyKing && checkSituation != KingInCheck)
             {
-                _boardCellsCheck[arrPos.X, arrPos.Y] = PATH;
+                _boardCellsCheck[arrPos.X, arrPos.Y] = Path;
             }
-            else if (checkSituation == SEES_ENEMY_KING)
+            else if (checkSituation == SeesEnemyKing)
             {
-                _boardCellsCheck[arrPos.X, arrPos.Y] = SEES_ENEMY_KING;
+                _boardCellsCheck[arrPos.X, arrPos.Y] = SeesEnemyKing;
             }
-            else if (checkSituation == KING_IN_CHECK)
+            else if (checkSituation == KingInCheck)
             {
-                _boardCellsCheck[arrPos.X, arrPos.Y] = KING_IN_CHECK;
+                _boardCellsCheck[arrPos.X, arrPos.Y] = KingInCheck;
             }
         }
 

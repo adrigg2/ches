@@ -19,7 +19,6 @@ public partial class Board : TileMap
     [Signal]
     public delegate void playersSetEventHandler();
 
-    private Godot.Collections.Array _oldPositions = new Godot.Collections.Array();
     private PackedScene _player;
     private Vector2 _selectedPosition = new Vector2(-1, -1);
 
@@ -48,58 +47,29 @@ public partial class Board : TileMap
         EmitSignal(SignalName.playersSet);
     }
 
-    public void UpdateTiles(Vector2 position, Vector2I cellAtlas)
+    public void UpdateTiles(Vector2 position, Vector2I cellAtlas, string piece)
     {
         Vector2I cellCoords = LocalToMap(position);
-        GD.Print($"{cellCoords} {cellAtlas} update tiles");
-        if (cellAtlas == new Vector2I(0, 0))
-        {
-            Godot.Collections.Array<Vector2I> neighboringCell = GetSurroundingCells(cellCoords);
-            for (int i = 0; i < 4; i++)
-            {
-                Vector2I neighboringCellAtlas = GetCellAtlasCoords(0, neighboringCell[i]);
-                if (neighboringCellAtlas == new Vector2I(0, 0))
-                {
-                    Vector2I newCellAtlas = new Vector2I(1, 0);
-                    SetCell(0, cellCoords, 0, newCellAtlas);
-                    break;
-                }
-                else if (neighboringCellAtlas == new Vector2I(1, 0))
-                {
-                    Vector2I newCellAtlas = new Vector2I(0, 0);
-                    SetCell(0, cellCoords, 0, newCellAtlas);
-                    break;
-                }
-            }
-        }
-        else if (cellAtlas == new Vector2I(0, 3))
+        GD.Print($"{cellCoords} {cellAtlas} {piece} update tiles");
+        if (cellAtlas == new Vector2I(0, 3))
         {
             if (_selectedPosition != new Vector2(-1,-1))
             {
-                UpdateTiles(_selectedPosition, new Vector2I(0, 0));
+                EraseCell(1, LocalToMap(_selectedPosition));
             }
 
             _selectedPosition = position;
-            SetCell(0, cellCoords, 0, cellAtlas);
+            SetCell(1, cellCoords, 0, cellAtlas);
         }
         else
         {
-            SetCell(0, cellCoords, 0, cellAtlas);
+            SetCell(1, cellCoords, 0, cellAtlas);
         }
     }
 
-    public void StorePositions(Vector2 positions)
+    public void ClearDynamicTiles()
     {
-        _oldPositions.Add(positions);
-    }
-
-    public void ClearOldPositions()
-    {
-        foreach (Vector2 pos in _oldPositions)
-        {
-            UpdateTiles(pos, new Vector2I(0, 0));
-        }
-
-        _oldPositions.Clear();
+        GD.Print("Clearing update tiles");
+        ClearLayer(1);
     }
 }
