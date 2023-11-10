@@ -11,6 +11,7 @@ script = ExtResource("1_vchd8")
 metadata/Is_Capture = true
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(1, 1, 1, 0.686275)
 texture = ExtResource("1_yoq64")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]

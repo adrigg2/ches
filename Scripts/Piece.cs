@@ -197,17 +197,18 @@ public partial class Piece : CharacterBody2D
 
             if (_firstMovement == true)
             {
+                movePos = Position + new Vector2(CellPixels, CellPixels) * _pawnVector;
+                CheckMovement();
+
+                movePos = Position + new Vector2(-CellPixels, CellPixels) * _pawnVector;
+                CheckMovement();
+
                 for (int i = 1; i <= 2; i++)
                 {
                     int moveCheck;
                     int blockedPosition;
                     int positionSituation;
 
-                    movePos = Position + new Vector2(CellPixels, CellPixels) * _pawnVector;
-                    CheckMovement();
-
-                    movePos = Position + new Vector2(-CellPixels, CellPixels) * _pawnVector;
-                    CheckMovement();
 
                     movePos = Position + i * new Vector2(0, CellPixels) * _pawnVector;
                     moveCheck = (int)MovementCheck.Call(movePos);
@@ -762,17 +763,13 @@ public partial class Piece : CharacterBody2D
         if (_firstMovement == true)
         {
             _firstMovement = false;
-            if (_pieceType == "pawn" && Position == oldPos + new Vector2(0, 2 * CellPixels))
+            if (_pieceType == "pawn" && (Position == oldPos + new Vector2(0, 2 * CellPixels) || Position == oldPos + new Vector2(0, -2 * CellPixels)))
             {
                 EmitSignal(SignalName.pieceMoved, newPosition - new Vector2(0, CellPixels), oldPos, -_id, false);
                 _enPassant = true;
             }
-            else if (_pieceType == "pawn" && Position == oldPos + new Vector2(0, -2 * CellPixels))
-            {
-                EmitSignal(SignalName.pieceMoved, newPosition + new Vector2(0, CellPixels), oldPos, -_id, false);
-                _enPassant = true;
-            }
         }
+
         if (_pieceType == "king")
         {
             if (oldPos == Position + new Vector2(-2 * CellPixels, 0) || oldPos == Position + new Vector2(2 * CellPixels, 0))
@@ -780,6 +777,7 @@ public partial class Piece : CharacterBody2D
                 EmitSignal(SignalName.moveRook, newPosition);
             }
         }
+
         if (_pieceType == "pawn" && (newPosition.Y < CellPixels || newPosition.Y > CellPixels * 7))
         {
             Control promotionSelection = (Control)_promotion.Instantiate();

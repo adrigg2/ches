@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://cn75fyw6ow0tn"]
+[gd_scene load_steps=3 format=3 uid="uid://bg1cug3iw3w08"]
 
 [ext_resource type="Script" path="res://scripts/ChessGame.cs" id="1_whhq8"]
 [ext_resource type="Texture2D" uid="uid://dhpoor2vf6ljf" path="res://assets/restart_button.png" id="2_a26vu"]

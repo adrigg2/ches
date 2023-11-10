@@ -39,6 +39,7 @@ public partial class Movement : CharacterBody2D
         {
             if (_isCapture == true)
             {
+                GD.Print("---------CAPTURE UPDATE TILES---------");
                 EmitSignal(SignalName.capture, Position, this);
             }
             else
@@ -46,7 +47,7 @@ public partial class Movement : CharacterBody2D
                 EmitSignal(SignalName.moveSelected, Position);
                 EmitSignal(SignalName.pieceSelected);
             }
-            GD.Print("piece " + Position + " selected!");
+            GD.Print("Move selected, update tiles");
         }
     }
 
