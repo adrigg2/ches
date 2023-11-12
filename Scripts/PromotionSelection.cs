@@ -1,5 +1,4 @@
 using Godot;
-using System;
 
 namespace Chess;
 public partial class PromotionSelection : Control

@@ -1,6 +1,4 @@
 using Godot;
-using GodotPlugins.Game;
-using System;
 
 namespace Chess;
 

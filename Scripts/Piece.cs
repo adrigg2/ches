@@ -1,6 +1,5 @@
 using Godot;
 using System;
-using System.Runtime.CompilerServices;
 
 namespace Chess;
 
@@ -64,6 +63,9 @@ public partial class Piece : CharacterBody2D
     [Export]
     private bool _isInCheck = false;
 
+    [Export]
+    private PieceTextures _textures;
+
     const int CellPixels = 32;
     const int SeesFriendlyPiece = 1;
     const int Path = 2;
@@ -126,8 +128,7 @@ public partial class Piece : CharacterBody2D
         if (_player == 2)
         {
             Sprite2D sprite = GetNode<Sprite2D>("Sprite2D");
-            Texture2D blackTexture = (Texture2D)GetMeta("Black_Texture");
-            sprite.Texture = blackTexture;
+            sprite.Texture = _textures.GetBlackTexture(_pieceType);
         }
 
         _movement = (PackedScene)ResourceLoader.Load("res://scenes/scenery/movement.tscn");
