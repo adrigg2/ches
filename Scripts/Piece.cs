@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-namespace Chess;
+namespace Ches;
 
 public partial class Piece : CharacterBody2D
 {

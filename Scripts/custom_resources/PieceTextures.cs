@@ -1,6 +1,6 @@
 using Godot;
 
-namespace Chess;
+namespace Ches;
 
 [GlobalClass]
 public partial class PieceTextures : Resource

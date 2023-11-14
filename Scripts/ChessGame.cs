@@ -1,7 +1,7 @@
 using Godot;
 using System;
 
-namespace Chess;
+namespace Ches;
 
 public partial class ChessGame : Node2D
 {
@@ -17,18 +17,13 @@ public partial class ChessGame : Node2D
     [Signal]
     public delegate void checkCheckEventHandler();
 
-    private PackedScene _board;
+    [Export] private Board _board;
 
     private int[,] _boardCells;
     private int[,] _boardCellsCheck;
 
     public override void _Ready()
 	{
-        _board = (PackedScene)ResourceLoader.Load("res://scenes/scenery/board.tscn");
-        TileMap board = (TileMap)_board.Instantiate();
-        AddChild(board);
-        board.Position = new Vector2(256, 64);
-
         Button button = GetNode<Button>("Button");
         button.Pressed += Reset;
 
@@ -53,7 +48,7 @@ public partial class ChessGame : Node2D
         EmitSignal(SignalName.destroyMovement);
     }
 
-    public void BoardCellCount(int rows, int columns)
+    public void SetBoardArrays(int rows, int columns)
     {
         _boardCells = new int[rows, columns];
         _boardCellsCheck = new int[rows, columns];
@@ -226,9 +221,9 @@ public partial class ChessGame : Node2D
 
     public void CheckReset()
     {
-        for (int i = 0; i < _boardCells.GetLength(0); i++)
+        for (int i = 0; i < _boardCellsCheck.GetLength(0); i++)
         {
-            for (int j = 0; j < _boardCells.GetLength(1); j++)
+            for (int j = 0; j < _boardCellsCheck.GetLength(1); j++)
             {
                 _boardCellsCheck[i, j] = 0;
             }
@@ -294,19 +289,21 @@ public partial class ChessGame : Node2D
 
     private void Reset()
     {
-        TileMap ogBoard = GetNode<TileMap>("Board");
-        TileMap board_ = (TileMap)_board.Instantiate();
         Label winnerText = GetNode<Label>("EndGame");
         Label debug1 = GetNode<Label>("DebugTracker"); //DEBUG
         Label debug2 = GetNode<Label>("DebugTracker2"); //DEBUG
         Button button = GetNode<Button>("Button");
 
-        ogBoard.Name = "oldBoard";
-        ogBoard.QueueFree();
+        for (int i = 0; i < _boardCellsCheck.GetLength(0); i++)
+        {
+            for (int j = 0; j < _boardCellsCheck.GetLength(1); j++)
+            {
+                _boardCellsCheck[i, j] = 0;
+                _boardCells[i, j] = 0;
+            }
+        }
 
-        board_.Name = "Board";
-        AddChild(board_);
-        board_.Position = new Vector2(256, 64);
+        _board.Reset();
 
         winnerText.Visible = false;
 

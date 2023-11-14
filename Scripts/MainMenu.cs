@@ -1,6 +1,6 @@
 using Godot;
 
-namespace Chess;
+namespace Ches;
 
 public partial class MainMenu : Control
 {

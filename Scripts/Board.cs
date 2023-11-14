@@ -1,6 +1,6 @@
 using Godot;
 
-namespace Chess;
+namespace Ches;
 
 public partial class Board : TileMap
 {
@@ -19,15 +19,10 @@ public partial class Board : TileMap
     private PackedScene _player;
     private Vector2 _selectedPosition = new Vector2(-1, -1);
 
-    public override void _EnterTree()
-    {
-        Name = "Board";
-    }
-
     public override void _Ready()
 	{
         Node2D master = GetNode<Node2D>("..");
-        Connect("boardCellCount", new Callable(master, "BoardCellCount"));
+        Connect("boardCellCount", new Callable(master, "SetBoardArrays"));
         Connect("updateBoard", new Callable(master, "UpdateBoard"));
         Connect("playersSet", new Callable(master, "PlayersSet"));
 
@@ -37,9 +32,9 @@ public partial class Board : TileMap
 
         for (int i = 1; i < 3; i++)
         {
-            Node2D player_ = (Node2D)_player.Instantiate();
-            player_.SetMeta("player", i);
-            AddChild(player_);
+            Node2D player = (Node2D)_player.Instantiate();
+            player.SetMeta("player", i);
+            AddChild(player);
         }
         EmitSignal(SignalName.playersSet);
     }
@@ -68,5 +63,22 @@ public partial class Board : TileMap
     {
         GD.Print("Clearing update tiles");
         ClearLayer(1);
+    }
+
+    public void Reset()
+    {
+        foreach(Node child in GetChildren())
+        {
+            child.QueueFree();
+        }
+
+        ClearDynamicTiles();
+
+        for (int i = 1; i < 3; i++)
+        {
+            Node2D player = (Node2D)_player.Instantiate();
+            player.SetMeta("player", i);
+            AddChild(player);
+        }
     }
 }
