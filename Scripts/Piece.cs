@@ -130,6 +130,11 @@ public partial class Piece : CharacterBody2D
             Sprite2D sprite = GetNode<Sprite2D>("Sprite2D");
             sprite.Texture = _textures.GetBlackTexture(_pieceType);
         }
+        else if (_player == 1)
+        {
+            Sprite2D sprite = GetNode<Sprite2D>("Sprite2D");
+            sprite.Texture = _textures.GetWhiteTexture(_pieceType);
+        }
 
         _movement = (PackedScene)ResourceLoader.Load("res://scenes/scenery/movement.tscn");
         _capture = (PackedScene)ResourceLoader.Load("res://scenes/scenery/capture.tscn");

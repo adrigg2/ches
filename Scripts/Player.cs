@@ -1,4 +1,5 @@
 using Godot;
+using System.Net.NetworkInformation;
 
 namespace Ches;
 
@@ -27,11 +28,6 @@ public partial class Player : Node2D
 
     private int _playerNum;
     private PackedScene _pawn;
-    private PackedScene _rook;
-    private PackedScene _knight;
-    private PackedScene _bishop;
-    private PackedScene _king;
-    private PackedScene _queen;
 
     public override void _Ready()
 	{
@@ -44,12 +40,7 @@ public partial class Player : Node2D
         Connect("checkFinished", new Callable(master, "CheckFinished"));
         Connect("checkmate", new Callable(master, "Checkmate"));
 
-        _pawn = (PackedScene)ResourceLoader.Load("res://scenes/pieces/pawn.tscn");
-        _rook = (PackedScene)ResourceLoader.Load("res://scenes/pieces/rook.tscn");
-        _knight = (PackedScene)ResourceLoader.Load("res://scenes/pieces/knight.tscn");
-        _bishop = (PackedScene)ResourceLoader.Load("res://scenes/pieces/bishop.tscn");
-        _king = (PackedScene)ResourceLoader.Load("res://scenes/pieces/king.tscn");
-        _queen = (PackedScene)ResourceLoader.Load("res://scenes/pieces/queen.tscn");
+        _pawn = (PackedScene)ResourceLoader.Load("res://scenes/piece.tscn");
 
         if (_playerNum == 1)
         {
@@ -74,47 +65,48 @@ public partial class Player : Node2D
         for (int i = 0; i < 8; i++)
         {
             CharacterBody2D pawn = (CharacterBody2D)_pawn.Instantiate();
-            GeneratePiece(pawn, new Vector2I(0, firstRow), new Vector2I(1, 0), i);
+            GeneratePiece(pawn, new Vector2I(0, firstRow), new Vector2I(1, 0), "pawn", i);
         }
 
         for (int i = 0; i < 2; i++)
         {
-            CharacterBody2D rook = (CharacterBody2D)_rook.Instantiate();
-            GeneratePiece(rook, new Vector2I(0, secondRow), new Vector2I(7, 0), i);
+            CharacterBody2D rook = (CharacterBody2D)_pawn.Instantiate();
+            GeneratePiece(rook, new Vector2I(0, secondRow), new Vector2I(7, 0), "rook", i);
         }
 
         for (int i = 0; i < 2; i++)
         {
-            CharacterBody2D knight = (CharacterBody2D)_knight.Instantiate();
-            GeneratePiece(knight, new Vector2I(1, secondRow), new Vector2I(5, 0), i);
+            CharacterBody2D knight = (CharacterBody2D)_pawn.Instantiate();
+            GeneratePiece(knight, new Vector2I(1, secondRow), new Vector2I(5, 0), "knight", i);
         }
 
         for (int i = 0; i < 2; i++)
         {
-            CharacterBody2D bishop = (CharacterBody2D)_bishop.Instantiate();
-            GeneratePiece(bishop, new Vector2I(2, secondRow), new Vector2I(3, 0), i);
+            CharacterBody2D bishop = (CharacterBody2D)_pawn.Instantiate();
+            GeneratePiece(bishop, new Vector2I(2, secondRow), new Vector2I(3, 0), "bishop", i);
         }
 
-        CharacterBody2D king = (CharacterBody2D)_king.Instantiate();
-        GeneratePiece(king, new Vector2I(4, secondRow), new Vector2I(0, 0));
+        CharacterBody2D king = (CharacterBody2D)_pawn.Instantiate();
+        GeneratePiece(king, new Vector2I(4, secondRow), new Vector2I(0, 0), "king");
 
-        CharacterBody2D queen = (CharacterBody2D)_queen.Instantiate();
-        GeneratePiece(queen, new Vector2I(3, secondRow), new Vector2I(0, 0));
+        CharacterBody2D queen = (CharacterBody2D)_pawn.Instantiate();
+        GeneratePiece(queen, new Vector2I(3, secondRow), new Vector2I(0, 0), "queen");
     }
 
-    public void GeneratePiece(CharacterBody2D piece, Vector2I icell, Vector2I cells, int i = 0)
+    public void GeneratePiece(CharacterBody2D piece, Vector2I icell, Vector2I cells, string pieceType, int index = 0)
     {
         Vector2 ipos;
         Vector2I cell;
 
         piece.SetMeta("Player", _playerNum);
+        piece.SetMeta("Piece_Type", pieceType);
         AddChild(piece);
         Connect("check", new Callable(piece, "SetCheck"));
         Connect("checkRook", new Callable(piece, "FirstMovementCheck"));
         Connect("castlingAllowed", new Callable(piece, "Castling"));
         Connect("finishCastling", new Callable(piece, "Castle"));
         int id = (int)piece.Get("_id");
-        cell = icell + i * cells;
+        cell = icell + index * cells;
         ipos = SetPos(cell);
         EmitSignal(SignalName.updateBoard, ipos, new Vector2(128, 128), id, false);
         piece.Position = ipos;

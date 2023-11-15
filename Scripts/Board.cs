@@ -16,7 +16,7 @@ public partial class Board : TileMap
     [Signal]
     public delegate void playersSetEventHandler();
 
-    private PackedScene _player;
+    private Player _player;
     private Vector2 _selectedPosition = new Vector2(-1, -1);
 
     public override void _Ready()
@@ -28,13 +28,11 @@ public partial class Board : TileMap
 
         EmitSignal(SignalName.boardCellCount, 8, 8);
 
-        _player = (PackedScene)ResourceLoader.Load("res://scenes/player.tscn");
-
         for (int i = 1; i < 3; i++)
         {
-            Node2D player = (Node2D)_player.Instantiate();
-            player.SetMeta("player", i);
-            AddChild(player);
+            _player = new Player();
+            _player.SetMeta("player", i);
+            AddChild(_player);
         }
         EmitSignal(SignalName.playersSet);
     }
@@ -76,9 +74,9 @@ public partial class Board : TileMap
 
         for (int i = 1; i < 3; i++)
         {
-            Node2D player = (Node2D)_player.Instantiate();
-            player.SetMeta("player", i);
-            AddChild(player);
+            _player = new Player();
+            _player.SetMeta("player", i);
+            AddChild(_player);
         }
     }
 }
