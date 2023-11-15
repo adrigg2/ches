@@ -8,10 +8,7 @@ public partial class PromotionSelection : Control
 
     private CharacterBody2D _pawn;
 
-    private PackedScene _rookPiece;
-    private PackedScene _knightPiece;
-    private PackedScene _bishopPiece;
-    private PackedScene _queenPiece;
+    private PackedScene _piece;
 
     public override void _Ready()
 	{
@@ -24,10 +21,7 @@ public partial class PromotionSelection : Control
         bishop.Pressed += BishopPromotion;
         knight.Pressed += KnightPromotion;
 
-        _rookPiece = (PackedScene)ResourceLoader.Load("res://scenes/pieces/rook.tscn");
-        _knightPiece = (PackedScene)ResourceLoader.Load("res://scenes/pieces/knight.tscn");
-        _bishopPiece = (PackedScene)ResourceLoader.Load("res://scenes/pieces/bishop.tscn");
-        _queenPiece = (PackedScene)ResourceLoader.Load("res://scenes/pieces/queen.tscn");
+        _piece = (PackedScene)ResourceLoader.Load("res://scenes/piece.tscn");
 
         Node2D newParent = GetNode<Node2D>("../..");
         Node2D master = GetNode<Node2D>("../../../..");
@@ -58,8 +52,9 @@ public partial class PromotionSelection : Control
 
         _pawn.QueueFree();
 
-        CharacterBody2D queen = (CharacterBody2D)_queenPiece.Instantiate();
+        CharacterBody2D queen = (CharacterBody2D)_piece.Instantiate();
         queen.SetMeta("Player", player);
+        queen.SetMeta("Piece_Type", "queen");
         playerController.AddChild(queen);
         queen.Position = position;
 
@@ -76,8 +71,9 @@ public partial class PromotionSelection : Control
 
         _pawn.QueueFree();
 
-        CharacterBody2D rook = (CharacterBody2D)_rookPiece.Instantiate();
+        CharacterBody2D rook = (CharacterBody2D)_piece.Instantiate();
         rook.SetMeta("Player", player);
+        rook.SetMeta("Piece_Type", "rook");
         playerController.AddChild(rook);
         rook.Position = position;
 
@@ -94,8 +90,9 @@ public partial class PromotionSelection : Control
 
         _pawn.QueueFree();
 
-        CharacterBody2D bishop = (CharacterBody2D)_bishopPiece.Instantiate();
+        CharacterBody2D bishop = (CharacterBody2D)_piece.Instantiate();
         bishop.SetMeta("Player", player);
+        bishop.SetMeta("Piece_Type", "bishop");
         playerController.AddChild(bishop);
         bishop.Position = position;
 
@@ -112,8 +109,9 @@ public partial class PromotionSelection : Control
 
         _pawn.QueueFree();
 
-        CharacterBody2D knight = (CharacterBody2D)_knightPiece.Instantiate();
+        CharacterBody2D knight = (CharacterBody2D)_piece.Instantiate();
         knight.SetMeta("Player", player);
+        knight.SetMeta("Piece_Type", "knight");
         playerController.AddChild(knight);
         knight.Position = position;
 

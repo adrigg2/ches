@@ -41,31 +41,6 @@ public partial class Piece : CharacterBody2D
     [Signal]
     public delegate void clearEnPassantEventHandler();
 
-
-    [Export]
-    private int _turn = 1;
-
-    [Export]
-    private int _id;
-
-    [Export]
-    private bool _checkUpdatedCheck = false;
-
-    [Export]
-    private bool _checkmate = false;
-
-    [Export]
-    private bool _firstMovement = true;
-
-    [Export]
-    private int _player;
-
-    [Export]
-    private bool _isInCheck = false;
-
-    [Export]
-    private PieceTextures _textures;
-
     const int CellPixels = 32;
     const int SeesFriendlyPiece = 1;
     const int Path = 2;
@@ -75,12 +50,26 @@ public partial class Piece : CharacterBody2D
     const int NotProtectedAndSees = 6;
     const int NotProtected = 7;
     const int KingInCheck = 8;
+    [Export] private int _turn = 1;
+    [Export] private int _id;
+    [Export] private int _player;
+    private static int _checkCount;
+    [Export] public int CheckCountPublic { get => _checkCount; set => _checkCount = value; }
+
+    [Export] private PieceTextures _textures;
 
     private PackedScene _movement;
     private PackedScene _capture;
     private PackedScene _promotion;
+
     private Vector2 _pawnVector;
+
     private string _pieceType;
+
+    [Export] private bool _checkUpdatedCheck = false;
+    [Export] private bool _checkmate = false;
+    [Export] private bool _firstMovement = true;
+    [Export] private bool _isInCheck = false;
     private bool _enPassant = false;
 
     public static Callable MovementCheck { get; set; }
@@ -166,11 +155,11 @@ public partial class Piece : CharacterBody2D
             {
                 EmitSignal(SignalName.pieceSelected);
                 EmitSignal(SignalName.updateTiles, Position, new Vector2I(0, 3), Name);
-                if (_pieceType == "pawn")
+                if (_pieceType == "pawn" && _checkCount <= 1)
                 {
                     PawnMovement();
                 }
-                else if (_pieceType == "knight")
+                else if (_pieceType == "knight" && _checkCount <= 1)
                 {
                     KnightMovement();
                 }
@@ -180,12 +169,12 @@ public partial class Piece : CharacterBody2D
                 }
                 else
                 {
-                    if (_pieceType == "queen" || _pieceType == "rook")
+                    if ((_pieceType == "queen" || _pieceType == "rook") && _checkCount <= 1)
                     {
                         StraightMove();
                     }
 
-                    if (_pieceType == "queen" || _pieceType == "bishop")
+                    if ((_pieceType == "queen" || _pieceType == "bishop") && _checkCount <= 1)
                     {
                         DiagonalMove();
                     }
@@ -764,14 +753,23 @@ public partial class Piece : CharacterBody2D
         oldPos = Position;
         Position = newPosition;
 
+        _checkCount = 0;
+
         EmitSignal(SignalName.clearDynamicTiles);
+        EmitSignal(SignalName.updateTiles, oldPos, new Vector2I(0, 1), Name);
+        EmitSignal(SignalName.updateTiles, newPosition, new Vector2I(1, 1), Name);
 
         if (_firstMovement == true)
         {
             _firstMovement = false;
-            if (_pieceType == "pawn" && (Position == oldPos + new Vector2(0, 2 * CellPixels) || Position == oldPos + new Vector2(0, -2 * CellPixels)))
+            if (_pieceType == "pawn" && Position == oldPos + new Vector2(0, 2 * CellPixels))
             {
                 EmitSignal(SignalName.pieceMoved, newPosition - new Vector2(0, CellPixels), oldPos, -_id, false);
+                _enPassant = true;
+            }
+            else if (_pieceType == "pawn" && Position == oldPos + new Vector2(0, -2 * CellPixels))
+            {
+                EmitSignal(SignalName.pieceMoved, newPosition + new Vector2(0, CellPixels), oldPos, -_id, false);
                 _enPassant = true;
             }
         }
@@ -805,9 +803,6 @@ public partial class Piece : CharacterBody2D
         {
             EmitSignal(SignalName.pieceMoved, newPosition, oldPos, _id, false);
         }
-
-        EmitSignal(SignalName.updateTiles, oldPos, new Vector2I(0, 1), Name);
-        EmitSignal(SignalName.updateTiles, newPosition, new Vector2I(1, 1), Name);
     }
 
     public void ChangeTurn(int newTurn)
@@ -1412,8 +1407,7 @@ public partial class Piece : CharacterBody2D
                         }
                     }
                     else if (checkSituation == SeesEnemyKing)
-                    {
-                        EmitSignal(SignalName.updateTiles, Position, new Vector2I(0, 2), Name);
+                    {                        
                         if (i != maxIndex)
                         {
                             EmitSignal(SignalName.updateCheck, arrPos, checkSituation, false, false);
@@ -1427,6 +1421,13 @@ public partial class Piece : CharacterBody2D
                     {
                         EmitSignal(SignalName.updateCheck, arrPos, checkSituation, false, false);
                     }
+                }
+
+                if(checkSituation == SeesEnemyKing)
+                {
+                    GD.Print("----------UPDATE TILES CHECK----------");
+                    EmitSignal(SignalName.updateTiles, Position, new Vector2I(0, 2), Name);
+                    _checkCount++;
                 }
             }
         }
@@ -1463,7 +1464,11 @@ public partial class Piece : CharacterBody2D
 
     public void CheckCheckmate()
     {
-        if (_pieceType == "pawn")
+        if (_pieceType != "king" && _checkCount > 1)
+        {
+            _checkmate = true;
+        }
+        else if (_pieceType == "pawn")
         {
             PawnMateCheck();
         }

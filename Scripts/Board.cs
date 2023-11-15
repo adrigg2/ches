@@ -78,5 +78,6 @@ public partial class Board : TileMap
             _player.SetMeta("player", i);
             AddChild(_player);
         }
+        EmitSignal(SignalName.playersSet);
     }
 }
