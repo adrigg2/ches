@@ -56,7 +56,6 @@ public partial class Player : Node2D
         TileMap board = GetNode<TileMap>("..");
         Vector2 fpos;
         fpos = board.MapToLocal(tilepos);
-        GD.Print(fpos);
         return fpos;
     }
 

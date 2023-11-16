@@ -51,7 +51,6 @@ public partial class Movement : CharacterBody2D
 
     public void DestroyMovePos()
     {
-        GD.Print("destroying obsolete options");
         QueueFree();
     }
 

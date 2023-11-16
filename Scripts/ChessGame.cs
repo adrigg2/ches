@@ -35,7 +35,6 @@ public partial class ChessGame : Node2D
 
     public void DisableMovement()
     {
-        GD.Print("another piece was selected");
         TileMap board_ = GetNode<TileMap>("Board");
 
         foreach (Node moveOption in board_.GetChildren())
@@ -45,7 +44,6 @@ public partial class ChessGame : Node2D
                 Connect("destroyMovement", new Callable(moveOption, "DestroyMovePos"));
             }
         }
-        GD.Print("Loop ended");
         EmitSignal(SignalName.destroyMovement);
     }
 
@@ -80,7 +78,6 @@ public partial class ChessGame : Node2D
             debugTracker.Text += "\n";
             debugTracker2.Text += "\n";
         }
-        GD.Print($"{_boardCellsCheck[7, 4]} SEES (7, 4)");
     }
 
     public void UpdateBoard(Vector2 piecePos, Vector2 oldPos, int player, bool promotion)
@@ -93,9 +90,6 @@ public partial class ChessGame : Node2D
 
         arrPos = board_.LocalToMap(piecePos);
         oldArrPos = board_.LocalToMap(oldPos);
-
-        GD.Print(arrPos, "new");
-        GD.Print(oldArrPos, "old");
 
         _boardCells[arrPos.X, arrPos.Y] = player;
         _boardCells[oldArrPos.X, oldArrPos.Y] = 0;
@@ -237,8 +231,6 @@ public partial class ChessGame : Node2D
         Vector2I arrPos;
         TileMap board_ = GetNode<TileMap>("Board");
         arrPos = board_.LocalToMap(posCheck);
-        GD.Print(arrPos, " check check");
-        GD.Print(_boardCellsCheck[arrPos.X, arrPos.Y], " check check");
         return _boardCellsCheck[arrPos.X, arrPos.Y];
     }
 
@@ -249,11 +241,9 @@ public partial class ChessGame : Node2D
 
     public int CheckArrayCheck(Vector2 posCheck) //REWRITE
     {
-        GD.Print("CheckArrayCheck in process");
         Vector2I arrPos;
         TileMap board_ = GetNode<TileMap>("Board");
         arrPos = board_.LocalToMap(posCheck);
-        GD.Print("Check array ", _boardCellsCheck[arrPos.X, arrPos.Y]);
         return _boardCellsCheck[arrPos.X, arrPos.Y];
     }
 
@@ -338,7 +328,6 @@ public partial class ChessGame : Node2D
 
     public void ClearEnPassant(int player)
     {
-        GD.Print("Clearing En Passant");
         for (int i = 0; i < _boardCells.GetLength(0); i++)
         {
             for (int j = 0; j < _boardCells.GetLength(1); j++)
