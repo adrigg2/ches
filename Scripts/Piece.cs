@@ -169,6 +169,12 @@ public partial class Piece : CharacterBody2D
             {
                 EmitSignal(SignalName.pieceSelected);
                 EmitSignal(SignalName.updateTiles, Position, new Vector2I(0, 3), Name);
+
+                if (_pieceType != "king")
+                {
+                    CheckKingVissibility();
+                }
+
                 if (_pieceType == "pawn" && _checkCount <= 1)
                 {
                     PawnMovement();
@@ -876,10 +882,6 @@ public partial class Piece : CharacterBody2D
             _seesKing = 0;
             _lockedDirection = 0;
             UpdateCheck();
-        }
-        else if (_pieceType != "king")
-        {
-            CheckKingVissibility();
         }
     }
 
