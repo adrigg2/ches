@@ -1,7 +1,6 @@
 using Godot;
 
 namespace Ches;
-
 public partial class MainMenu : Control
 {
 	public override void _Ready()

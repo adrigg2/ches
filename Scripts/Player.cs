@@ -2,7 +2,6 @@ using Godot;
 using System.Net.NetworkInformation;
 
 namespace Ches;
-
 public partial class Player : Node2D
 {
     [Signal]

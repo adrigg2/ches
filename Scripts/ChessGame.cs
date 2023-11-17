@@ -1,9 +1,7 @@
 using Godot;
 using System;
-using System.Text.RegularExpressions;
 
 namespace Ches;
-
 public partial class ChessGame : Node2D
 {
     [Signal]
@@ -102,14 +100,16 @@ public partial class ChessGame : Node2D
                 camera.Zoom = new Vector2(-1, -1);
                 reset.Scale = new Vector2(-1, -1);
                 reset.Position = new Vector2(748, 91);
-                EmitSignal(SignalName.changeTurn, 2);
+                Piece.Turn = 2;
+                EmitSignal(SignalName.changeTurn);
             } 
             else if (player / 10 == 2)
             {
                 camera.Zoom = new Vector2(1, 1);                
                 reset.Scale = new Vector2(1, 1);
                 reset.Position = new Vector2(20, 293);
-                EmitSignal(SignalName.changeTurn, 1);
+                Piece.Turn = 1;
+                EmitSignal(SignalName.changeTurn);
             }
         }
 
@@ -136,7 +136,7 @@ public partial class ChessGame : Node2D
                 {
                     if (piece.HasMeta("Piece_Type"))
                     {
-                        GD.Print("Piece ", piece.Name);
+                        GD.Print($"Connecting {player_.GetMeta("player")}");
                         Connect("changeTurn", new Callable(piece, "ChangeTurn"));
                         Connect("setCapture", new Callable(piece, "Capture"));
                         Connect("checkCheck", new Callable(piece, "CheckCheckState"));

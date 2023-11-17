@@ -1,7 +1,6 @@
 using Godot;
 
 namespace Ches;
-
 public partial class Movement : CharacterBody2D
 {
     [Signal]
