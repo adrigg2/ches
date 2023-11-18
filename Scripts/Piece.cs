@@ -179,7 +179,7 @@ public partial class Piece : CharacterBody2D
                 {
                     PawnMovement();
                 }
-                else if (_pieceType == "knight" && _checkCount <= 1)
+                else if (_pieceType == "knight" && _checkCount <= 1 && _lockedDirection == 0)
                 {
                     KnightMovement();
                 }
@@ -209,13 +209,13 @@ public partial class Piece : CharacterBody2D
             if (_firstMovement == true)
             {
                 movePos = Position + new Vector2(CellPixels, CellPixels) * _playerDirectionVector;
-                if (_lockedDirection == 0 || _lockedDirection == SecondaryDiagonal)
+                if (_lockedDirection == 0 || _lockedDirection == MainDiagonal)
                 {
                     CheckMovement();
                 }
 
                 movePos = Position + new Vector2(-CellPixels, CellPixels) * _playerDirectionVector;
-                if (_lockedDirection == 0 || _lockedDirection == MainDiagonal)
+                if (_lockedDirection == 0 || _lockedDirection == SecondaryDiagonal)
                 {
                     CheckMovement();
                 }
@@ -251,13 +251,13 @@ public partial class Piece : CharacterBody2D
                 }
 
                 movePos = Position + new Vector2(CellPixels, CellPixels) * _playerDirectionVector;
-                if (_lockedDirection == 0 || _lockedDirection == SecondaryDiagonal)
+                if (_lockedDirection == 0 || _lockedDirection == MainDiagonal)
                 {
                     CheckMovement();
                 }
 
                 movePos = Position + new Vector2(-CellPixels, CellPixels) * _playerDirectionVector;
-                if (_lockedDirection == 0 || _lockedDirection == MainDiagonal)
+                if (_lockedDirection == 0 || _lockedDirection == SecondaryDiagonal)
                 {
                     CheckMovement();
                 }
@@ -2255,6 +2255,7 @@ public partial class Piece : CharacterBody2D
     {
         Vector2 movePos;
         int positionSituation;
+        int checkId;
         bool outOfBounds;
 
         GD.Print($"{_pieceType} {_player} checking locked direction");
@@ -2282,7 +2283,12 @@ public partial class Piece : CharacterBody2D
                 else if (positionSituation == Protected || positionSituation == NotProtected)
                 {
                     GD.Print($"{_pieceType} {_player} locked direction bottom");
-                    _lockedDirection = Vertical;
+                    checkId = (int)MovementCheck.Call(movePos) % 10;
+
+                    if (checkId == 2 || checkId == 3)
+                    {
+                        _lockedDirection = Vertical;
+                    }
                     return;
                 }
             }
@@ -2309,8 +2315,13 @@ public partial class Piece : CharacterBody2D
                 }
                 else if (positionSituation == Protected || positionSituation == NotProtected)
                 {
-                    GD.Print($"{_pieceType} {_player} locked direction top");
-                    _lockedDirection = Vertical;
+                    GD.Print($"{_pieceType} {_player} locked direction top"); 
+                    checkId = (int)MovementCheck.Call(movePos) % 10;
+
+                    if (checkId == 2 || checkId == 3)
+                    {
+                        _lockedDirection = Vertical;
+                    }
                     return;
                 }
             }
@@ -2338,7 +2349,12 @@ public partial class Piece : CharacterBody2D
                 else if (positionSituation == Protected || positionSituation == NotProtected)
                 {
                     GD.Print($"{_pieceType} {_player} locked direction right");
-                    _lockedDirection = Horizontal;
+                    checkId = (int)MovementCheck.Call(movePos) % 10;
+
+                    if (checkId == 2 || checkId == 3)
+                    {
+                        _lockedDirection = Horizontal;
+                    }
                     return;
                 }
             }
@@ -2366,7 +2382,12 @@ public partial class Piece : CharacterBody2D
                 else if (positionSituation == Protected || positionSituation == NotProtected)
                 {
                     GD.Print($"{_pieceType} {_player} locked direction left");
-                    _lockedDirection = Horizontal;
+                    checkId = (int)MovementCheck.Call(movePos) % 10;
+
+                    if (checkId == 2 || checkId == 3)
+                    {
+                        _lockedDirection = Horizontal;
+                    }
                     return;
                 }
             }
@@ -2394,7 +2415,12 @@ public partial class Piece : CharacterBody2D
                 else if (positionSituation == Protected || positionSituation == NotProtected)
                 {
                     GD.Print($"{_pieceType} {_player} locked direction bottom left");
-                    _lockedDirection = SecondaryDiagonal;
+                    checkId = (int)MovementCheck.Call(movePos) % 10;
+
+                    if (checkId == 2 || checkId == 4)
+                    {
+                        _lockedDirection = SecondaryDiagonal;
+                    }
                     return;
                 }
             }
@@ -2422,7 +2448,12 @@ public partial class Piece : CharacterBody2D
                 else if (positionSituation == Protected || positionSituation == NotProtected)
                 {
                     GD.Print($"{_pieceType} {_player} locked direction top right");
-                    _lockedDirection = SecondaryDiagonal;
+                    checkId = (int)MovementCheck.Call(movePos) % 10;
+
+                    if (checkId == 2 || checkId == 4)
+                    {
+                        _lockedDirection = SecondaryDiagonal;
+                    }
                     return;
                 }
             }
@@ -2450,7 +2481,12 @@ public partial class Piece : CharacterBody2D
                 else if (positionSituation == Protected || positionSituation == NotProtected)
                 {
                     GD.Print($"{_pieceType} {_player} locked direction bottom right");
-                    _lockedDirection = MainDiagonal;
+                    checkId = (int)MovementCheck.Call(movePos) % 10;
+
+                    if (checkId == 2 || checkId == 4)
+                    {
+                        _lockedDirection = MainDiagonal;
+                    }
                     return;
                 }
             }
@@ -2478,7 +2514,12 @@ public partial class Piece : CharacterBody2D
                 else if (positionSituation == Protected || positionSituation == NotProtected)
                 {
                     GD.Print($"{_pieceType} {_player} locked direction top left");
-                    _lockedDirection = MainDiagonal;
+                    checkId = (int)MovementCheck.Call(movePos) % 10;
+
+                    if (checkId == 2 || checkId == 4)
+                    {
+                        _lockedDirection = MainDiagonal;
+                    }
                     return;
                 }
             }
