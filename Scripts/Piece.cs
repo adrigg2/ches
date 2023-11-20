@@ -581,6 +581,11 @@ public partial class Piece : CharacterBody2D
 
             for (int i = -1; i > -8; i--)
             {
+                if (_lockedDirection != 0 && _lockedDirection != Vertical)
+                {
+                    break;
+                }
+
                 movePos = Position + i * new Vector2(0, CellPixels);
                 moveSituation = MoveDiagonalStraight(movePos);
 
@@ -601,6 +606,11 @@ public partial class Piece : CharacterBody2D
 
             for (int i = 1; i < 8; i++)
             {
+                if (_lockedDirection != 0 && _lockedDirection != Vertical)
+                {
+                    break;
+                }
+
                 movePos = Position + i * new Vector2(0, CellPixels);
                 moveSituation = MoveDiagonalStraight(movePos);
 
@@ -621,6 +631,11 @@ public partial class Piece : CharacterBody2D
 
             for (int i = -1; i > -8; i--)
             {
+                if (_lockedDirection != 0 && _lockedDirection != Horizontal)
+                {
+                    break;
+                }
+
                 movePos = Position + i * new Vector2(CellPixels, 0);
                 moveSituation = MoveDiagonalStraight(movePos);
 
@@ -641,6 +656,11 @@ public partial class Piece : CharacterBody2D
 
             for (int i = 1; i < 8; i++)
             {
+                if (_lockedDirection != 0 && _lockedDirection != Horizontal)
+                {
+                    break;
+                }
+
                 movePos = Position + i * new Vector2(CellPixels, 0);
                 moveSituation = MoveDiagonalStraight(movePos);
 
@@ -667,6 +687,11 @@ public partial class Piece : CharacterBody2D
 
             for (int i = -1; i > -8; i--)
             {
+                if (_lockedDirection != 0 && _lockedDirection != MainDiagonal)
+                {
+                    break;
+                }
+
                 movePos = Position + i * new Vector2(CellPixels, CellPixels);
                 moveSituation = MoveDiagonalStraight(movePos);
 
@@ -687,6 +712,11 @@ public partial class Piece : CharacterBody2D
 
             for (int i = 1; i < 8; i++)
             {
+                if (_lockedDirection != 0 && _lockedDirection != MainDiagonal)
+                {
+                    break;
+                }
+
                 movePos = Position + i * new Vector2(CellPixels, CellPixels);
                 moveSituation = MoveDiagonalStraight(movePos);
 
@@ -707,6 +737,11 @@ public partial class Piece : CharacterBody2D
 
             for (int i = -1; i > -8; i--)
             {
+                if (_lockedDirection != 0 && _lockedDirection != SecondaryDiagonal)
+                {
+                    break;
+                }
+
                 movePos = Position + i * new Vector2(CellPixels, -CellPixels);
                 moveSituation = MoveDiagonalStraight(movePos);
 
@@ -727,6 +762,11 @@ public partial class Piece : CharacterBody2D
 
             for (int i = 1; i < 8; i++)
             {
+                if (_lockedDirection != 0 && _lockedDirection != SecondaryDiagonal)
+                {
+                    break;
+                }
+
                 movePos = Position + i * new Vector2(CellPixels, -CellPixels);
                 moveSituation = MoveDiagonalStraight(movePos);
 
