@@ -1,5 +1,7 @@
 using Godot;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Ches;
 public partial class ChessGame : Node2D
@@ -20,6 +22,7 @@ public partial class ChessGame : Node2D
 
     private int[,] _boardCells;
     private int[,] _boardCellsCheck;
+    private List<int[,]> _boardHistory;
 
     public override void _Ready()
 	{
@@ -29,6 +32,8 @@ public partial class ChessGame : Node2D
         Piece.MovementCheck = new Callable(this, "MovementCheck");
         Piece.CheckCheck = new Callable(this, "CheckCheck");
         Piece.CheckArrayCheck = new Callable(this, "CheckArrayCheck");
+
+        _boardHistory = new List<int[,]>();
     }
 
     public void DisableMovement()
@@ -92,6 +97,26 @@ public partial class ChessGame : Node2D
         _boardCells[arrPos.X, arrPos.Y] = player;
         _boardCells[oldArrPos.X, oldArrPos.Y] = 0;
 
+        int[,] boardToSave = new int[_boardCells.GetLength(0), _boardCells.GetLength(1)];
+
+        for (int i = 0; i < _boardCells.GetLength(0); i++)
+        {
+            for (int j = 0; j < _boardCells.GetLength(1); j++)
+            {
+                boardToSave[i, j] = _boardCells[i, j];
+            }
+        }
+
+        _boardHistory.Add(boardToSave);
+
+        //int situationCount = 0;
+        foreach (var board in _boardHistory)
+        {
+            int situationCount = _boardHistory.Count(b => board.Cast<int>().SequenceEqual(b.Cast<int>()));           
+            
+            GD.Print($"This situation has been repeated {situationCount} times");
+        }
+
         CheckReset();
         if (!promotion)
         {
@@ -144,6 +169,8 @@ public partial class ChessGame : Node2D
                 }
             }
         }
+
+        _boardHistory.Clear();
     }
 
     public void Capture(Vector2 capturePos, CharacterBody2D capture)
