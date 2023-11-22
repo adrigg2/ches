@@ -1,13 +1,20 @@
-[gd_scene load_steps=5 format=3 uid="uid://bg1cug3iw3w08"]
+[gd_scene load_steps=6 format=3 uid="uid://bg1cug3iw3w08"]
 
 [ext_resource type="Script" path="res://scripts/ChessGame.cs" id="1_whhq8"]
 [ext_resource type="Texture2D" uid="uid://dhpoor2vf6ljf" path="res://assets/restart_button.png" id="2_a26vu"]
 [ext_resource type="TileSet" uid="uid://bq6f40jlbroyg" path="res://assets/tilesets/board_tiles.tres" id="2_vrpph"]
 [ext_resource type="Script" path="res://scripts/Board.cs" id="3_lbu5b"]
+[ext_resource type="Texture2D" uid="uid://cx7fp1a5ro6e4" path="res://assets/drawbutton.png" id="5_5jvqd"]
 
-[node name="ChessGame" type="Node2D" node_paths=PackedStringArray("_board")]
+[node name="ChessGame" type="Node2D" node_paths=PackedStringArray("_board", "_restart", "_draw", "_debugTracker", "_debugTracker2", "_endGame", "_camera")]
 script = ExtResource("1_whhq8")
 _board = NodePath("Board")
+_restart = NodePath("UI/Restart")
+_draw = NodePath("UI/Draw")
+_debugTracker = NodePath("UI/DebugTracker")
+_debugTracker2 = NodePath("UI/DebugTracker2")
+_endGame = NodePath("UI/EndGame")
+_camera = NodePath("Camera2D")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(384, 192)
@@ -28,24 +35,28 @@ layer_1/z_index = 0
 layer_1/tile_data = PackedInt32Array()
 script = ExtResource("3_lbu5b")
 
-[node name="DebugTracker" type="Label" parent="."]
+[node name="UI" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="DebugTracker" type="Label" parent="UI"]
 offset_left = 512.0
 offset_right = 552.0
 offset_bottom = 24.0
 scale = Vector2(3.19449, 1.39672)
 theme_override_font_sizes/font_size = 17
 autowrap_mode = 2
-metadata/_edit_use_anchors_ = true
 
-[node name="DebugTracker2" type="Label" parent="."]
+[node name="DebugTracker2" type="Label" parent="UI"]
 offset_right = 40.0
 offset_bottom = 34.0
 scale = Vector2(3.20036, 1.04143)
 theme_override_font_sizes/font_size = 17
 autowrap_mode = 2
-metadata/_edit_use_anchors_ = true
 
-[node name="EndGame" type="Label" parent="."]
+[node name="EndGame" type="Label" parent="UI"]
 visible = false
 offset_right = 768.0
 offset_bottom = 58.0
@@ -54,10 +65,17 @@ theme_override_font_sizes/font_size = 40
 text = "White wins"
 horizontal_alignment = 1
 
-[node name="Button" type="Button" parent="."]
+[node name="Restart" type="Button" parent="UI"]
 offset_left = 20.0
 offset_top = 293.0
 offset_right = 156.0
 offset_bottom = 365.0
 icon = ExtResource("2_a26vu")
-metadata/_edit_use_anchors_ = true
+
+[node name="Draw" type="Button" parent="UI"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 220.0
+offset_right = 156.0
+offset_bottom = 292.0
+icon = ExtResource("5_5jvqd")

@@ -19,28 +19,30 @@ public partial class ChessGame : Node2D
     public delegate void checkCheckEventHandler();
 
     [Export] private Board _board;
+    [Export] private Button _restart;
+    [Export] private Button _draw;
+    [Export] private Label _debugTracker;
+    [Export] private Label _debugTracker2;
+    [Export] private Label _endGame;
+    [Export] private Camera2D _camera;
 
     private int[,] _boardCells;
     private int[,] _boardCellsCheck;
-    private List<int[,]> _boardHistory;
+    private List<int[,]> _boardHistory = new();
 
     public override void _Ready()
 	{
-        Button button = GetNode<Button>("Button");
-        button.Pressed += Reset;
+        _restart.Pressed += Reset;
+        _draw.Pressed += AgreedDraw;
 
         Piece.MovementCheck = new Callable(this, "MovementCheck");
         Piece.CheckCheck = new Callable(this, "CheckCheck");
         Piece.CheckArrayCheck = new Callable(this, "CheckArrayCheck");
-
-        _boardHistory = new List<int[,]>();
     }
 
     public void DisableMovement()
     {
-        TileMap board_ = GetNode<TileMap>("Board");
-
-        foreach (Node moveOption in board_.GetChildren())
+        foreach (Node moveOption in _board.GetChildren())
         {
             if (moveOption.HasMeta("Is_Capture"))
             {
@@ -67,19 +69,17 @@ public partial class ChessGame : Node2D
 
     public void DebugTracking() //DEBUG
     {
-        Label debugTracker = GetNode<Label>("DebugTracker"); //DEBUG
-        Label debugTracker2 = GetNode<Label>("DebugTracker2"); //DEBUG
-        debugTracker.Text = null;
-        debugTracker2.Text = null;
+        _debugTracker.Text = null;
+        _debugTracker2.Text = null;
         for (int i = 0; i < _boardCells.GetLength(0); i++)
         {
             for (int j = 0; j < _boardCells.GetLength(1); j++)
             {
-                debugTracker.Text += (_boardCells[j, i] / 10).ToString();
-                debugTracker2.Text += Math.Abs(_boardCellsCheck[j, i]).ToString();
+                _debugTracker.Text += (_boardCells[j, i] / 10).ToString();
+                _debugTracker2.Text += Math.Abs(_boardCellsCheck[j, i]).ToString();
             }
-            debugTracker.Text += "\n";
-            debugTracker2.Text += "\n";
+            _debugTracker.Text += "\n";
+            _debugTracker2.Text += "\n";
         }
     }
 
@@ -87,12 +87,9 @@ public partial class ChessGame : Node2D
     {
         Vector2I arrPos;
         Vector2I oldArrPos;
-        TileMap board_ = GetNode<TileMap>("Board");
-        Camera2D camera = GetNode<Camera2D>("Camera2D");
-        Button reset = GetNode<Button>("Button");
 
-        arrPos = board_.LocalToMap(piecePos);
-        oldArrPos = board_.LocalToMap(oldPos);
+        arrPos = _board.LocalToMap(piecePos);
+        oldArrPos = _board.LocalToMap(oldPos);
 
         _boardCells[arrPos.X, arrPos.Y] = player;
         _boardCells[oldArrPos.X, oldArrPos.Y] = 0;
@@ -122,17 +119,21 @@ public partial class ChessGame : Node2D
         {
             if (player / 10 == 1)
             {
-                camera.Zoom = new Vector2(-1, -1);
-                reset.Scale = new Vector2(-1, -1);
-                reset.Position = new Vector2(748, 91);
+                _camera.Zoom = new Vector2(-1, -1);
+                _restart.Scale = new Vector2(-1, -1);
+                _draw.Scale = new Vector2(-1, -1);
+                _restart.Position = new Vector2(748, 91);
+                _draw.Position = new Vector2(748, 164);
                 Piece.Turn = 2;
                 EmitSignal(SignalName.changeTurn);
             } 
             else if (player / 10 == 2)
             {
-                camera.Zoom = new Vector2(1, 1);                
-                reset.Scale = new Vector2(1, 1);
-                reset.Position = new Vector2(20, 293);
+                _camera.Zoom = new Vector2(1, 1);                
+                _restart.Scale = new Vector2(1, 1);
+                _draw.Scale = new Vector2(1, 1);
+                _restart.Position = new Vector2(20, 293);
+                _draw.Position = new Vector2(20, 220);
                 Piece.Turn = 1;
                 EmitSignal(SignalName.changeTurn);
             }
@@ -144,24 +145,21 @@ public partial class ChessGame : Node2D
     public int MovementCheck(Vector2 posCheck)
     {
         Vector2I arrPos;
-        TileMap board_ = GetNode<TileMap>("Board");
-        arrPos = board_.LocalToMap(posCheck);
+        arrPos = _board.LocalToMap(posCheck);
         return _boardCells[arrPos.X, arrPos.Y];
     }
 
     public void PlayersSet()
     {
-        TileMap board = GetNode<TileMap>("Board");
-
-        foreach (Node player_ in board.GetChildren())
+        foreach (Node player in _board.GetChildren())
         {
-            if (player_.HasMeta("player"))
+            if (player.HasMeta("player"))
             {
-                foreach (Node piece in player_.GetChildren())
+                foreach (Node piece in player.GetChildren())
                 {
                     if (piece.HasMeta("Piece_Type"))
                     {
-                        GD.Print($"Connecting {player_.GetMeta("player")}");
+                        GD.Print($"Connecting {player.GetMeta("player")}");
                         Connect("changeTurn", new Callable(piece, "ChangeTurn"));
                         Connect("setCapture", new Callable(piece, "Capture"));
                         Connect("checkCheck", new Callable(piece, "CheckCheckState"));
@@ -256,8 +254,7 @@ public partial class ChessGame : Node2D
     public int CheckCheck(Vector2 posCheck)
     {
         Vector2I arrPos;
-        TileMap board_ = GetNode<TileMap>("Board");
-        arrPos = board_.LocalToMap(posCheck);
+        arrPos = _board.LocalToMap(posCheck);
         return _boardCellsCheck[arrPos.X, arrPos.Y];
     }
 
@@ -269,49 +266,48 @@ public partial class ChessGame : Node2D
     public int CheckArrayCheck(Vector2 posCheck) //REWRITE
     {
         Vector2I arrPos;
-        TileMap board_ = GetNode<TileMap>("Board");
-        arrPos = board_.LocalToMap(posCheck);
+        arrPos = _board.LocalToMap(posCheck);
         return _boardCellsCheck[arrPos.X, arrPos.Y];
     }
 
     public void Checkmate(int looser)
     {
-        Label winnerText = GetNode<Label>("EndGame");
-        Label debug1 = GetNode<Label>("DebugTracker"); //DEBUG
-        Label debug2 = GetNode<Label>("DebugTracker2"); //DEBUG
-        Button button = GetNode<Button>("Button");
+        _endGame.Visible = true;
+        _endGame.MoveToFront();
+        _restart.MoveToFront();
+        _draw.Visible = false;
 
-        winnerText.Visible = true;
-        winnerText.MoveToFront();
-        button.MoveToFront();
         if (looser == 1)
         {
-            winnerText.Text = Tr("BLACK");
-            winnerText.Position = new Vector2(0, 0);
-            winnerText.Scale = new Vector2(1, 1);
-            button.Position = new Vector2(316, 215);
-            button.Scale = new Vector2(1, 1);
+            _endGame.Text = Tr("BLACK");
+            _endGame.Position = new Vector2(0, 0);
+            _endGame.Scale = new Vector2(1, 1);
+            _restart.Position = new Vector2(316, 215);
+            _restart.Scale = new Vector2(1, 1);
         }
         else if (looser == 2)
         {
-            winnerText.Text = Tr("WHITE");
-            winnerText.Position = new Vector2(768, 384);
-            winnerText.Scale = new Vector2(-1, -1);
-            button.Position = new Vector2(452, 169);
-            button.Scale = new Vector2(-1, -1);
+            _endGame.Text = Tr("WHITE");
+            _endGame.Position = new Vector2(768, 384);
+            _endGame.Scale = new Vector2(-1, -1);
+            _restart.Position = new Vector2(452, 169);
+            _restart.Scale = new Vector2(-1, -1);
+        }
+        else if (looser == 0)
+        {
+            _endGame.Text = "Draw";
+            _endGame.Position = new Vector2(768, 384);
+            _endGame.Scale = new Vector2(-1, -1);
+            _restart.Position = new Vector2(452, 169);
+            _restart.Scale = new Vector2(-1, -1);
         }
 
-        debug1.Visible = false; //DEBUG
-        debug2.Visible = false; //DEBUG
+        _debugTracker.Visible = false; //DEBUG
+        _debugTracker2.Visible = false; //DEBUG
     }
 
     private void Reset()
     {
-        Label winnerText = GetNode<Label>("EndGame");
-        Label debug1 = GetNode<Label>("DebugTracker"); //DEBUG
-        Label debug2 = GetNode<Label>("DebugTracker2"); //DEBUG
-        Button button = GetNode<Button>("Button");
-
         for (int i = 0; i < _boardCellsCheck.GetLength(0); i++)
         {
             for (int j = 0; j < _boardCellsCheck.GetLength(1); j++)
@@ -323,18 +319,18 @@ public partial class ChessGame : Node2D
 
         _board.Reset();
 
-        winnerText.Visible = false;
+        _endGame.Visible = false;
 
-        button.Position = new Vector2(20, 293);
+        _restart.Position = new Vector2(20, 293);
+        _draw.Position = new Vector2(20, 220);
+        _draw.Visible = true;
 
-        debug1.Visible = true; //DEBUG
-        debug2.Visible = true; //DEBUG
+        _debugTracker.Visible = true; //DEBUG
+        _debugTracker.Visible = true; //DEBUG
     }
 
     public void ConnectPromotedPiece(CharacterBody2D piece, int player)
     {
-        Camera2D camera = GetNode<Camera2D>("Camera2D");
-
         GD.Print($"Connecting {piece.Name} to master");
         Connect("changeTurn", new Callable(piece, "ChangeTurn"));
         Connect("setCapture", new Callable(piece, "Capture"));
@@ -343,12 +339,12 @@ public partial class ChessGame : Node2D
 
         if (player == 1)
         {
-            camera.Zoom = new Vector2(-1, -1);
+            _camera.Zoom = new Vector2(-1, -1);
             EmitSignal(SignalName.changeTurn, 2);
         }
         else if (player == 2)
         {
-            camera.Zoom = new Vector2(1, 1);
+            _camera.Zoom = new Vector2(1, 1);
             EmitSignal(SignalName.changeTurn, 1);
         }
     }
@@ -366,5 +362,22 @@ public partial class ChessGame : Node2D
                 }
             }
         }
+    }
+
+    public void AgreedDraw()
+    {
+        _endGame.Visible = true;
+        _endGame.MoveToFront();
+        _restart.MoveToFront();
+        _draw.Visible = false;
+
+        _endGame.Text = "Draw";
+        _endGame.Position = new Vector2(768, 384);
+        _endGame.Scale = new Vector2(-1, -1);
+        _restart.Position = new Vector2(452, 169);
+        _restart.Scale = new Vector2(-1, -1);
+
+        _debugTracker.Visible = false; //DEBUG
+        _debugTracker2.Visible = false; //DEBUG
     }
 }
