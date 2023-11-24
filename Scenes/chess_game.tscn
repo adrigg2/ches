@@ -1,20 +1,25 @@
-[gd_scene load_steps=6 format=3 uid="uid://bg1cug3iw3w08"]
+[gd_scene load_steps=9 format=3 uid="uid://bg1cug3iw3w08"]
 
 [ext_resource type="Script" path="res://scripts/ChessGame.cs" id="1_whhq8"]
 [ext_resource type="Texture2D" uid="uid://dhpoor2vf6ljf" path="res://assets/restart_button.png" id="2_a26vu"]
 [ext_resource type="TileSet" uid="uid://bq6f40jlbroyg" path="res://assets/tilesets/board_tiles.tres" id="2_vrpph"]
 [ext_resource type="Script" path="res://scripts/Board.cs" id="3_lbu5b"]
 [ext_resource type="Texture2D" uid="uid://cx7fp1a5ro6e4" path="res://assets/drawbutton.png" id="5_5jvqd"]
+[ext_resource type="Texture2D" uid="uid://byvya0h40hh6g" path="res://assets/revertbutton.png" id="6_a3b0o"]
+[ext_resource type="Script" path="res://scripts/RevertMenu.cs" id="7_rdvxd"]
+[ext_resource type="PackedScene" uid="uid://gca3h7ok17i8" path="res://scenes/piece.tscn" id="8_ano7s"]
 
-[node name="ChessGame" type="Node2D" node_paths=PackedStringArray("_board", "_restart", "_draw", "_debugTracker", "_debugTracker2", "_endGame", "_camera")]
+[node name="ChessGame" type="Node2D" node_paths=PackedStringArray("_board", "_restart", "_draw", "_revert", "_debugTracker", "_debugTracker2", "_endGame", "_camera", "_revertMenu")]
 script = ExtResource("1_whhq8")
 _board = NodePath("Board")
 _restart = NodePath("UI/Restart")
 _draw = NodePath("UI/Draw")
+_revert = NodePath("UI/Revert")
 _debugTracker = NodePath("UI/DebugTracker")
 _debugTracker2 = NodePath("UI/DebugTracker2")
 _endGame = NodePath("UI/EndGame")
 _camera = NodePath("Camera2D")
+_revertMenu = NodePath("UI/Panel")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(384, 192)
@@ -42,6 +47,7 @@ offset_right = 40.0
 offset_bottom = 40.0
 
 [node name="DebugTracker" type="Label" parent="UI"]
+layout_mode = 0
 offset_left = 512.0
 offset_right = 552.0
 offset_bottom = 24.0
@@ -50,6 +56,7 @@ theme_override_font_sizes/font_size = 17
 autowrap_mode = 2
 
 [node name="DebugTracker2" type="Label" parent="UI"]
+layout_mode = 0
 offset_right = 40.0
 offset_bottom = 34.0
 scale = Vector2(3.20036, 1.04143)
@@ -58,6 +65,7 @@ autowrap_mode = 2
 
 [node name="EndGame" type="Label" parent="UI"]
 visible = false
+layout_mode = 0
 offset_right = 768.0
 offset_bottom = 58.0
 theme_override_colors/font_color = Color(1, 1, 0, 1)
@@ -66,6 +74,7 @@ text = "White wins"
 horizontal_alignment = 1
 
 [node name="Restart" type="Button" parent="UI"]
+layout_mode = 0
 offset_left = 20.0
 offset_top = 293.0
 offset_right = 156.0
@@ -79,3 +88,86 @@ offset_top = 220.0
 offset_right = 156.0
 offset_bottom = 292.0
 icon = ExtResource("5_5jvqd")
+
+[node name="Revert" type="Button" parent="UI"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 147.0
+offset_right = 156.0
+offset_bottom = 219.0
+icon = ExtResource("6_a3b0o")
+
+[node name="Panel" type="Panel" parent="UI" node_paths=PackedStringArray("_board", "_buttonRight", "_buttonLeft", "_return", "_revert")]
+visible = false
+layout_mode = 0
+offset_right = 768.0
+offset_bottom = 384.0
+script = ExtResource("7_rdvxd")
+_board = NodePath("HBoxContainer/VBoxContainer/MarginContainer/SubViewportContainer/SubViewport/Board")
+_buttonRight = NodePath("HBoxContainer/Button2")
+_buttonLeft = NodePath("HBoxContainer/Button")
+_return = NodePath("HBoxContainer/VBoxContainer/Button")
+_revert = NodePath("HBoxContainer/VBoxContainer/Button2")
+_piece = ExtResource("8_ano7s")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UI/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Button" type="Button" parent="UI/Panel/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "<"
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/Panel/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="UI/Panel/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_top = 58
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="UI/Panel/HBoxContainer/VBoxContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="SubViewport" type="SubViewport" parent="UI/Panel/HBoxContainer/VBoxContainer/MarginContainer/SubViewportContainer"]
+handle_input_locally = false
+size = Vector2i(256, 256)
+render_target_update_mode = 0
+
+[node name="Board" type="TileMap" parent="UI/Panel/HBoxContainer/VBoxContainer/MarginContainer/SubViewportContainer/SubViewport"]
+tile_set = ExtResource("2_vrpph")
+cell_quadrant_size = 32
+format = 2
+layer_0/name = "Board"
+layer_0/tile_data = PackedInt32Array(1, 65536, 0, 65536, 65536, 0, 3, 65536, 0, 65538, 65536, 0, 131073, 65536, 0, 196608, 65536, 0, 196610, 65536, 0, 131075, 65536, 0, 196611, 0, 0, 196609, 0, 0, 131074, 0, 0, 65539, 0, 0, 2, 0, 0, 65537, 0, 0, 131072, 0, 0, 0, 0, 0, 458752, 65536, 0, 393216, 0, 0, 393217, 65536, 0, 327681, 0, 0, 262146, 0, 0, 262147, 65536, 0, 327680, 65536, 0, 262144, 0, 0, 262145, 65536, 0, 458753, 0, 0, 458754, 65536, 0, 393219, 65536, 0, 327684, 65536, 0, 458755, 0, 0, 458756, 65536, 0, 458757, 0, 0, 458758, 65536, 0, 458759, 0, 0, 393222, 0, 0, 393223, 65536, 0, 327686, 65536, 0, 327687, 0, 0, 327685, 0, 0, 393220, 0, 0, 393221, 65536, 0, 262148, 0, 0, 262149, 65536, 0, 262150, 0, 0, 262151, 65536, 0, 196612, 65536, 0, 196613, 0, 0, 196614, 65536, 0, 131076, 0, 0, 131077, 65536, 0, 131078, 0, 0, 131079, 65536, 0, 65540, 65536, 0, 65541, 0, 0, 65542, 65536, 0, 4, 0, 0, 5, 65536, 0, 6, 0, 0, 7, 65536, 0, 65543, 0, 0, 196615, 0, 0, 393218, 0, 0, 327683, 0, 0, 327682, 65536, 0)
+layer_1/name = "Dynamic Tiles"
+layer_1/enabled = true
+layer_1/modulate = Color(1, 1, 1, 1)
+layer_1/y_sort_enabled = false
+layer_1/y_sort_origin = 0
+layer_1/z_index = 0
+layer_1/tile_data = PackedInt32Array()
+
+[node name="Button2" type="Button" parent="UI/Panel/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 4
+text = "Revert"
+
+[node name="Button" type="Button" parent="UI/Panel/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 4
+text = "Return"
+
+[node name="Button2" type="Button" parent="UI/Panel/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 8
+text = ">"

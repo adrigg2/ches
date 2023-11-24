@@ -21,10 +21,12 @@ public partial class ChessGame : Node2D
     [Export] private Board _board;
     [Export] private Button _restart;
     [Export] private Button _draw;
+    [Export] private Button _revert;
     [Export] private Label _debugTracker;
     [Export] private Label _debugTracker2;
     [Export] private Label _endGame;
     [Export] private Camera2D _camera;
+    [Export] private RevertMenu _revertMenu;
 
     private int[,] _boardCells;
     private int[,] _boardCellsCheck;
@@ -34,6 +36,8 @@ public partial class ChessGame : Node2D
 	{
         _restart.Pressed += Reset;
         _draw.Pressed += AgreedDraw;
+        _revert.Pressed += Revert;
+        _revertMenu.previousBoardSelected += RevertGameStatus;
 
         Piece.MovementCheck = new Callable(this, "MovementCheck");
         Piece.CheckCheck = new Callable(this, "CheckCheck");
@@ -122,8 +126,10 @@ public partial class ChessGame : Node2D
                 _camera.Zoom = new Vector2(-1, -1);
                 _restart.Scale = new Vector2(-1, -1);
                 _draw.Scale = new Vector2(-1, -1);
+                _revert.Scale = new Vector2(-1, -1);
                 _restart.Position = new Vector2(748, 91);
                 _draw.Position = new Vector2(748, 164);
+                _revert.Position = new Vector2(748, 237);
                 Piece.Turn = 2;
                 EmitSignal(SignalName.changeTurn);
             } 
@@ -132,8 +138,10 @@ public partial class ChessGame : Node2D
                 _camera.Zoom = new Vector2(1, 1);                
                 _restart.Scale = new Vector2(1, 1);
                 _draw.Scale = new Vector2(1, 1);
+                _revert.Scale = new Vector2(1, 1);
                 _restart.Position = new Vector2(20, 293);
                 _draw.Position = new Vector2(20, 220);
+                _revert.Position = new Vector2(20, 147);
                 Piece.Turn = 1;
                 EmitSignal(SignalName.changeTurn);
             }
@@ -169,6 +177,18 @@ public partial class ChessGame : Node2D
         }
 
         _boardHistory.Clear();
+
+        int[,] boardToSave = new int[_boardCells.GetLength(0), _boardCells.GetLength(1)];
+
+        for (int i = 0; i < _boardCells.GetLength(0); i++)
+        {
+            for (int j = 0; j < _boardCells.GetLength(1); j++)
+            {
+                boardToSave[i, j] = _boardCells[i, j];
+            }
+        }
+
+        _boardHistory.Add(boardToSave);
     }
 
     public void Capture(Vector2 capturePos, CharacterBody2D capture)
@@ -276,6 +296,7 @@ public partial class ChessGame : Node2D
         _endGame.MoveToFront();
         _restart.MoveToFront();
         _draw.Visible = false;
+        _revert.Visible = false;
 
         if (looser == 1)
         {
@@ -323,7 +344,9 @@ public partial class ChessGame : Node2D
 
         _restart.Position = new Vector2(20, 293);
         _draw.Position = new Vector2(20, 220);
+        _revert.Position = new Vector2(20, 147);
         _draw.Visible = true;
+        _revert.Visible = true;
 
         _debugTracker.Visible = true; //DEBUG
         _debugTracker.Visible = true; //DEBUG
@@ -370,6 +393,7 @@ public partial class ChessGame : Node2D
         _endGame.MoveToFront();
         _restart.MoveToFront();
         _draw.Visible = false;
+        _revert.Visible = false;
 
         _endGame.Text = "Draw";
         _endGame.Position = new Vector2(768, 384);
@@ -379,5 +403,28 @@ public partial class ChessGame : Node2D
 
         _debugTracker.Visible = false; //DEBUG
         _debugTracker2.Visible = false; //DEBUG
+    }
+
+    public void Revert()
+    {
+        _revertMenu.Visible = true;
+        _revertMenu._boardHistory = _boardHistory;
+        _revertMenu.SetUp();
+    }
+
+    public void RevertGameStatus(int boardIndex)
+    {
+        int[,] board = _boardHistory[boardIndex];
+        _boardHistory.RemoveRange(boardIndex, _boardHistory.Count);
+
+        foreach (var player in _board.GetChildren())
+        {
+            if (player is Player player_)
+            {
+                player_.RevertPieces(board);
+            }
+        }
+
+        _boardCells = _boardHistory[boardIndex];
     }
 }

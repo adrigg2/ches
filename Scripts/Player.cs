@@ -1,4 +1,5 @@
 using Godot;
+using System.Collections.Generic;
 using System.Net.NetworkInformation;
 
 namespace Ches;
@@ -26,7 +27,9 @@ public partial class Player : Node2D
     public delegate void finishCastlingEventHandler();
 
     private int _playerNum;
-    private PackedScene _pawn;
+    private PackedScene _piece;
+
+    private Dictionary<int, string> _pieceDict = new();
 
     public override void _Ready()
 	{
@@ -39,7 +42,7 @@ public partial class Player : Node2D
         Connect("checkFinished", new Callable(master, "CheckFinished"));
         Connect("checkmate", new Callable(master, "Checkmate"));
 
-        _pawn = (PackedScene)ResourceLoader.Load("res://scenes/piece.tscn");
+        _piece = (PackedScene)ResourceLoader.Load("res://scenes/piece.tscn");
 
         if (_playerNum == 1)
         {
@@ -49,6 +52,13 @@ public partial class Player : Node2D
         {
             PlayerSet(1, 0);
         }
+
+        _pieceDict.Add(0, "pawn");
+        _pieceDict.Add(1, "king");
+        _pieceDict.Add(2, "queen");
+        _pieceDict.Add(3, "rook");
+        _pieceDict.Add(4, "bishop");
+        _pieceDict.Add(5, "knight");
     }
     public Vector2 SetPos(Vector2I tilepos)
     {
@@ -62,32 +72,32 @@ public partial class Player : Node2D
     {
         for (int i = 0; i < 8; i++)
         {
-            CharacterBody2D pawn = (CharacterBody2D)_pawn.Instantiate();
+            CharacterBody2D pawn = (CharacterBody2D)_piece.Instantiate();
             GeneratePiece(pawn, new Vector2I(0, firstRow), new Vector2I(1, 0), "pawn", i);
         }
 
         for (int i = 0; i < 2; i++)
         {
-            CharacterBody2D rook = (CharacterBody2D)_pawn.Instantiate();
+            CharacterBody2D rook = (CharacterBody2D)_piece.Instantiate();
             GeneratePiece(rook, new Vector2I(0, secondRow), new Vector2I(7, 0), "rook", i);
         }
 
         for (int i = 0; i < 2; i++)
         {
-            CharacterBody2D knight = (CharacterBody2D)_pawn.Instantiate();
+            CharacterBody2D knight = (CharacterBody2D)_piece.Instantiate();
             GeneratePiece(knight, new Vector2I(1, secondRow), new Vector2I(5, 0), "knight", i);
         }
 
         for (int i = 0; i < 2; i++)
         {
-            CharacterBody2D bishop = (CharacterBody2D)_pawn.Instantiate();
+            CharacterBody2D bishop = (CharacterBody2D)_piece.Instantiate();
             GeneratePiece(bishop, new Vector2I(2, secondRow), new Vector2I(3, 0), "bishop", i);
         }
 
-        CharacterBody2D king = (CharacterBody2D)_pawn.Instantiate();
+        CharacterBody2D king = (CharacterBody2D)_piece.Instantiate();
         GeneratePiece(king, new Vector2I(4, secondRow), new Vector2I(0, 0), "king");
 
-        CharacterBody2D queen = (CharacterBody2D)_pawn.Instantiate();
+        CharacterBody2D queen = (CharacterBody2D)_piece.Instantiate();
         GeneratePiece(queen, new Vector2I(3, secondRow), new Vector2I(0, 0), "queen");
     }
 
@@ -193,5 +203,32 @@ public partial class Player : Node2D
         Connect("castlingAllowed", new Callable(piece, "Castling"));
         Connect("finishCastling", new Callable(piece, "Castle"));
         GD.Print($"Finished connecting {piece.Name} to player");
+    }
+
+    public void RevertPieces(int[,] newSituation)
+    {
+        int cellSituation;
+        string pieceType;
+        Vector2I position;
+
+        foreach (var piece in GetChildren())
+        {
+            piece.QueueFree();
+        }
+
+        for (int i = 0; i < newSituation.GetLength(0); i++)
+        {
+            for (int j = 0; j < newSituation.GetLength(1); j++)
+            {
+                cellSituation = newSituation[i, j];
+                if (cellSituation > 0)
+                {
+                    CharacterBody2D piece = (CharacterBody2D)_piece.Instantiate();
+                    pieceType = _pieceDict[cellSituation % 10];
+                    position = new Vector2I(i, j);
+                    GeneratePiece(piece, position, new Vector2I(0, 0), pieceType);
+                }
+            }
+        }
     }
 }
