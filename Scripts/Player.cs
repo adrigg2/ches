@@ -221,7 +221,7 @@ public partial class Player : Node2D
             for (int j = 0; j < newSituation.GetLength(1); j++)
             {
                 cellSituation = newSituation[i, j];
-                if (cellSituation > 0)
+                if (cellSituation > 0 && cellSituation / 10 == _playerNum)
                 {
                     CharacterBody2D piece = (CharacterBody2D)_piece.Instantiate();
                     pieceType = _pieceDict[cellSituation % 10];

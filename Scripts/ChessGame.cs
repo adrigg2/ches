@@ -415,7 +415,7 @@ public partial class ChessGame : Node2D
     public void RevertGameStatus(int boardIndex)
     {
         int[,] board = _boardHistory[boardIndex];
-        _boardHistory.RemoveRange(boardIndex, _boardHistory.Count);
+        _boardHistory.RemoveRange(boardIndex, _boardHistory.Count - 1);
 
         foreach (var player in _board.GetChildren())
         {
