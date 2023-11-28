@@ -9,7 +9,7 @@
 [ext_resource type="Script" path="res://scripts/RevertMenu.cs" id="7_rdvxd"]
 [ext_resource type="PackedScene" uid="uid://gca3h7ok17i8" path="res://scenes/piece.tscn" id="8_ano7s"]
 
-[node name="ChessGame" type="Node2D" node_paths=PackedStringArray("_board", "_restart", "_draw", "_revert", "_debugTracker", "_debugTracker2", "_endGame", "_camera", "_revertMenu")]
+[node name="ChessGame" type="Node2D" node_paths=PackedStringArray("_board", "_restart", "_draw", "_revert", "_debugTracker", "_debugTracker2", "_endGame", "_camera", "_revertMenu", "_ui")]
 script = ExtResource("1_whhq8")
 _board = NodePath("Board")
 _restart = NodePath("UI/Restart")
@@ -20,6 +20,7 @@ _debugTracker2 = NodePath("UI/DebugTracker2")
 _endGame = NodePath("UI/EndGame")
 _camera = NodePath("Camera2D")
 _revertMenu = NodePath("UI/Panel")
+_ui = NodePath("UI")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(384, 192)

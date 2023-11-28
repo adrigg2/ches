@@ -27,8 +27,9 @@ public partial class ChessGame : Node2D
     [Export] private Label _endGame;
     [Export] private Camera2D _camera;
     [Export] private RevertMenu _revertMenu;
+    [Export] private Control _ui;
 
-    private List<int[,]> _boardHistory = new();
+    private List<BoardState> _boardHistory = new();
 
     public override void _Ready()
 	{
@@ -102,12 +103,11 @@ public partial class ChessGame : Node2D
             }
         }
 
-        _boardHistory.Add(boardToSave);
+        _boardHistory.Add(new BoardState(boardToSave, true));
 
-        //int situationCount = 0;
         foreach (var board in _boardHistory)
         {
-            int situationCount = _boardHistory.Count(b => board.Cast<int>().SequenceEqual(b.Cast<int>()));           
+            int situationCount = _boardHistory.Count(b => board.Board.Cast<int>().SequenceEqual(b.Board.Cast<int>()));           
             
             GD.Print($"This situation has been repeated {situationCount} times");
         }
@@ -118,24 +118,16 @@ public partial class ChessGame : Node2D
             if (player / 10 == 1)
             {
                 _camera.Zoom = new Vector2(-1, -1);
-                _restart.Scale = new Vector2(-1, -1);
-                _draw.Scale = new Vector2(-1, -1);
-                _revert.Scale = new Vector2(-1, -1);
-                _restart.Position = new Vector2(748, 91);
-                _draw.Position = new Vector2(748, 164);
-                _revert.Position = new Vector2(748, 237);
+                _ui.Scale = new Vector2(-1, -1);
+                _ui.Position = new Vector2(768, 384);
                 Piece.Turn = 2;
                 EmitSignal(SignalName.changeTurn);
             } 
             else if (player / 10 == 2)
             {
-                _camera.Zoom = new Vector2(1, 1);                
-                _restart.Scale = new Vector2(1, 1);
-                _draw.Scale = new Vector2(1, 1);
-                _revert.Scale = new Vector2(1, 1);
-                _restart.Position = new Vector2(20, 293);
-                _draw.Position = new Vector2(20, 220);
-                _revert.Position = new Vector2(20, 147);
+                _camera.Zoom = new Vector2(1, 1);
+                _ui.Scale = new Vector2(1, 1);
+                _ui.Position = new Vector2(0, 0);
                 Piece.Turn = 1;
                 EmitSignal(SignalName.changeTurn);
             }
@@ -182,7 +174,7 @@ public partial class ChessGame : Node2D
             }
         }
 
-        _boardHistory.Add(boardToSave);
+        _boardHistory.Add(new BoardState(boardToSave, true));
     }
 
     public void Capture(Vector2 capturePos, CharacterBody2D capture)
@@ -402,14 +394,21 @@ public partial class ChessGame : Node2D
     public void Revert()
     {
         _revertMenu.Visible = true;
-        _revertMenu._boardHistory = _boardHistory;
+        _revertMenu.BoardHistory = _boardHistory;
         _revertMenu.SetUp();
     }
 
     public void RevertGameStatus(int boardIndex)
     {
-        int[,] board = _boardHistory[boardIndex];
-        _boardHistory.RemoveRange(boardIndex, _boardHistory.Count - 1);
+        int[,] board = _boardHistory[boardIndex].Board;
+        
+        int lastBoardHistory = _boardHistory.Count - 1;
+
+        while (lastBoardHistory > boardIndex)
+        {
+            _boardHistory.RemoveAt(lastBoardHistory);
+            lastBoardHistory--;
+        }
 
         foreach (var player in _board.GetChildren())
         {
@@ -419,6 +418,7 @@ public partial class ChessGame : Node2D
             }
         }
 
-        Piece.BoardCells = _boardHistory[boardIndex];
+        _board.ClearDynamicTiles();
+        Piece.BoardCells = _boardHistory[boardIndex].Board;
     }
 }

@@ -1,3 +1,4 @@
+using Ches;
 using Godot;
 using System.Collections.Generic;
 
@@ -12,7 +13,7 @@ public partial class RevertMenu : Panel
 	[Export] private Button _return;
 	[Export] private Button _revert;
 	[Export] private PackedScene _piece;
-    public List<int[,]> _boardHistory;
+    public List<BoardState> BoardHistory { get; set; }
 
 	private Dictionary<int, string> _pieceDict = new();
 
@@ -35,7 +36,7 @@ public partial class RevertMenu : Panel
 
 	public void SetUp()
 	{
-		_boardHistoryIndex = _boardHistory.Count - 1;
+		_boardHistoryIndex = BoardHistory.Count - 1;
 		_buttonRight.Disabled = true;
 		_buttonLeft.Disabled = false;
         SetBoard();
@@ -50,7 +51,7 @@ public partial class RevertMenu : Panel
 	{
 		_boardHistoryIndex++;
         _buttonLeft.Disabled = false;
-		if (_boardHistoryIndex == _boardHistory.Count - 1)
+		if (_boardHistoryIndex == BoardHistory.Count - 1)
 		{
 			_buttonRight.Disabled = true;
 		}
@@ -70,7 +71,7 @@ public partial class RevertMenu : Panel
 
 	private void SetBoard()
 	{
-		int[,] board = _boardHistory[_boardHistoryIndex];
+		int[,] board = BoardHistory[_boardHistoryIndex].Board;
 		int cellSituation;
 
 		foreach (var piece in _board.GetChildren())
