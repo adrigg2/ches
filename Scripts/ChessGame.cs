@@ -28,8 +28,6 @@ public partial class ChessGame : Node2D
     [Export] private Camera2D _camera;
     [Export] private RevertMenu _revertMenu;
 
-    private int[,] _boardCells;
-    private int[,] _boardCellsCheck;
     private List<int[,]> _boardHistory = new();
 
     public override void _Ready()
@@ -38,10 +36,6 @@ public partial class ChessGame : Node2D
         _draw.Pressed += AgreedDraw;
         _revert.Pressed += Revert;
         _revertMenu.previousBoardSelected += RevertGameStatus;
-
-        Piece.MovementCheck = new Callable(this, "MovementCheck");
-        Piece.CheckCheck = new Callable(this, "CheckCheck");
-        Piece.CheckArrayCheck = new Callable(this, "CheckArrayCheck");
     }
 
     public void DisableMovement()
@@ -58,14 +52,14 @@ public partial class ChessGame : Node2D
 
     public void SetBoardArrays(int rows, int columns)
     {
-        _boardCells = new int[rows, columns];
-        _boardCellsCheck = new int[rows, columns];
+        Piece.BoardCells = new int[rows, columns];
+        Piece.BoardCellsCheck = new int[rows, columns];
         for (int i = 0; i < columns; i++)
         {
             for (int j = 0; j < rows; j++)
             {
-                _boardCells[i, j] = 0;
-                _boardCellsCheck[i, j] = 0;
+                Piece.BoardCells[i, j] = 0;
+                Piece.BoardCellsCheck[i, j] = 0;
             }
         }
         DebugTracking(); //DEBUG
@@ -75,12 +69,12 @@ public partial class ChessGame : Node2D
     {
         _debugTracker.Text = null;
         _debugTracker2.Text = null;
-        for (int i = 0; i < _boardCells.GetLength(0); i++)
+        for (int i = 0; i < Piece.BoardCells.GetLength(0); i++)
         {
-            for (int j = 0; j < _boardCells.GetLength(1); j++)
+            for (int j = 0; j < Piece.BoardCells.GetLength(1); j++)
             {
-                _debugTracker.Text += (_boardCells[j, i] / 10).ToString();
-                _debugTracker2.Text += Math.Abs(_boardCellsCheck[j, i]).ToString();
+                _debugTracker.Text += (Piece.BoardCells[j, i] / 10).ToString();
+                _debugTracker2.Text += Math.Abs(Piece.BoardCellsCheck[j, i]).ToString();
             }
             _debugTracker.Text += "\n";
             _debugTracker2.Text += "\n";
@@ -95,16 +89,16 @@ public partial class ChessGame : Node2D
         arrPos = _board.LocalToMap(piecePos);
         oldArrPos = _board.LocalToMap(oldPos);
 
-        _boardCells[arrPos.X, arrPos.Y] = player;
-        _boardCells[oldArrPos.X, oldArrPos.Y] = 0;
+        Piece.BoardCells[arrPos.X, arrPos.Y] = player;
+        Piece.BoardCells[oldArrPos.X, oldArrPos.Y] = 0;
 
-        int[,] boardToSave = new int[_boardCells.GetLength(0), _boardCells.GetLength(1)];
+        int[,] boardToSave = new int[Piece.BoardCells.GetLength(0), Piece.BoardCells.GetLength(1)];
 
-        for (int i = 0; i < _boardCells.GetLength(0); i++)
+        for (int i = 0; i < Piece.BoardCells.GetLength(0); i++)
         {
-            for (int j = 0; j < _boardCells.GetLength(1); j++)
+            for (int j = 0; j < Piece.BoardCells.GetLength(1); j++)
             {
-                boardToSave[i, j] = _boardCells[i, j];
+                boardToSave[i, j] = Piece.BoardCells[i, j];
             }
         }
 
@@ -154,7 +148,7 @@ public partial class ChessGame : Node2D
     {
         Vector2I arrPos;
         arrPos = _board.LocalToMap(posCheck);
-        return _boardCells[arrPos.X, arrPos.Y];
+        return Piece.BoardCells[arrPos.X, arrPos.Y];
     }
 
     public void PlayersSet()
@@ -178,13 +172,13 @@ public partial class ChessGame : Node2D
 
         _boardHistory.Clear();
 
-        int[,] boardToSave = new int[_boardCells.GetLength(0), _boardCells.GetLength(1)];
+        int[,] boardToSave = new int[Piece.BoardCells.GetLength(0), Piece.BoardCells.GetLength(1)];
 
-        for (int i = 0; i < _boardCells.GetLength(0); i++)
+        for (int i = 0; i < Piece.BoardCells.GetLength(0); i++)
         {
-            for (int j = 0; j < _boardCells.GetLength(1); j++)
+            for (int j = 0; j < Piece.BoardCells.GetLength(1); j++)
             {
-                boardToSave[i, j] = _boardCells[i, j];
+                boardToSave[i, j] = Piece.BoardCells[i, j];
             }
         }
 
@@ -206,7 +200,7 @@ public partial class ChessGame : Node2D
         const int NotProtected = 7;
         const int KingInCheck = 8;
 
-        int cell = _boardCellsCheck[arrPos.X, arrPos.Y];
+        int cell = Piece.BoardCellsCheck[arrPos.X, arrPos.Y];
 
         if (pieceCell)
         {
@@ -214,29 +208,29 @@ public partial class ChessGame : Node2D
             {
                 if (cell == Protected)
                 {
-                    _boardCellsCheck[arrPos.X, arrPos.Y] = ProtectedAndSees;
+                    Piece.BoardCellsCheck[arrPos.X, arrPos.Y] = ProtectedAndSees;
                 }
                 else
                 {
-                    _boardCellsCheck[arrPos.X, arrPos.Y] = NotProtectedAndSees;
+                    Piece.BoardCellsCheck[arrPos.X, arrPos.Y] = NotProtectedAndSees;
                 }
             }
             else if (protectedPiece)
             {
                 if (cell == NotProtectedAndSees)
                 {
-                    _boardCellsCheck[arrPos.X, arrPos.Y] = ProtectedAndSees;
+                    Piece.BoardCellsCheck[arrPos.X, arrPos.Y] = ProtectedAndSees;
                 }
                 else
                 {
-                    _boardCellsCheck[arrPos.X, arrPos.Y] = Protected;
+                    Piece.BoardCellsCheck[arrPos.X, arrPos.Y] = Protected;
                 }
             }
             else
             {
                 if (cell != Protected && cell != ProtectedAndSees && cell != NotProtectedAndSees)
                 {
-                    _boardCellsCheck[arrPos.X, arrPos.Y] = NotProtected;
+                    Piece.BoardCellsCheck[arrPos.X, arrPos.Y] = NotProtected;
                 }
             }
         }
@@ -244,15 +238,15 @@ public partial class ChessGame : Node2D
         {
             if (cell == 0 && checkSituation != SeesEnemyKing && checkSituation != KingInCheck)
             {
-                _boardCellsCheck[arrPos.X, arrPos.Y] = Path;
+                Piece.BoardCellsCheck[arrPos.X, arrPos.Y] = Path;
             }
             else if (checkSituation == SeesEnemyKing)
             {
-                _boardCellsCheck[arrPos.X, arrPos.Y] = SeesEnemyKing;
+                Piece.BoardCellsCheck[arrPos.X, arrPos.Y] = SeesEnemyKing;
             }
             else if (checkSituation == KingInCheck)
             {
-                _boardCellsCheck[arrPos.X, arrPos.Y] = KingInCheck;
+                Piece.BoardCellsCheck[arrPos.X, arrPos.Y] = KingInCheck;
             }
         }
 
@@ -261,11 +255,11 @@ public partial class ChessGame : Node2D
 
     public void CheckReset()
     {
-        for (int i = 0; i < _boardCellsCheck.GetLength(0); i++)
+        for (int i = 0; i < Piece.BoardCellsCheck.GetLength(0); i++)
         {
-            for (int j = 0; j < _boardCellsCheck.GetLength(1); j++)
+            for (int j = 0; j < Piece.BoardCellsCheck.GetLength(1); j++)
             {
-                _boardCellsCheck[i, j] = 0;
+                Piece.BoardCellsCheck[i, j] = 0;
             }
         }
         DebugTracking(); //DEBUG
@@ -275,7 +269,7 @@ public partial class ChessGame : Node2D
     {
         Vector2I arrPos;
         arrPos = _board.LocalToMap(posCheck);
-        return _boardCellsCheck[arrPos.X, arrPos.Y];
+        return Piece.BoardCellsCheck[arrPos.X, arrPos.Y];
     }
 
     public void CheckFinished()
@@ -287,7 +281,7 @@ public partial class ChessGame : Node2D
     {
         Vector2I arrPos;
         arrPos = _board.LocalToMap(posCheck);
-        return _boardCellsCheck[arrPos.X, arrPos.Y];
+        return Piece.BoardCellsCheck[arrPos.X, arrPos.Y];
     }
 
     public void Checkmate(int looser)
@@ -329,12 +323,12 @@ public partial class ChessGame : Node2D
 
     private void Reset()
     {
-        for (int i = 0; i < _boardCellsCheck.GetLength(0); i++)
+        for (int i = 0; i < Piece.BoardCellsCheck.GetLength(0); i++)
         {
-            for (int j = 0; j < _boardCellsCheck.GetLength(1); j++)
+            for (int j = 0; j < Piece.BoardCellsCheck.GetLength(1); j++)
             {
-                _boardCellsCheck[i, j] = 0;
-                _boardCells[i, j] = 0;
+                Piece.BoardCellsCheck[i, j] = 0;
+                Piece.BoardCells[i, j] = 0;
             }
         }
 
@@ -374,14 +368,14 @@ public partial class ChessGame : Node2D
 
     public void ClearEnPassant(int player)
     {
-        for (int i = 0; i < _boardCells.GetLength(0); i++)
+        for (int i = 0; i < Piece.BoardCells.GetLength(0); i++)
         {
-            for (int j = 0; j < _boardCells.GetLength(1); j++)
+            for (int j = 0; j < Piece.BoardCells.GetLength(1); j++)
             {
-                if (_boardCells[i, j] / 10 == -player)
+                if (Piece.BoardCells[i, j] / 10 == -player)
                 {
                     GD.Print("Cleared En Passant");
-                    _boardCells[i, j] = 0;
+                    Piece.BoardCells[i, j] = 0;
                 }
             }
         }
@@ -425,6 +419,6 @@ public partial class ChessGame : Node2D
             }
         }
 
-        _boardCells = _boardHistory[boardIndex];
+        Piece.BoardCells = _boardHistory[boardIndex];
     }
 }

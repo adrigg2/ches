@@ -26,6 +26,8 @@ public partial class Board : TileMap
         Connect("updateBoard", new Callable(master, "UpdateBoard"));
         Connect("playersSet", new Callable(master, "PlayersSet"));
 
+        Piece.Board = this;
+
         EmitSignal(SignalName.boardCellCount, 8, 8);
 
         for (int i = 1; i < 3; i++)
