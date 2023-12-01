@@ -38,7 +38,16 @@ public partial class RevertMenu : Panel
 	{
 		_boardHistoryIndex = BoardHistory.Count - 1;
 		_buttonRight.Disabled = true;
-		_buttonLeft.Disabled = false;
+		
+		if (_boardHistoryIndex == 0)
+		{
+			_buttonLeft.Disabled = true;
+		}
+		else
+		{
+			_buttonLeft.Disabled = false;
+		}
+
         SetBoard();
     }
 

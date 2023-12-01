@@ -284,29 +284,22 @@ public partial class ChessGame : Node2D
         _draw.Visible = false;
         _revert.Visible = false;
 
+        _endGame.Position = new Vector2(0, 0);
+        _endGame.Scale = new Vector2(1, 1);
+        _restart.Position = new Vector2(316, 215);
+        _restart.Scale = new Vector2(1, 1);
+
         if (looser == 1)
         {
             _endGame.Text = Tr("BLACK");
-            _endGame.Position = new Vector2(0, 0);
-            _endGame.Scale = new Vector2(1, 1);
-            _restart.Position = new Vector2(316, 215);
-            _restart.Scale = new Vector2(1, 1);
         }
         else if (looser == 2)
         {
             _endGame.Text = Tr("WHITE");
-            _endGame.Position = new Vector2(768, 384);
-            _endGame.Scale = new Vector2(-1, -1);
-            _restart.Position = new Vector2(452, 169);
-            _restart.Scale = new Vector2(-1, -1);
         }
         else if (looser == 0)
         {
             _endGame.Text = "Draw";
-            _endGame.Position = new Vector2(768, 384);
-            _endGame.Scale = new Vector2(-1, -1);
-            _restart.Position = new Vector2(452, 169);
-            _restart.Scale = new Vector2(-1, -1);
         }
 
         _debugTracker.Visible = false; //DEBUG
@@ -335,7 +328,7 @@ public partial class ChessGame : Node2D
         _revert.Visible = true;
 
         _debugTracker.Visible = true; //DEBUG
-        _debugTracker.Visible = true; //DEBUG
+        _debugTracker2.Visible = true; //DEBUG
     }
 
     public void ConnectPromotedPiece(CharacterBody2D piece, int player)
@@ -382,10 +375,10 @@ public partial class ChessGame : Node2D
         _revert.Visible = false;
 
         _endGame.Text = "Draw";
-        _endGame.Position = new Vector2(768, 384);
-        _endGame.Scale = new Vector2(-1, -1);
-        _restart.Position = new Vector2(452, 169);
-        _restart.Scale = new Vector2(-1, -1);
+        _endGame.Position = new Vector2(0, 0);
+        _endGame.Scale = new Vector2(1, 1);
+        _restart.Position = new Vector2(316, 215);
+        _restart.Scale = new Vector2(1, 1);
 
         _debugTracker.Visible = false; //DEBUG
         _debugTracker2.Visible = false; //DEBUG
