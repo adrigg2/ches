@@ -12,7 +12,7 @@ config_version=5
 
 config/name="Ches (with a  single s)"
 run/main_scene="res://scenes/main_menu.tscn"
-config/features=PackedStringArray("4.1", "C#", "Forward Plus")
+config/features=PackedStringArray("4.2", "C#", "Forward Plus")
 boot_splash/show_image=false
 config/icon="res://assets/sprites/pawn_w.png"
 config/windows_native_icon="res://icon.ico"
@@ -30,6 +30,20 @@ project/assembly_name="Chess"
 [editor]
 
 version_control/plugin_name="git_plugin"
+
+[file_customization]
+
+folder_colors={
+"res://assets/": "red",
+"res://assets/resources/": "orange",
+"res://assets/sprites/": "yellow",
+"res://assets/tilesets/": "purple",
+"res://assets/translations/": "green",
+"res://scenes/": "blue",
+"res://scripts/": "yellow",
+"res://scripts/custom_nodes/": "red",
+"res://scripts/custom_resources/": "green"
+}
 
 [input]
 

@@ -1,14 +1,20 @@
-[gd_scene load_steps=4 format=3 uid="uid://gca3h7ok17i8"]
+[gd_scene load_steps=7 format=3 uid="uid://gca3h7ok17i8"]
 
 [ext_resource type="Script" path="res://scripts/Piece.cs" id="1_25yrt"]
 [ext_resource type="Resource" uid="uid://cbcxncsgm4y3" path="res://assets/resources/piece_textures.tres" id="2_4kae7"]
+[ext_resource type="PackedScene" uid="uid://34he5epnjvfu" path="res://scenes/movement.tscn" id="3_10rmn"]
 [ext_resource type="Shape2D" uid="uid://dg5lhu0e8vi5l" path="res://assets/resources/piece_shape.tres" id="3_fmg7x"]
+[ext_resource type="PackedScene" uid="uid://udrochcokmvr" path="res://scenes/capture.tscn" id="4_1op67"]
+[ext_resource type="PackedScene" uid="uid://dvgrvy1lc6671" path="res://scenes/promotion_selection.tscn" id="5_ni56b"]
 
 [node name="Piece" type="CharacterBody2D"]
 input_pickable = true
 motion_mode = 1
 script = ExtResource("1_25yrt")
 _textures = ExtResource("2_4kae7")
+_movement = ExtResource("3_10rmn")
+_capture = ExtResource("4_1op67")
+_promotion = ExtResource("5_ni56b")
 metadata/Piece_Type = "pawn"
 metadata/Player = 0
 

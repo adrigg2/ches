@@ -71,9 +71,9 @@ public partial class Piece : CharacterBody2D
 
     [Export] private PieceTextures _textures;
 
-    private PackedScene _movement;
-    private PackedScene _capture;
-    private PackedScene _promotion;
+    [Export] private PackedScene _movement;
+    [Export] private PackedScene _capture;
+    [Export] private PackedScene _promotion;
 
     public static TileMap Board { get; set; }
 
@@ -139,10 +139,6 @@ public partial class Piece : CharacterBody2D
             Sprite2D sprite = GetNode<Sprite2D>("Sprite2D");
             sprite.Texture = _textures.GetWhiteTexture(_pieceType);
         }
-
-        _movement = (PackedScene)ResourceLoader.Load("res://scenes/scenery/movement.tscn");
-        _capture = (PackedScene)ResourceLoader.Load("res://scenes/scenery/capture.tscn");
-        _promotion = (PackedScene)ResourceLoader.Load("res://scenes/promotion_selection.tscn");
 
         Node2D master = GetNode<Node2D>("../../..");
         Node2D playerController = GetNode<Node2D>("..");

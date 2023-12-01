@@ -62,6 +62,7 @@ public partial class Board : TileMap
     public void ClearDynamicTiles()
     {
         GD.Print("Clearing update tiles");
+        _selectedPosition = new Vector2(-1, -1);
         ClearLayer(1);
     }
 
