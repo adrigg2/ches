@@ -117,7 +117,7 @@ public partial class ChessGame : Node2D
         {
             if (player / 10 == 1)
             {
-                _camera.Zoom = new Vector2(-1, -1);
+                _camera.Zoom *= new Vector2(-1, -1);
                 _ui.Scale = new Vector2(-1, -1);
                 _ui.Position = new Vector2(768, 384);
                 Piece.Turn = 2;
@@ -125,7 +125,7 @@ public partial class ChessGame : Node2D
             } 
             else if (player / 10 == 2)
             {
-                _camera.Zoom = new Vector2(1, 1);
+                _camera.Zoom *= new Vector2(1, 1);
                 _ui.Scale = new Vector2(1, 1);
                 _ui.Position = new Vector2(0, 0);
                 Piece.Turn = 1;
@@ -147,16 +147,20 @@ public partial class ChessGame : Node2D
     {
         foreach (Node player in _board.GetChildren())
         {
-            if (player.HasMeta("player"))
+            if (player is Player)
             {
                 foreach (Node piece in player.GetChildren())
                 {
-                    if (piece.HasMeta("Piece_Type"))
+                    if (piece is Piece piece1)
                     {
                         GD.Print($"Connecting {player.GetMeta("player")}");
                         Connect("changeTurn", new Callable(piece, "ChangeTurn"));
                         Connect("setCapture", new Callable(piece, "Capture"));
                         Connect("checkCheck", new Callable(piece, "CheckCheckState"));
+                        piece1.PieceSelected += DisableMovement;
+                        piece1.PieceMoved += UpdateBoard;
+                        piece1.ZoneOfControlChecked += Check;
+                        piece1.ClearEnPassant += ClearEnPassant;
                     }
                 }
             }
@@ -341,12 +345,12 @@ public partial class ChessGame : Node2D
 
         if (player == 1)
         {
-            _camera.Zoom = new Vector2(-1, -1);
+            _camera.Zoom *= new Vector2(-1, -1);
             EmitSignal(SignalName.changeTurn, 2);
         }
         else if (player == 2)
         {
-            _camera.Zoom = new Vector2(1, 1);
+            _camera.Zoom *= new Vector2(1, 1);
             EmitSignal(SignalName.changeTurn, 1);
         }
     }

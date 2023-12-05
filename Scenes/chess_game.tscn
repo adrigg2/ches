@@ -41,6 +41,7 @@ layout_mode = 3
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
+metadata/_edit_use_anchors_ = true
 
 [node name="DebugTracker" type="Label" parent="UI"]
 layout_mode = 0
@@ -50,6 +51,7 @@ offset_bottom = 24.0
 scale = Vector2(3.19449, 1.39672)
 theme_override_font_sizes/font_size = 17
 autowrap_mode = 2
+metadata/_edit_use_anchors_ = true
 
 [node name="DebugTracker2" type="Label" parent="UI"]
 layout_mode = 0
@@ -58,6 +60,7 @@ offset_bottom = 34.0
 scale = Vector2(3.20036, 1.04143)
 theme_override_font_sizes/font_size = 17
 autowrap_mode = 2
+metadata/_edit_use_anchors_ = true
 
 [node name="EndGame" type="Label" parent="UI"]
 visible = false
@@ -76,6 +79,7 @@ offset_top = 293.0
 offset_right = 156.0
 offset_bottom = 365.0
 icon = ExtResource("2_a26vu")
+metadata/_edit_use_anchors_ = true
 
 [node name="Draw" type="Button" parent="UI"]
 layout_mode = 0
@@ -84,6 +88,7 @@ offset_top = 220.0
 offset_right = 156.0
 offset_bottom = 292.0
 icon = ExtResource("5_5jvqd")
+metadata/_edit_use_anchors_ = true
 
 [node name="Revert" type="Button" parent="UI"]
 layout_mode = 0
@@ -92,6 +97,7 @@ offset_top = 147.0
 offset_right = 156.0
 offset_bottom = 219.0
 icon = ExtResource("6_a3b0o")
+metadata/_edit_use_anchors_ = true
 
 [node name="Panel" type="Panel" parent="UI" node_paths=PackedStringArray("_board", "_buttonRight", "_buttonLeft", "_return", "_revert")]
 visible = false

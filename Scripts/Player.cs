@@ -72,36 +72,36 @@ public partial class Player : Node2D
     {
         for (int i = 0; i < 8; i++)
         {
-            CharacterBody2D pawn = (CharacterBody2D)_piece.Instantiate();
+            Piece pawn = (Piece)_piece.Instantiate();
             GeneratePiece(pawn, new Vector2I(0, firstRow), new Vector2I(1, 0), "pawn", i);
         }
 
         for (int i = 0; i < 2; i++)
         {
-            CharacterBody2D rook = (CharacterBody2D)_piece.Instantiate();
+            Piece rook = (Piece)_piece.Instantiate();
             GeneratePiece(rook, new Vector2I(0, secondRow), new Vector2I(7, 0), "rook", i);
         }
 
         for (int i = 0; i < 2; i++)
         {
-            CharacterBody2D knight = (CharacterBody2D)_piece.Instantiate();
+            Piece knight = (Piece)_piece.Instantiate();
             GeneratePiece(knight, new Vector2I(1, secondRow), new Vector2I(5, 0), "knight", i);
         }
 
         for (int i = 0; i < 2; i++)
         {
-            CharacterBody2D bishop = (CharacterBody2D)_piece.Instantiate();
+            Piece bishop = (Piece)_piece.Instantiate();
             GeneratePiece(bishop, new Vector2I(2, secondRow), new Vector2I(3, 0), "bishop", i);
         }
 
-        CharacterBody2D king = (CharacterBody2D)_piece.Instantiate();
+        Piece king = (Piece)_piece.Instantiate();
         GeneratePiece(king, new Vector2I(4, secondRow), new Vector2I(0, 0), "king");
 
-        CharacterBody2D queen = (CharacterBody2D)_piece.Instantiate();
+        Piece queen = (Piece)_piece.Instantiate();
         GeneratePiece(queen, new Vector2I(3, secondRow), new Vector2I(0, 0), "queen");
     }
 
-    public void GeneratePiece(CharacterBody2D piece, Vector2I icell, Vector2I cells, string pieceType, int index = 0)
+    public void GeneratePiece(Piece piece, Vector2I icell, Vector2I cells, string pieceType, int index = 0)
     {
         Vector2 ipos;
         Vector2I cell;
@@ -113,6 +113,14 @@ public partial class Player : Node2D
         Connect("checkRook", new Callable(piece, "FirstMovementCheck"));
         Connect("castlingAllowed", new Callable(piece, "Castling"));
         Connect("finishCastling", new Callable(piece, "Castle"));
+
+        piece.CheckUpdated += CheckUpdate;
+        piece.PlayerInCheck += PlayerInCheck;
+        piece.CheckmateCheck += CheckmateCheck;
+        piece.CastlingSetup += CastlingSetup;
+        piece.AllowCastling += AllowCastling;
+        piece.MoveRook += Castle;
+
         int id = (int)piece.Get("_id");
         cell = icell + index * cells;
         ipos = SetPos(cell);
@@ -223,7 +231,7 @@ public partial class Player : Node2D
                 cellSituation = newSituation[i, j];
                 if (cellSituation > 0 && cellSituation / 10 == _playerNum)
                 {
-                    CharacterBody2D piece = (CharacterBody2D)_piece.Instantiate();
+                    Piece piece = (Piece)_piece.Instantiate();
                     pieceType = _pieceDict[cellSituation % 10];
                     position = new Vector2I(i, j);
                     GeneratePiece(piece, position, new Vector2I(0, 0), pieceType);

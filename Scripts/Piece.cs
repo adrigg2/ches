@@ -5,40 +5,40 @@ namespace Ches;
 public partial class Piece : CharacterBody2D
 {
     [Signal]
-    public delegate void pieceSelectedEventHandler();
+    public delegate void PieceSelectedEventHandler();
 
     [Signal]
-    public delegate void pieceMovedEventHandler();
+    public delegate void PieceMovedEventHandler(Vector2 position, Vector2 oldPosition, int player, bool promotion);
 
     [Signal]
-    public delegate void checkUpdatedEventHandler();
+    public delegate void CheckUpdatedEventHandler();
 
     [Signal]
-    public delegate void updateCheckEventHandler();
+    public delegate void ZoneOfControlCheckedEventHandler(Vector2I position, int checkSituation, bool pieceCell, bool protectedPiece);
 
     [Signal]
-    public delegate void playerInCheckEventHandler();
+    public delegate void PlayerInCheckEventHandler(bool isInCheck);
 
     [Signal]
-    public delegate void checkmateCheckEventHandler();
+    public delegate void CheckmateCheckEventHandler();
 
     [Signal]
-    public delegate void updateTilesEventHandler();
+    public delegate void UpdateTilesEventHandler();
 
     [Signal]
-    public delegate void clearDynamicTilesEventHandler();
+    public delegate void ClearDynamicTilesEventHandler();
 
     [Signal]
-    public delegate void castlingSetupEventHandler();
+    public delegate void CastlingSetupEventHandler(Vector2 position);
 
     [Signal]
-    public delegate void allowCastlingEventHandler();
+    public delegate void AllowCastlingEventHandler(bool castlingAllowed, Vector2 position);
 
     [Signal]
-    public delegate void moveRookEventHandler();
+    public delegate void MoveRookEventHandler(Vector2 position);
 
     [Signal]
-    public delegate void clearEnPassantEventHandler();
+    public delegate void ClearEnPassantEventHandler(int player);
 
     const int CellPixels = 32;
     const int SeesFriendlyPiece = 1;
@@ -140,21 +140,8 @@ public partial class Piece : CharacterBody2D
             sprite.Texture = _textures.GetWhiteTexture(_pieceType);
         }
 
-        Node2D master = GetNode<Node2D>("../../..");
-        Node2D playerController = GetNode<Node2D>("..");
-
-        Connect("pieceSelected", new Callable(master, "DisableMovement"));
-        Connect("pieceMoved", new Callable(master, "UpdateBoard"));
-        Connect("updateCheck", new Callable(master, "Check"));
-        Connect("clearEnPassant", new Callable(master, "ClearEnPassant"));
         Connect("updateTiles", new Callable(Board, "UpdateTiles"));
         Connect("clearDynamicTiles", new Callable(Board, "ClearDynamicTiles"));
-        Connect("checkUpdated", new Callable(playerController, "CheckUpdate"));
-        Connect("playerInCheck", new Callable(playerController, "PlayerInCheck"));
-        Connect("checkmateCheck", new Callable(playerController, "CheckmateCheck"));
-        Connect("castlingSetup", new Callable(playerController, "CastlingSetup"));
-        Connect("allowCastling", new Callable(playerController, "AllowCastling"));
-        Connect("moveRook", new Callable(playerController, "Castle"));
     }
 
     public override void _InputEvent(Viewport viewport, InputEvent @event, int shapeIdx)
@@ -163,8 +150,8 @@ public partial class Piece : CharacterBody2D
         {
             if (Turn == _player)
             {
-                EmitSignal(SignalName.pieceSelected);
-                EmitSignal(SignalName.updateTiles, Position, new Vector2I(0, 3), Name);
+                EmitSignal(SignalName.PieceSelected);
+                EmitSignal(SignalName.UpdateTiles, Position, new Vector2I(0, 3), Name);
 
                 if (_pieceType != "king")
                 {
@@ -497,7 +484,7 @@ public partial class Piece : CharacterBody2D
                     else if (blockedPosition == _player && checkId == 3)
                     {
                         GD.Print("Castling initiated");
-                        EmitSignal(SignalName.castlingSetup, movePos);
+                        EmitSignal(SignalName.CastlingSetup, movePos);
                     }
                 }
 
@@ -527,7 +514,7 @@ public partial class Piece : CharacterBody2D
                     else if (blockedPosition == _player && checkId == 3)
                     {
                         GD.Print("Castling initiated");
-                        EmitSignal(SignalName.castlingSetup, movePos);
+                        EmitSignal(SignalName.CastlingSetup, movePos);
                     }
                 }
             }
@@ -837,21 +824,21 @@ public partial class Piece : CharacterBody2D
 
         _checkCount = 0;
 
-        EmitSignal(SignalName.clearDynamicTiles);
-        EmitSignal(SignalName.updateTiles, oldPos, new Vector2I(0, 1), Name);
-        EmitSignal(SignalName.updateTiles, newPosition, new Vector2I(1, 1), Name);
+        EmitSignal(SignalName.ClearDynamicTiles);
+        EmitSignal(SignalName.UpdateTiles, oldPos, new Vector2I(0, 1), Name);
+        EmitSignal(SignalName.UpdateTiles, newPosition, new Vector2I(1, 1), Name);
 
         if (_firstMovement == true)
         {
             _firstMovement = false;
             if (_pieceType == "pawn" && Position == oldPos + new Vector2(0, 2 * CellPixels))
             {
-                EmitSignal(SignalName.pieceMoved, newPosition - new Vector2(0, CellPixels), oldPos, -_id, false);
+                EmitSignal(SignalName.PieceMoved, newPosition - new Vector2(0, CellPixels), oldPos, -_id, false);
                 _enPassant = true;
             }
             else if (_pieceType == "pawn" && Position == oldPos + new Vector2(0, -2 * CellPixels))
             {
-                EmitSignal(SignalName.pieceMoved, newPosition + new Vector2(0, CellPixels), oldPos, -_id, false);
+                EmitSignal(SignalName.PieceMoved, newPosition + new Vector2(0, CellPixels), oldPos, -_id, false);
                 _enPassant = true;
             }
         }
@@ -860,7 +847,7 @@ public partial class Piece : CharacterBody2D
         {
             if (oldPos == Position + new Vector2(-2 * CellPixels, 0) || oldPos == Position + new Vector2(2 * CellPixels, 0))
             {
-                EmitSignal(SignalName.moveRook, newPosition);
+                EmitSignal(SignalName.MoveRook, newPosition);
             }
         }
 
@@ -879,11 +866,11 @@ public partial class Piece : CharacterBody2D
                 promotionSelection.Position = Position + new Vector2(CellPixels, 0);
             }
 
-            EmitSignal(SignalName.pieceMoved, newPosition, oldPos, _id, true);
+            EmitSignal(SignalName.PieceMoved, newPosition, oldPos, _id, true);
         }
         else
         {
-            EmitSignal(SignalName.pieceMoved, newPosition, oldPos, _id, false);
+            EmitSignal(SignalName.PieceMoved, newPosition, oldPos, _id, false);
         }
     }
 
@@ -895,7 +882,7 @@ public partial class Piece : CharacterBody2D
         if (_isInCheck && _pieceType == "king")
         {
             _isInCheck = false;
-            EmitSignal(SignalName.playerInCheck, false);
+            EmitSignal(SignalName.PlayerInCheck, false);
         }
 
         if (Turn == 2)
@@ -909,7 +896,7 @@ public partial class Piece : CharacterBody2D
 
         if (Turn == _player && _pieceType == "pawn" && _enPassant)
         {
-            EmitSignal(SignalName.clearEnPassant, _player);
+            EmitSignal(SignalName.ClearEnPassant, _player);
             _enPassant = false;
         }
 
@@ -926,7 +913,7 @@ public partial class Piece : CharacterBody2D
         if (_pieceType == "pawn" && _enPassant && (_capturePos == Position - new Vector2(0, CellPixels) || _capturePos == Position + new Vector2(0, CellPixels)))
         {
             Connect("tree_exited", new Callable(_capture, "Captured"));
-            EmitSignal(SignalName.clearEnPassant, _player);
+            EmitSignal(SignalName.ClearEnPassant, _player);
             QueueFree();
         }
         else if (_capturePos == Position)
@@ -1467,7 +1454,7 @@ public partial class Piece : CharacterBody2D
 
             arrPos = board.LocalToMap(checkPiece);
 
-            EmitSignal(SignalName.updateCheck, arrPos, checkSituation, true, false);
+            EmitSignal(SignalName.ZoneOfControlChecked, arrPos, checkSituation, true, false);
 
             for (int i = 1; i <= maxIndex; i++)
             {
@@ -1477,41 +1464,41 @@ public partial class Piece : CharacterBody2D
                 {
                     if (i != maxIndex)
                     {
-                        EmitSignal(SignalName.updateCheck, arrPos, checkSituation, false, false);
+                        EmitSignal(SignalName.ZoneOfControlChecked, arrPos, checkSituation, false, false);
                     }
                     else
                     {
-                        EmitSignal(SignalName.updateCheck, arrPos, checkSituation, true, true);
+                        EmitSignal(SignalName.ZoneOfControlChecked, arrPos, checkSituation, true, true);
                     }
                 }
                 else if (checkSituation == SeesEnemyKing)
                 {
                     if (i != maxIndex)
                     {
-                        EmitSignal(SignalName.updateCheck, arrPos, checkSituation, false, false);
+                        EmitSignal(SignalName.ZoneOfControlChecked, arrPos, checkSituation, false, false);
                     }
                     else
                     {
-                        EmitSignal(SignalName.updateCheck, arrPos, KingInCheck, false, false);
+                        EmitSignal(SignalName.ZoneOfControlChecked, arrPos, KingInCheck, false, false);
                     }
                 }
                 else
                 {
-                    EmitSignal(SignalName.updateCheck, arrPos, checkSituation, false, false);
+                    EmitSignal(SignalName.ZoneOfControlChecked, arrPos, checkSituation, false, false);
                 }
             }
 
             if (checkSituation == SeesEnemyKing)
             {
                 GD.Print("----------UPDATE TILES CHECK----------");
-                EmitSignal(SignalName.updateTiles, Position, new Vector2I(0, 2), Name);
+                EmitSignal(SignalName.UpdateTiles, Position, new Vector2I(0, 2), Name);
                 _checkCount++;
             }
         }
 
 
         _checkUpdatedCheck = true;
-        EmitSignal(SignalName.checkUpdated);
+        EmitSignal(SignalName.CheckUpdated);
     }
 
     public void CheckCheckState()
@@ -1526,8 +1513,8 @@ public partial class Piece : CharacterBody2D
             {
                 _isInCheck = true;
                 GD.Print(_player, " is in check");
-                EmitSignal(SignalName.updateTiles, Position, new Vector2I(1, 2), Name);
-                EmitSignal(SignalName.playerInCheck, true);
+                EmitSignal(SignalName.UpdateTiles, Position, new Vector2I(1, 2), Name);
+                EmitSignal(SignalName.PlayerInCheck, true);
             }
         }
     }
@@ -1572,7 +1559,7 @@ public partial class Piece : CharacterBody2D
             }
         }
 
-        EmitSignal(SignalName.checkmateCheck);
+        EmitSignal(SignalName.CheckmateCheck);
 
         void PawnMateCheck()
         {
@@ -2015,12 +2002,12 @@ public partial class Piece : CharacterBody2D
             if (_firstMovement)
             {
                 GD.Print("castling");
-                EmitSignal(SignalName.allowCastling, true, Position);
+                EmitSignal(SignalName.AllowCastling, true, Position);
             }
             else
             {
                 GD.Print("not castling");
-                EmitSignal(SignalName.allowCastling, false, Position);
+                EmitSignal(SignalName.AllowCastling, false, Position);
             }
         }
     }
@@ -2058,7 +2045,7 @@ public partial class Piece : CharacterBody2D
         {
             Vector2 oldPos = Position;
             Position = newPosition;
-            EmitSignal(SignalName.pieceMoved, newPosition, oldPos, _id, false);
+            EmitSignal(SignalName.PieceMoved, newPosition, oldPos, _id, false);
         }
     }
 
