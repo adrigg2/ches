@@ -6,28 +6,14 @@ namespace Ches;
 public partial class Player : Node2D
 {
     [Signal]
-    public delegate void updateBoardEventHandler();
+    public delegate void CheckFinishedEventHandler();
 
     [Signal]
-    public delegate void checkFinishedEventHandler();
-    
-    [Signal]
-    public delegate void checkEventHandler();
-
-    [Signal]
-    public delegate void checkmateEventHandler();
-
-    [Signal]
-    public delegate void checkRookEventHandler();
-
-    [Signal]
-    public delegate void castlingAllowedEventHandler();
-
-    [Signal]
-    public delegate void finishCastlingEventHandler();
+    public delegate void CheckmateEventHandler(int looser);
 
     private int _playerNum;
     private PackedScene _piece;
+    private StringName _playerGroup;
 
     private Dictionary<int, string> _pieceDict = new();
 
@@ -37,19 +23,16 @@ public partial class Player : Node2D
 
         GD.Print(_playerNum, "player");
 
-        Node2D master = GetNode<Node2D>("../..");
-        Connect("updateBoard", new Callable(master, "UpdateBoard"));
-        Connect("checkFinished", new Callable(master, "CheckFinished"));
-        Connect("checkmate", new Callable(master, "Checkmate"));
-
         _piece = (PackedScene)ResourceLoader.Load("res://scenes/piece.tscn");
 
         if (_playerNum == 1)
         {
+            _playerGroup = "white_pieces";
             PlayerSet(6, 7);
         }
         else if (_playerNum == 2)
         {
+            _playerGroup = "black_pieces";
             PlayerSet(1, 0);
         }
 
@@ -109,10 +92,6 @@ public partial class Player : Node2D
         piece.SetMeta("Player", _playerNum);
         piece.SetMeta("Piece_Type", pieceType);
         AddChild(piece);
-        Connect("check", new Callable(piece, "SetCheck"));
-        Connect("checkRook", new Callable(piece, "FirstMovementCheck"));
-        Connect("castlingAllowed", new Callable(piece, "Castling"));
-        Connect("finishCastling", new Callable(piece, "Castle"));
 
         piece.CheckUpdated += CheckUpdate;
         piece.PlayerInCheck += PlayerInCheck;
@@ -124,7 +103,6 @@ public partial class Player : Node2D
         int id = (int)piece.Get("_id");
         cell = icell + index * cells;
         ipos = SetPos(cell);
-        EmitSignal(SignalName.updateBoard, ipos, new Vector2(128, 128), id, false);
         piece.Position = ipos;
     }
 
@@ -144,13 +122,13 @@ public partial class Player : Node2D
         }
         if (checkUpdated)
         {
-            EmitSignal(SignalName.checkFinished);
+            EmitSignal(SignalName.CheckFinished);
         }
     }
 
     public void PlayerInCheck(bool isInCheck)
     {
-        EmitSignal(SignalName.check, isInCheck);
+        GetTree().CallGroup(_playerGroup, "SetCheck", isInCheck);
     }
 
     public void CheckmateCheck()
@@ -169,18 +147,18 @@ public partial class Player : Node2D
         }
         if (checkmate)
         {
-            EmitSignal(SignalName.checkmate, _playerNum);
+            EmitSignal(SignalName.Checkmate, _playerNum);
         }
     }
 
     public void CastlingSetup(Vector2 position)
     {
-        EmitSignal(SignalName.checkRook, position);
+        GetTree().CallGroup(_playerGroup, "FirstMovementCheck", position);
     }
 
     public void AllowCastling(bool castlingAllowed, Vector2 position)
     {
-        EmitSignal(SignalName.castlingAllowed, castlingAllowed, position);
+        GetTree().CallGroup(_playerGroup, "Castling", castlingAllowed, position);
     }
 
     public void Castle(Vector2 position)
@@ -193,24 +171,14 @@ public partial class Player : Node2D
         {
             Vector2 rookPosition = board.MapToLocal(new Vector2I(0, cell.Y));
             Vector2 newPosition = board.MapToLocal(new Vector2I(3, cell.Y));
-            EmitSignal(SignalName.finishCastling, rookPosition, newPosition);
+            GetTree().CallGroup(_playerGroup, "Castle", rookPosition, newPosition);
         }
         else if (cell.X == 6)
         {
             Vector2 rookPosition = board.MapToLocal(new Vector2I(7, cell.Y));
             Vector2 newPosition = board.MapToLocal(new Vector2I(5, cell.Y));
-            EmitSignal(SignalName.finishCastling, rookPosition, newPosition);
+            GetTree().CallGroup(_playerGroup, "Castle", rookPosition, newPosition);
         }
-    }
-
-    public void ConnectPromotedPiece(CharacterBody2D piece)
-    {
-        GD.Print($"Connecting {piece.Name} to player");
-        Connect("check", new Callable(piece, "SetCheck"));
-        Connect("checkRook", new Callable(piece, "FirstMovementCheck"));
-        Connect("castlingAllowed", new Callable(piece, "Castling"));
-        Connect("finishCastling", new Callable(piece, "Castle"));
-        GD.Print($"Finished connecting {piece.Name} to player");
     }
 
     public void RevertPieces(int[,] newSituation)

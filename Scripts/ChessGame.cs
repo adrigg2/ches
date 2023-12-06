@@ -6,18 +6,6 @@ using System.Linq;
 namespace Ches;
 public partial class ChessGame : Node2D
 {
-    [Signal]
-    public delegate void destroyMovementEventHandler();
-
-    [Signal]
-    public delegate void changeTurnEventHandler();
-
-    [Signal]
-    public delegate void setCaptureEventHandler();
-
-    [Signal]
-    public delegate void checkCheckEventHandler();
-
     [Export] private Board _board;
     [Export] private Button _restart;
     [Export] private Button _draw;
@@ -31,24 +19,25 @@ public partial class ChessGame : Node2D
 
     private List<BoardState> _boardHistory = new();
 
-    public override void _Ready()
+    public override void _EnterTree()
 	{
         _restart.Pressed += Reset;
         _draw.Pressed += AgreedDraw;
         _revert.Pressed += Revert;
         _revertMenu.previousBoardSelected += RevertGameStatus;
+        _board.BoardCellCount += SetBoardArrays;
+        _board.PlayersSet += PlayersSet;
     }
 
     public void DisableMovement()
     {
         foreach (Node moveOption in _board.GetChildren())
         {
-            if (moveOption.HasMeta("Is_Capture"))
+            if (moveOption is Movement)
             {
-                Connect("destroyMovement", new Callable(moveOption, "DestroyMovePos"));
+                moveOption.QueueFree();
             }
         }
-        EmitSignal(SignalName.destroyMovement);
     }
 
     public void SetBoardArrays(int rows, int columns)
@@ -82,7 +71,7 @@ public partial class ChessGame : Node2D
         }
     }
 
-    public void UpdateBoard(Vector2 piecePos, Vector2 oldPos, int player, bool promotion)
+    public void UpdateBoard(Vector2 piecePos, Vector2 oldPos, int player)
     {
         Vector2I arrPos;
         Vector2I oldArrPos;
@@ -113,24 +102,22 @@ public partial class ChessGame : Node2D
         }
 
         CheckReset();
-        if (!promotion)
+        
+        if (player / 10 == 1)
         {
-            if (player / 10 == 1)
-            {
-                _camera.Zoom *= new Vector2(-1, -1);
-                _ui.Scale = new Vector2(-1, -1);
-                _ui.Position = new Vector2(768, 384);
-                Piece.Turn = 2;
-                EmitSignal(SignalName.changeTurn);
-            } 
-            else if (player / 10 == 2)
-            {
-                _camera.Zoom *= new Vector2(1, 1);
-                _ui.Scale = new Vector2(1, 1);
-                _ui.Position = new Vector2(0, 0);
-                Piece.Turn = 1;
-                EmitSignal(SignalName.changeTurn);
-            }
+            _camera.Zoom *= new Vector2(-1, -1);
+            _ui.Scale = new Vector2(-1, -1);
+            _ui.Position = new Vector2(768, 384);
+            Piece.Turn = 2;
+            GetTree().CallGroup("pieces", "ChangeTurn");
+        } 
+        else if (player / 10 == 2)
+        {
+            _camera.Zoom *= new Vector2(-1, -1);
+            _ui.Scale = new Vector2(1, 1);
+            _ui.Position = new Vector2(0, 0);
+            Piece.Turn = 1;
+            GetTree().CallGroup("pieces", "ChangeTurn");
         }
 
         DebugTracking(); //DEBUG
@@ -145,28 +132,28 @@ public partial class ChessGame : Node2D
 
     public void PlayersSet()
     {
-        foreach (Node player in _board.GetChildren())
+        foreach (Node child in _board.GetChildren())
         {
-            if (player is Player)
+            if (child is Player player)
             {
-                foreach (Node piece in player.GetChildren())
+                player.CheckFinished += CheckFinished;
+                player.Checkmate += Checkmate;
+
+                foreach (Node grandchild in player.GetChildren())
                 {
-                    if (piece is Piece piece1)
+                    if (grandchild is Piece piece)
                     {
-                        GD.Print($"Connecting {player.GetMeta("player")}");
-                        Connect("changeTurn", new Callable(piece, "ChangeTurn"));
-                        Connect("setCapture", new Callable(piece, "Capture"));
-                        Connect("checkCheck", new Callable(piece, "CheckCheckState"));
-                        piece1.PieceSelected += DisableMovement;
-                        piece1.PieceMoved += UpdateBoard;
-                        piece1.ZoneOfControlChecked += Check;
-                        piece1.ClearEnPassant += ClearEnPassant;
+                        piece.PieceSelected += DisableMovement;
+                        piece.PieceMoved += UpdateBoard;
+                        piece.ZoneOfControlChecked += Check;
+                        piece.ClearEnPassant += ClearEnPassant;
                     }
                 }
             }
         }
 
-        _boardHistory.Clear();
+        GetTree().CallGroup("pieces", "SetInitialTurn");
+        GetTree().CallGroup("black_pieces", "UpdateCheck");
 
         int[,] boardToSave = new int[Piece.BoardCells.GetLength(0), Piece.BoardCells.GetLength(1)];
 
@@ -183,7 +170,7 @@ public partial class ChessGame : Node2D
 
     public void Capture(Vector2 capturePos, CharacterBody2D capture)
     {
-        EmitSignal(SignalName.setCapture, capturePos, capture);
+        GetTree().CallGroup("pieces", "Capture", capturePos, capture);
     }
 
     public void Check(Vector2I arrPos, int checkSituation, bool pieceCell, bool protectedPiece)
@@ -270,7 +257,7 @@ public partial class ChessGame : Node2D
 
     public void CheckFinished()
     {
-        EmitSignal(SignalName.checkCheck);
+        GetTree().CallGroup("pieces", "CheckCheckState");
     }
 
     public int CheckArrayCheck(Vector2 posCheck) //REWRITE
@@ -333,26 +320,6 @@ public partial class ChessGame : Node2D
 
         _debugTracker.Visible = true; //DEBUG
         _debugTracker2.Visible = true; //DEBUG
-    }
-
-    public void ConnectPromotedPiece(CharacterBody2D piece, int player)
-    {
-        GD.Print($"Connecting {piece.Name} to master");
-        Connect("changeTurn", new Callable(piece, "ChangeTurn"));
-        Connect("setCapture", new Callable(piece, "Capture"));
-        Connect("checkCheck", new Callable(piece, "CheckCheckState"));
-        GD.Print($"Finished connecting {piece.Name} to master");
-
-        if (player == 1)
-        {
-            _camera.Zoom *= new Vector2(-1, -1);
-            EmitSignal(SignalName.changeTurn, 2);
-        }
-        else if (player == 2)
-        {
-            _camera.Zoom *= new Vector2(1, 1);
-            EmitSignal(SignalName.changeTurn, 1);
-        }
     }
 
     public void ClearEnPassant(int player)

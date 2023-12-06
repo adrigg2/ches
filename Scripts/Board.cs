@@ -5,30 +5,19 @@ namespace Ches;
 public partial class Board : TileMap
 {
     [Signal]
-    public delegate void boardCellCountEventHandler();
+    public delegate void BoardCellCountEventHandler(int rows, int columns);
 
     [Signal]
-    public delegate void updateBoardEventHandler();
-
-    [Signal]
-    public delegate void setCheckEventHandler();
-
-    [Signal]
-    public delegate void playersSetEventHandler();
+    public delegate void PlayersSetEventHandler();
 
     private Player _player;
     private Vector2 _selectedPosition = new Vector2(-1, -1);
 
     public override void _Ready()
 	{
-        Node2D master = GetNode<Node2D>("..");
-        Connect("boardCellCount", new Callable(master, "SetBoardArrays"));
-        Connect("updateBoard", new Callable(master, "UpdateBoard"));
-        Connect("playersSet", new Callable(master, "PlayersSet"));
-
         Piece.Board = this;
 
-        EmitSignal(SignalName.boardCellCount, 8, 8);
+        EmitSignal(SignalName.BoardCellCount, 8, 8);
 
         for (int i = 1; i < 3; i++)
         {
@@ -36,7 +25,22 @@ public partial class Board : TileMap
             _player.SetMeta("player", i);
             AddChild(_player);
         }
-        EmitSignal(SignalName.playersSet);
+        EmitSignal(SignalName.PlayersSet);
+
+        foreach (Node player in GetChildren())
+        {
+            if (player is Player)
+            {
+                foreach (Node piece in player.GetChildren())
+                {
+                    if (piece is Piece piece1)
+                    {
+                        piece1.UpdateTiles += UpdateTiles;
+                        piece1.ClearDynamicTiles += ClearDynamicTiles;
+                    }
+                }
+            }
+        }
     }
 
     public void UpdateTiles(Vector2 position, Vector2I cellAtlas, string piece)
@@ -81,6 +85,6 @@ public partial class Board : TileMap
             _player.SetMeta("player", i);
             AddChild(_player);
         }
-        EmitSignal(SignalName.playersSet);
+        EmitSignal(SignalName.PlayersSet);
     }
 }

@@ -30,6 +30,7 @@ public partial class Movement : CharacterBody2D
         Connect("pieceSelected", new Callable(master, "DisableMovement"));
         Connect("capture", new Callable(master, "Capture"));
     }
+
     public override void _InputEvent(Viewport viewport, InputEvent @event, int shapeIdx)
     {
         if (@event.IsActionPressed("piece_interaction"))
@@ -46,11 +47,6 @@ public partial class Movement : CharacterBody2D
             }
             GD.Print("Move selected, update tiles");
         }
-    }
-
-    public void DestroyMovePos()
-    {
-        QueueFree();
     }
 
     public void Captured()

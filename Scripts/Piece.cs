@@ -8,7 +8,7 @@ public partial class Piece : CharacterBody2D
     public delegate void PieceSelectedEventHandler();
 
     [Signal]
-    public delegate void PieceMovedEventHandler(Vector2 position, Vector2 oldPosition, int player, bool promotion);
+    public delegate void PieceMovedEventHandler(Vector2 position, Vector2 oldPosition, int player);
 
     [Signal]
     public delegate void CheckUpdatedEventHandler();
@@ -23,7 +23,7 @@ public partial class Piece : CharacterBody2D
     public delegate void CheckmateCheckEventHandler();
 
     [Signal]
-    public delegate void UpdateTilesEventHandler();
+    public delegate void UpdateTilesEventHandler(Vector2 position, Vector2I cellAtlas, string piece);
 
     [Signal]
     public delegate void ClearDynamicTilesEventHandler();
@@ -92,16 +92,20 @@ public partial class Piece : CharacterBody2D
 
     public override void _Ready()
     {
+        AddToGroup("pieces");
+
         _pieceType = (string)GetMeta("Piece_Type");
         _player = (int)GetMeta("Player");
 
         if (_player == 1)
         {
             _playerDirectionVector = new Vector2(-1, -1);
+            AddToGroup("white_pieces");
         }
         else
         {
             _playerDirectionVector = new Vector2(1, 1);
+            AddToGroup("black_pieces");
         }
 
         if (_pieceType == "pawn")
@@ -139,9 +143,13 @@ public partial class Piece : CharacterBody2D
             Sprite2D sprite = GetNode<Sprite2D>("Sprite2D");
             sprite.Texture = _textures.GetWhiteTexture(_pieceType);
         }
+    }
 
-        Connect("updateTiles", new Callable(Board, "UpdateTiles"));
-        Connect("clearDynamicTiles", new Callable(Board, "ClearDynamicTiles"));
+    public void SetInitialTurn()
+    {
+        TileMap board = GetNode<TileMap>("../..");
+        Vector2I cell = board.LocalToMap(Position);
+        BoardCells[cell.X, cell.Y] = _id;
     }
 
     public override void _InputEvent(Viewport viewport, InputEvent @event, int shapeIdx)
@@ -833,12 +841,12 @@ public partial class Piece : CharacterBody2D
             _firstMovement = false;
             if (_pieceType == "pawn" && Position == oldPos + new Vector2(0, 2 * CellPixels))
             {
-                EmitSignal(SignalName.PieceMoved, newPosition - new Vector2(0, CellPixels), oldPos, -_id, false);
+                EmitSignal(SignalName.PieceMoved, newPosition - new Vector2(0, CellPixels), oldPos, -_id);
                 _enPassant = true;
             }
             else if (_pieceType == "pawn" && Position == oldPos + new Vector2(0, -2 * CellPixels))
             {
-                EmitSignal(SignalName.PieceMoved, newPosition + new Vector2(0, CellPixels), oldPos, -_id, false);
+                EmitSignal(SignalName.PieceMoved, newPosition + new Vector2(0, CellPixels), oldPos, -_id);
                 _enPassant = true;
             }
         }
@@ -865,13 +873,9 @@ public partial class Piece : CharacterBody2D
             {
                 promotionSelection.Position = Position + new Vector2(CellPixels, 0);
             }
-
-            EmitSignal(SignalName.PieceMoved, newPosition, oldPos, _id, true);
         }
-        else
-        {
-            EmitSignal(SignalName.PieceMoved, newPosition, oldPos, _id, false);
-        }
+        
+        EmitSignal(SignalName.PieceMoved, newPosition, oldPos, _id);
     }
 
     public void ChangeTurn()
@@ -2045,7 +2049,7 @@ public partial class Piece : CharacterBody2D
         {
             Vector2 oldPos = Position;
             Position = newPosition;
-            EmitSignal(SignalName.PieceMoved, newPosition, oldPos, _id, false);
+            EmitSignal(SignalName.PieceMoved, newPosition, oldPos, _id);
         }
     }
 
