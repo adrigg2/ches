@@ -87,8 +87,6 @@ public partial class Piece : CharacterBody2D
     [Export] private bool _isInCheck = false;
     private bool _enPassant = false;
 
-    public bool IsUI { get; set; } = false;
-
     public static int[,] BoardCells { get; set; }
     public static int[,] BoardCellsCheck { get; set; }
 
@@ -102,18 +100,12 @@ public partial class Piece : CharacterBody2D
         if (_player == 1)
         {
             _playerDirectionVector = new Vector2(-1, -1);
-            if (!IsUI)
-            {
-                AddToGroup("white_pieces");
-            }
+            AddToGroup("white_pieces");
         }
         else
         {
             _playerDirectionVector = new Vector2(1, 1);
-            if (!IsUI)
-            {
-                AddToGroup("black_pieces");
-            }
+            AddToGroup("black_pieces");
         }
 
         if (_pieceType == "pawn")
@@ -150,11 +142,6 @@ public partial class Piece : CharacterBody2D
         {
             Sprite2D sprite = GetNode<Sprite2D>("Sprite2D");
             sprite.Texture = _textures.GetWhiteTexture(_pieceType);
-        }
-
-        if (IsUI)
-        {
-            SetScript(new Variant());
         }
     }
 

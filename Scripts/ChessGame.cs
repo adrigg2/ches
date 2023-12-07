@@ -26,7 +26,7 @@ public partial class ChessGame : Node2D
         _draw.Pressed += AgreedDraw;
         _revert.Pressed += Revert;
         _reject.Pressed += Reject;
-        _revertMenu.previousBoardSelected += RevertGameStatus;
+        _revertMenu.PreviousBoardSelected += RevertGameStatus;
         _board.BoardCellCount += SetBoardArrays;
         _board.PlayersSet += PlayersSet;
     }
@@ -86,16 +86,18 @@ public partial class ChessGame : Node2D
         Piece.BoardCells[oldArrPos.X, oldArrPos.Y] = 0;
 
         int[,] boardToSave = new int[Piece.BoardCells.GetLength(0), Piece.BoardCells.GetLength(1)];
+        int[,] zoneOfControlToSave = new int[Piece.BoardCellsCheck.GetLength(0), Piece.BoardCellsCheck.GetLength(1)];
 
         for (int i = 0; i < Piece.BoardCells.GetLength(0); i++)
         {
             for (int j = 0; j < Piece.BoardCells.GetLength(1); j++)
             {
                 boardToSave[i, j] = Piece.BoardCells[i, j];
+                zoneOfControlToSave[i, j] = Piece.BoardCellsCheck[i, j];
             }
         }
 
-        _boardHistory.Add(new BoardState(boardToSave, true));
+        _boardHistory.Add(new BoardState(boardToSave, zoneOfControlToSave, true));
 
         situationCount = _boardHistory.Count(b => Piece.BoardCells.Cast<int>().SequenceEqual(b.Board.Cast<int>()));           
             
@@ -174,16 +176,18 @@ public partial class ChessGame : Node2D
         GetTree().CallGroup("black_pieces", "UpdateCheck");
 
         int[,] boardToSave = new int[Piece.BoardCells.GetLength(0), Piece.BoardCells.GetLength(1)];
+        int[,] zoneOfControlToSave = new int[Piece.BoardCellsCheck.GetLength(0), Piece.BoardCellsCheck.GetLength(1)];
 
         for (int i = 0; i < Piece.BoardCells.GetLength(0); i++)
         {
             for (int j = 0; j < Piece.BoardCells.GetLength(1); j++)
             {
                 boardToSave[i, j] = Piece.BoardCells[i, j];
+                zoneOfControlToSave[i, j] = Piece.BoardCellsCheck[i, j];
             }
         }
 
-        _boardHistory.Add(new BoardState(boardToSave, true));
+        _boardHistory.Add(new BoardState(boardToSave, zoneOfControlToSave, true));
     }
 
     public void Capture(Vector2 capturePos, CharacterBody2D capture)
@@ -392,6 +396,9 @@ public partial class ChessGame : Node2D
 
         _board.ClearDynamicTiles();
         Piece.BoardCells = _boardHistory[boardIndex].Board;
+        Piece.BoardCellsCheck = _boardHistory[boardIndex].ZoneOfControl;
+
+        PlayersSet();
     }
 
     public void PromotionComplete(Piece piece, int player)

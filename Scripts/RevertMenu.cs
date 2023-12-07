@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public partial class RevertMenu : Panel
 {
 	[Signal]
-	public delegate void previousBoardSelectedEventHandler(int index);
+	public delegate void PreviousBoardSelectedEventHandler(int index);
 
 	[Export] private TileMap _board;
 	[Export] private Button _buttonRight;
@@ -56,6 +56,10 @@ public partial class RevertMenu : Panel
 	private void Return()
 	{
 		Visible = false;
+		foreach (Node piece in _board.GetChildren())
+		{
+			piece.QueueFree();
+		}
 	}
 
 	private void Right()
@@ -100,7 +104,6 @@ public partial class RevertMenu : Panel
 					Piece piece = (Piece)_piece.Instantiate();
 					piece.SetMeta("Player", cellSituation / 10);
 					piece.SetMeta("Piece_Type", _pieceDict[cellSituation % 10]);
-					piece.IsUI = true;
 					_board.AddChild(piece);
 					piece.Position = _board.MapToLocal(new Vector2I(i, j));
 				}
@@ -110,6 +113,6 @@ public partial class RevertMenu : Panel
 
 	private void Revert()
 	{
-		EmitSignal(SignalName.previousBoardSelected, _boardHistoryIndex);
+		EmitSignal(SignalName.PreviousBoardSelected, _boardHistoryIndex);
 	}
 }
