@@ -10,6 +10,7 @@ public partial class ChessGame : Node2D
     [Export] private Button _restart;
     [Export] private Button _draw;
     [Export] private Button _revert;
+    [Export] private Button _reject;
     [Export] private Label _debugTracker;
     [Export] private Label _debugTracker2;
     [Export] private Label _endGame;
@@ -24,6 +25,7 @@ public partial class ChessGame : Node2D
         _restart.Pressed += Reset;
         _draw.Pressed += AgreedDraw;
         _revert.Pressed += Revert;
+        _reject.Pressed += Reject;
         _revertMenu.previousBoardSelected += RevertGameStatus;
         _board.BoardCellCount += SetBoardArrays;
         _board.PlayersSet += PlayersSet;
@@ -71,10 +73,11 @@ public partial class ChessGame : Node2D
         }
     }
 
-    public void UpdateBoard(Vector2 piecePos, Vector2 oldPos, int player)
+    public void UpdateBoard(Vector2 piecePos, Vector2 oldPos, int player, bool promotion)
     {
         Vector2I arrPos;
         Vector2I oldArrPos;
+        int situationCount;
 
         arrPos = _board.LocalToMap(piecePos);
         oldArrPos = _board.LocalToMap(oldPos);
@@ -94,30 +97,45 @@ public partial class ChessGame : Node2D
 
         _boardHistory.Add(new BoardState(boardToSave, true));
 
-        foreach (var board in _boardHistory)
-        {
-            int situationCount = _boardHistory.Count(b => board.Board.Cast<int>().SequenceEqual(b.Board.Cast<int>()));           
+        situationCount = _boardHistory.Count(b => Piece.BoardCells.Cast<int>().SequenceEqual(b.Board.Cast<int>()));           
             
-            GD.Print($"This situation has been repeated {situationCount} times");
-        }
+        GD.Print($"This situation has been repeated {situationCount} times");
 
         CheckReset();
-        
-        if (player / 10 == 1)
+        if (!promotion)
         {
-            _camera.Zoom *= new Vector2(-1, -1);
-            _ui.Scale = new Vector2(-1, -1);
-            _ui.Position = new Vector2(768, 384);
-            Piece.Turn = 2;
-            GetTree().CallGroup("pieces", "ChangeTurn");
-        } 
-        else if (player / 10 == 2)
+            if (player / 10 == 1)
+            {
+                _camera.Zoom *= new Vector2(-1, -1);
+                _ui.Scale = new Vector2(-1, -1);
+                _ui.Position = new Vector2(768, 384);
+                _revertMenu.Camera.Zoom *= new Vector2(-1, -1);
+                Piece.Turn = 2;
+                GetTree().CallGroup("pieces", "ChangeTurn");
+            } 
+            else if (player / 10 == 2)
+            {
+                _camera.Zoom *= new Vector2(-1, -1);
+                _ui.Scale = new Vector2(1, 1);
+                _ui.Position = new Vector2(0, 0);
+                _revertMenu.Camera.Zoom *= new Vector2(-1, -1);
+                Piece.Turn = 1;
+                GetTree().CallGroup("pieces", "ChangeTurn");
+            }
+        }
+
+        if (situationCount >= 3 && situationCount < 5)
         {
-            _camera.Zoom *= new Vector2(-1, -1);
-            _ui.Scale = new Vector2(1, 1);
-            _ui.Position = new Vector2(0, 0);
-            Piece.Turn = 1;
-            GetTree().CallGroup("pieces", "ChangeTurn");
+            _endGame.Text = "Draw by repetition?";
+            _draw.Position = new Vector2(316, 215);
+            _restart.Visible = false;
+            _revert.Visible = false;
+            _reject.Visible = true;
+            _endGame.Visible = true;
+        }
+        else if (situationCount == 5)
+        {
+            Checkmate(0);
         }
 
         DebugTracking(); //DEBUG
@@ -274,6 +292,8 @@ public partial class ChessGame : Node2D
         _restart.MoveToFront();
         _draw.Visible = false;
         _revert.Visible = false;
+        _reject.Visible = false;
+        _restart.Visible = true;
 
         _endGame.Position = new Vector2(0, 0);
         _endGame.Scale = new Vector2(1, 1);
@@ -317,6 +337,7 @@ public partial class ChessGame : Node2D
         _revert.Position = new Vector2(20, 147);
         _draw.Visible = true;
         _revert.Visible = true;
+        _reject.Visible = false;
 
         _debugTracker.Visible = true; //DEBUG
         _debugTracker2.Visible = true; //DEBUG
@@ -339,20 +360,7 @@ public partial class ChessGame : Node2D
 
     public void AgreedDraw()
     {
-        _endGame.Visible = true;
-        _endGame.MoveToFront();
-        _restart.MoveToFront();
-        _draw.Visible = false;
-        _revert.Visible = false;
-
-        _endGame.Text = "Draw";
-        _endGame.Position = new Vector2(0, 0);
-        _endGame.Scale = new Vector2(1, 1);
-        _restart.Position = new Vector2(316, 215);
-        _restart.Scale = new Vector2(1, 1);
-
-        _debugTracker.Visible = false; //DEBUG
-        _debugTracker2.Visible = false; //DEBUG
+        Checkmate(0);
     }
 
     public void Revert()
@@ -384,5 +392,39 @@ public partial class ChessGame : Node2D
 
         _board.ClearDynamicTiles();
         Piece.BoardCells = _boardHistory[boardIndex].Board;
+    }
+
+    public void PromotionComplete(Piece piece, int player)
+    {
+        piece.PieceSelected += DisableMovement;
+        piece.PieceMoved += UpdateBoard;
+        piece.ZoneOfControlChecked += Check;
+        piece.ClearEnPassant += ClearEnPassant;
+
+        if (player == 1)
+        {
+            _camera.Zoom *= new Vector2(-1, -1);
+            _ui.Scale = new Vector2(-1, -1);
+            _ui.Position = new Vector2(768, 384);
+            _revertMenu.Camera.Zoom *= new Vector2(-1, -1);
+            Piece.Turn = 2;
+            GetTree().CallGroup("pieces", "ChangeTurn");
+        }
+        else if (player == 2)
+        {
+            _camera.Zoom *= new Vector2(-1, -1);
+            _ui.Scale = new Vector2(1, 1);
+            _ui.Position = new Vector2(0, 0);
+            _revertMenu.Camera.Zoom *= new Vector2(-1, -1);
+            Piece.Turn = 1;
+            GetTree().CallGroup("pieces", "ChangeTurn");
+        }
+    }
+
+    public void Reject()
+    {
+        _reject.Visible = false;
+        _draw.Position = new Vector2(20, 220);
+        _endGame.Visible = false;
     }
 }

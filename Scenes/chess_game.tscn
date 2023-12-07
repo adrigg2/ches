@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://bg1cug3iw3w08"]
+[gd_scene load_steps=10 format=3 uid="uid://bg1cug3iw3w08"]
 
 [ext_resource type="Script" path="res://scripts/ChessGame.cs" id="1_whhq8"]
 [ext_resource type="Texture2D" uid="uid://dhpoor2vf6ljf" path="res://assets/restart_button.png" id="2_a26vu"]
@@ -6,15 +6,17 @@
 [ext_resource type="Script" path="res://scripts/Board.cs" id="3_lbu5b"]
 [ext_resource type="Texture2D" uid="uid://cx7fp1a5ro6e4" path="res://assets/drawbutton.png" id="5_5jvqd"]
 [ext_resource type="Texture2D" uid="uid://byvya0h40hh6g" path="res://assets/revertbutton.png" id="6_a3b0o"]
+[ext_resource type="Texture2D" uid="uid://bh2ndb678qixu" path="res://assets/nobutton.png" id="7_e1gwv"]
 [ext_resource type="Script" path="res://scripts/RevertMenu.cs" id="7_rdvxd"]
 [ext_resource type="PackedScene" uid="uid://gca3h7ok17i8" path="res://scenes/piece.tscn" id="8_ano7s"]
 
-[node name="ChessGame" type="Node2D" node_paths=PackedStringArray("_board", "_restart", "_draw", "_revert", "_debugTracker", "_debugTracker2", "_endGame", "_camera", "_revertMenu", "_ui")]
+[node name="ChessGame" type="Node2D" node_paths=PackedStringArray("_board", "_restart", "_draw", "_revert", "_reject", "_debugTracker", "_debugTracker2", "_endGame", "_camera", "_revertMenu", "_ui")]
 script = ExtResource("1_whhq8")
 _board = NodePath("Board")
 _restart = NodePath("UI/Restart")
 _draw = NodePath("UI/Draw")
 _revert = NodePath("UI/Revert")
+_reject = NodePath("UI/RejectButton")
 _debugTracker = NodePath("UI/DebugTracker")
 _debugTracker2 = NodePath("UI/DebugTracker2")
 _endGame = NodePath("UI/EndGame")
@@ -99,7 +101,17 @@ offset_bottom = 219.0
 icon = ExtResource("6_a3b0o")
 metadata/_edit_use_anchors_ = true
 
-[node name="Panel" type="Panel" parent="UI" node_paths=PackedStringArray("_board", "_buttonRight", "_buttonLeft", "_return", "_revert")]
+[node name="RejectButton" type="Button" parent="UI"]
+visible = false
+layout_mode = 0
+offset_left = 316.0
+offset_top = 295.0
+offset_right = 452.0
+offset_bottom = 367.0
+icon = ExtResource("7_e1gwv")
+metadata/_edit_use_anchors_ = true
+
+[node name="Panel" type="Panel" parent="UI" node_paths=PackedStringArray("_board", "_buttonRight", "_buttonLeft", "_return", "_revert", "Camera")]
 visible = false
 layout_mode = 0
 offset_right = 768.0
@@ -111,6 +123,7 @@ _buttonLeft = NodePath("HBoxContainer/Button")
 _return = NodePath("HBoxContainer/VBoxContainer/Button")
 _revert = NodePath("HBoxContainer/VBoxContainer/Button2")
 _piece = ExtResource("8_ano7s")
+Camera = NodePath("HBoxContainer/VBoxContainer/MarginContainer/SubViewportContainer/SubViewport/Camera2D")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="UI/Panel"]
 layout_mode = 1
@@ -153,6 +166,9 @@ layer_0/name = "Board"
 layer_0/tile_data = PackedInt32Array(1, 65536, 0, 65536, 65536, 0, 3, 65536, 0, 65538, 65536, 0, 131073, 65536, 0, 196608, 65536, 0, 196610, 65536, 0, 131075, 65536, 0, 196611, 0, 0, 196609, 0, 0, 131074, 0, 0, 65539, 0, 0, 2, 0, 0, 65537, 0, 0, 131072, 0, 0, 0, 0, 0, 458752, 65536, 0, 393216, 0, 0, 393217, 65536, 0, 327681, 0, 0, 262146, 0, 0, 262147, 65536, 0, 327680, 65536, 0, 262144, 0, 0, 262145, 65536, 0, 458753, 0, 0, 458754, 65536, 0, 393219, 65536, 0, 327684, 65536, 0, 458755, 0, 0, 458756, 65536, 0, 458757, 0, 0, 458758, 65536, 0, 458759, 0, 0, 393222, 0, 0, 393223, 65536, 0, 327686, 65536, 0, 327687, 0, 0, 327685, 0, 0, 393220, 0, 0, 393221, 65536, 0, 262148, 0, 0, 262149, 65536, 0, 262150, 0, 0, 262151, 65536, 0, 196612, 65536, 0, 196613, 0, 0, 196614, 65536, 0, 131076, 0, 0, 131077, 65536, 0, 131078, 0, 0, 131079, 65536, 0, 65540, 65536, 0, 65541, 0, 0, 65542, 65536, 0, 4, 0, 0, 5, 65536, 0, 6, 0, 0, 7, 65536, 0, 65543, 0, 0, 196615, 0, 0, 393218, 0, 0, 327683, 0, 0, 327682, 65536, 0)
 layer_1/name = "Dynamic Tiles"
 layer_1/tile_data = PackedInt32Array()
+
+[node name="Camera2D" type="Camera2D" parent="UI/Panel/HBoxContainer/VBoxContainer/MarginContainer/SubViewportContainer/SubViewport"]
+position = Vector2(128, 128)
 
 [node name="Button2" type="Button" parent="UI/Panel/HBoxContainer/VBoxContainer"]
 layout_mode = 2

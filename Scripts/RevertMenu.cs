@@ -13,6 +13,8 @@ public partial class RevertMenu : Panel
 	[Export] private Button _return;
 	[Export] private Button _revert;
 	[Export] private PackedScene _piece;
+	[Export] public Camera2D Camera { get; set; }
+
     public List<BoardState> BoardHistory { get; set; }
 
 	private Dictionary<int, string> _pieceDict = new();
@@ -95,9 +97,10 @@ public partial class RevertMenu : Panel
 				cellSituation = board[i, j];
 				if (cellSituation > 0)
 				{
-					CharacterBody2D piece = (CharacterBody2D)_piece.Instantiate();
+					Piece piece = (Piece)_piece.Instantiate();
 					piece.SetMeta("Player", cellSituation / 10);
 					piece.SetMeta("Piece_Type", _pieceDict[cellSituation % 10]);
+					piece.IsUI = true;
 					_board.AddChild(piece);
 					piece.Position = _board.MapToLocal(new Vector2I(i, j));
 				}

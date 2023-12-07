@@ -207,4 +207,14 @@ public partial class Player : Node2D
             }
         }
     }
+
+    public void ConnectToPromotedPiece(Piece piece, int player)
+    {
+        piece.CheckUpdated += CheckUpdate;
+        piece.PlayerInCheck += PlayerInCheck;
+        piece.CheckmateCheck += CheckmateCheck;
+        piece.CastlingSetup += CastlingSetup;
+        piece.AllowCastling += AllowCastling;
+        piece.MoveRook += Castle;
+    }
 }

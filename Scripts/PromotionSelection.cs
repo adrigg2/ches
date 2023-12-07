@@ -4,7 +4,7 @@ namespace Ches;
 public partial class PromotionSelection : Control
 {
     [Signal]
-    public delegate void pawnPromotionEventHandler();
+    public delegate void PawnPromotionEventHandler();
 
     private CharacterBody2D _pawn;
 
@@ -30,10 +30,10 @@ public partial class PromotionSelection : Control
         GetParent().RemoveChild(this);
         newParent.AddChild(this);
 
-        Connect("pawnPromotion", new Callable(newParent, "ConnectPromotedPiece"));
-        Connect("pawnPromotion", new Callable(master, "ConnectPromotedPiece"));
+        Connect("PawnPromotion", new Callable(master, "PromotionComplete"));
+        Connect("PawnPromotion", new Callable(newParent, "ConnectToPromotedPiece"));
 
-        int player = (int)_pawn.Get("player");
+        int player = (int)_pawn.Get("_player");
 
         if (player == 2)
         {
@@ -47,18 +47,18 @@ public partial class PromotionSelection : Control
     private void QueenPromotion()
     {
         Vector2 position = _pawn.Position;
-        int player = (int)_pawn.Get("player");
+        int player = (int)_pawn.Get("_player");
         Node2D playerController = GetNode<Node2D>("..");
 
         _pawn.QueueFree();
 
-        CharacterBody2D queen = (CharacterBody2D)_piece.Instantiate();
+        Piece queen = (Piece)_piece.Instantiate();
         queen.SetMeta("Player", player);
         queen.SetMeta("Piece_Type", "queen");
         playerController.AddChild(queen);
         queen.Position = position;
 
-        EmitSignal(SignalName.pawnPromotion, queen, player);
+        EmitSignal(SignalName.PawnPromotion, queen, player);
 
         QueueFree();
     }
@@ -66,18 +66,18 @@ public partial class PromotionSelection : Control
     private void RookPromotion()
     {
         Vector2 position = _pawn.Position;
-        int player = (int)_pawn.Get("player");
+        int player = (int)_pawn.Get("_player");
         Node2D playerController = GetNode<Node2D>("..");
 
         _pawn.QueueFree();
 
-        CharacterBody2D rook = (CharacterBody2D)_piece.Instantiate();
+        Piece rook = (Piece)_piece.Instantiate();
         rook.SetMeta("Player", player);
         rook.SetMeta("Piece_Type", "rook");
         playerController.AddChild(rook);
         rook.Position = position;
 
-        EmitSignal(SignalName.pawnPromotion, rook, player);
+        EmitSignal(SignalName.PawnPromotion, rook, player);
 
         QueueFree();
     }
@@ -85,18 +85,18 @@ public partial class PromotionSelection : Control
     private void BishopPromotion()
     {
         Vector2 position = _pawn.Position;
-        int player = (int)_pawn.Get("player");
+        int player = (int)_pawn.Get("_player");
         Node2D playerController = GetNode<Node2D>("..");
 
         _pawn.QueueFree();
 
-        CharacterBody2D bishop = (CharacterBody2D)_piece.Instantiate();
+        Piece bishop = (Piece)_piece.Instantiate();
         bishop.SetMeta("Player", player);
         bishop.SetMeta("Piece_Type", "bishop");
         playerController.AddChild(bishop);
         bishop.Position = position;
 
-        EmitSignal(SignalName.pawnPromotion, bishop, player);
+        EmitSignal(SignalName.PawnPromotion, bishop, player);
 
         QueueFree();
     }
@@ -104,18 +104,18 @@ public partial class PromotionSelection : Control
     private void KnightPromotion()
     {
         Vector2 position = _pawn.Position;
-        int player = (int)_pawn.Get("player");
+        int player = (int)_pawn.Get("_player");
         Node2D playerController = GetNode<Node2D>("..");
 
         _pawn.QueueFree();
 
-        CharacterBody2D knight = (CharacterBody2D)_piece.Instantiate();
+        Piece knight = (Piece)_piece.Instantiate();
         knight.SetMeta("Player", player);
         knight.SetMeta("Piece_Type", "knight");
         playerController.AddChild(knight);
         knight.Position = position;
 
-        EmitSignal(SignalName.pawnPromotion, knight, player);
+        EmitSignal(SignalName.PawnPromotion, knight, player);
 
         QueueFree();
     }

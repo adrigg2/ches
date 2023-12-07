@@ -8,7 +8,7 @@ public partial class Piece : CharacterBody2D
     public delegate void PieceSelectedEventHandler();
 
     [Signal]
-    public delegate void PieceMovedEventHandler(Vector2 position, Vector2 oldPosition, int player);
+    public delegate void PieceMovedEventHandler(Vector2 position, Vector2 oldPosition, int player, bool promotion);
 
     [Signal]
     public delegate void CheckUpdatedEventHandler();
@@ -87,6 +87,8 @@ public partial class Piece : CharacterBody2D
     [Export] private bool _isInCheck = false;
     private bool _enPassant = false;
 
+    public bool IsUI { get; set; } = false;
+
     public static int[,] BoardCells { get; set; }
     public static int[,] BoardCellsCheck { get; set; }
 
@@ -100,12 +102,18 @@ public partial class Piece : CharacterBody2D
         if (_player == 1)
         {
             _playerDirectionVector = new Vector2(-1, -1);
-            AddToGroup("white_pieces");
+            if (!IsUI)
+            {
+                AddToGroup("white_pieces");
+            }
         }
         else
         {
             _playerDirectionVector = new Vector2(1, 1);
-            AddToGroup("black_pieces");
+            if (!IsUI)
+            {
+                AddToGroup("black_pieces");
+            }
         }
 
         if (_pieceType == "pawn")
@@ -142,6 +150,11 @@ public partial class Piece : CharacterBody2D
         {
             Sprite2D sprite = GetNode<Sprite2D>("Sprite2D");
             sprite.Texture = _textures.GetWhiteTexture(_pieceType);
+        }
+
+        if (IsUI)
+        {
+            SetScript(new Variant());
         }
     }
 
@@ -841,12 +854,12 @@ public partial class Piece : CharacterBody2D
             _firstMovement = false;
             if (_pieceType == "pawn" && Position == oldPos + new Vector2(0, 2 * CellPixels))
             {
-                EmitSignal(SignalName.PieceMoved, newPosition - new Vector2(0, CellPixels), oldPos, -_id);
+                EmitSignal(SignalName.PieceMoved, newPosition - new Vector2(0, CellPixels), oldPos, -_id, false);
                 _enPassant = true;
             }
             else if (_pieceType == "pawn" && Position == oldPos + new Vector2(0, -2 * CellPixels))
             {
-                EmitSignal(SignalName.PieceMoved, newPosition + new Vector2(0, CellPixels), oldPos, -_id);
+                EmitSignal(SignalName.PieceMoved, newPosition + new Vector2(0, CellPixels), oldPos, -_id, false);
                 _enPassant = true;
             }
         }
@@ -873,9 +886,13 @@ public partial class Piece : CharacterBody2D
             {
                 promotionSelection.Position = Position + new Vector2(CellPixels, 0);
             }
+
+            EmitSignal(SignalName.PieceMoved, newPosition, oldPos, _id, true);
         }
-        
-        EmitSignal(SignalName.PieceMoved, newPosition, oldPos, _id);
+        else
+        {
+            EmitSignal(SignalName.PieceMoved, newPosition, oldPos, _id, false);
+        }        
     }
 
     public void ChangeTurn()
@@ -914,15 +931,21 @@ public partial class Piece : CharacterBody2D
 
     public void Capture(Vector2 _capturePos, CharacterBody2D _capture)
     {
+        TileMap board = GetNode<TileMap>("../..");
+        Vector2I cell = board.LocalToMap(Position);
+
         if (_pieceType == "pawn" && _enPassant && (_capturePos == Position - new Vector2(0, CellPixels) || _capturePos == Position + new Vector2(0, CellPixels)))
         {
             Connect("tree_exited", new Callable(_capture, "Captured"));
             EmitSignal(SignalName.ClearEnPassant, _player);
+            BoardCells[cell.X, cell.Y] = 0;
             QueueFree();
         }
         else if (_capturePos == Position)
         {
             Connect("tree_exited", new Callable(_capture, "Captured"));
+            EmitSignal(SignalName.ClearEnPassant, _player);
+            BoardCells[cell.X, cell.Y] = 0;
             QueueFree();
         }
     }
@@ -2049,7 +2072,7 @@ public partial class Piece : CharacterBody2D
         {
             Vector2 oldPos = Position;
             Position = newPosition;
-            EmitSignal(SignalName.PieceMoved, newPosition, oldPos, _id);
+            EmitSignal(SignalName.PieceMoved, newPosition, oldPos, _id, false);
         }
     }
 
