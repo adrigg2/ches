@@ -97,8 +97,6 @@ public partial class ChessGame : Node2D
             }
         }
 
-        _boardHistory.Add(new BoardState(boardToSave, zoneOfControlToSave, true));
-
         situationCount = _boardHistory.Count(b => Piece.BoardCells.Cast<int>().SequenceEqual(b.Board.Cast<int>()));           
             
         GD.Print($"This situation has been repeated {situationCount} times");
@@ -113,6 +111,7 @@ public partial class ChessGame : Node2D
                 _ui.Position = new Vector2(768, 384);
                 _revertMenu.Camera.Zoom *= new Vector2(-1, -1);
                 Piece.Turn = 2;
+                _boardHistory.Add(new BoardState(boardToSave, zoneOfControlToSave, Piece.Turn, true));
                 GetTree().CallGroup("pieces", "ChangeTurn");
             } 
             else if (player / 10 == 2)
@@ -122,6 +121,7 @@ public partial class ChessGame : Node2D
                 _ui.Position = new Vector2(0, 0);
                 _revertMenu.Camera.Zoom *= new Vector2(-1, -1);
                 Piece.Turn = 1;
+                _boardHistory.Add(new BoardState(boardToSave, zoneOfControlToSave, Piece.Turn, true));
                 GetTree().CallGroup("pieces", "ChangeTurn");
             }
         }
@@ -187,7 +187,7 @@ public partial class ChessGame : Node2D
             }
         }
 
-        _boardHistory.Add(new BoardState(boardToSave, zoneOfControlToSave, true));
+        _boardHistory.Add(new BoardState(boardToSave, zoneOfControlToSave, Piece.Turn, true));
     }
 
     public void Capture(Vector2 capturePos, CharacterBody2D capture)
@@ -397,6 +397,7 @@ public partial class ChessGame : Node2D
         _board.ClearDynamicTiles();
         Piece.BoardCells = _boardHistory[boardIndex].Board;
         Piece.BoardCellsCheck = _boardHistory[boardIndex].ZoneOfControl;
+        Piece.Turn = _boardHistory[boardIndex].Turn;
 
         PlayersSet();
     }

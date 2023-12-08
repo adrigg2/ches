@@ -3,14 +3,21 @@ using Godot;
 namespace Ches;
 public partial class BoardState : Resource
 {
-    public int[,] ZoneOfControl { set; get; }
-    public int[,] Board { get; set; }
-    public bool Castling { get; set; }
+    private int[,] _zoneOfControl;
+    private int[,] _board;
+    private int _turn;
+    private bool _castling;
 
-    public BoardState(int[,] board, int[,] zoneOfControl, bool castling)
+    public int[,] ZoneOfControl { get => _zoneOfControl; }
+    public int[,] Board { get => _board; }
+    public int Turn { get => _turn; }
+    public bool Castling { get => _castling; }
+
+    public BoardState(int[,] board, int[,] zoneOfControl, int turn, bool castling)
     {
-        Board = board;
-        Castling = castling;
-        ZoneOfControl = zoneOfControl;
+        _zoneOfControl = zoneOfControl;
+        _board = board;
+        _turn = turn;
+        _castling = castling;
     }
 }

@@ -106,6 +106,7 @@ public partial class RevertMenu : Panel
 					piece.SetMeta("Piece_Type", _pieceDict[cellSituation % 10]);
 					_board.AddChild(piece);
 					piece.Position = _board.MapToLocal(new Vector2I(i, j));
+					piece.SetScript(new Variant());
 				}
 			}
 		}
