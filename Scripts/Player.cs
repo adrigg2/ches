@@ -19,7 +19,9 @@ public partial class Player : Node2D
 
     public override void _Ready()
 	{
-		_playerNum = (int)GetMeta("player");
+        AddToGroup("to_save");
+
+        _playerNum = (int)GetMeta("player");
 
         GD.Print(_playerNum, "player");
 

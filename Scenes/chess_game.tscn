@@ -10,13 +10,14 @@
 [ext_resource type="Script" path="res://scripts/RevertMenu.cs" id="7_rdvxd"]
 [ext_resource type="PackedScene" uid="uid://gca3h7ok17i8" path="res://scenes/piece.tscn" id="8_ano7s"]
 
-[node name="ChessGame" type="Node2D" node_paths=PackedStringArray("_board", "_restart", "_draw", "_revert", "_reject", "_debugTracker", "_debugTracker2", "_endGame", "_camera", "_revertMenu", "_ui")]
+[node name="ChessGame" type="Node2D" node_paths=PackedStringArray("_board", "_restart", "_draw", "_revert", "_reject", "_saveGame", "_debugTracker", "_debugTracker2", "_endGame", "_camera", "_revertMenu", "_ui")]
 script = ExtResource("1_whhq8")
 _board = NodePath("Board")
 _restart = NodePath("UI/Restart")
 _draw = NodePath("UI/Draw")
 _revert = NodePath("UI/Revert")
 _reject = NodePath("UI/RejectButton")
+_saveGame = NodePath("UI/Save")
 _debugTracker = NodePath("UI/DebugTracker")
 _debugTracker2 = NodePath("UI/DebugTracker2")
 _endGame = NodePath("UI/EndGame")
@@ -99,6 +100,18 @@ offset_top = 147.0
 offset_right = 156.0
 offset_bottom = 219.0
 icon = ExtResource("6_a3b0o")
+metadata/_edit_use_anchors_ = true
+
+[node name="Save" type="Button" parent="UI"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = -1.85
+anchor_bottom = -1.85
+offset_left = 20.0
+offset_top = 147.0
+offset_right = 156.0
+offset_bottom = 219.0
+text = "Save"
 metadata/_edit_use_anchors_ = true
 
 [node name="RejectButton" type="Button" parent="UI"]

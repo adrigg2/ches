@@ -15,6 +15,8 @@ public partial class Board : TileMap
 
     public override void _Ready()
 	{
+        AddToGroup("to_save");
+
         Piece.Board = this;
 
         EmitSignal(SignalName.BoardCellCount, 8, 8);

@@ -1,41 +1,51 @@
 using Godot;
+using System.Transactions;
 
 namespace Ches;
 public partial class MainMenu : Control
 {
 	public override void _Ready()
 	{
+        Button returnToMenu = GetNode<Button>("Return");
+        returnToMenu.Pressed += ReturnSelected;
+
+        // OPTIONS
         Button local = GetNode<Button>("Main/Local");
         Button online = GetNode<Button>("Main/Online");
         Button options = GetNode<Button>("Main/Options");
-        Button returnToMenu = GetNode<Button>("Options/Button");
-        OptionButton languageSelection = GetNode<OptionButton>("Options/OptionButton");
+        OptionButton languageSelection = GetNode<OptionButton>("Options/Language");
         local.Pressed += LocalSelected;
         online.Pressed += OnlineSelected;
         options.Pressed += OptionsSelected;
-        returnToMenu.Pressed += ReturnSelected;
         languageSelection.ItemSelected += LanguageSelected;
     }
 
     private void LocalSelected()
     {
-        GetTree().ChangeSceneToFile("res://scenes/chess_game.tscn");
+        GetNode<Control>("Main").Visible = false;
+        GetNode<Control>("Options").Visible = false;
+        GetNode<Button>("Return").Visible = true;
+        GetNode<Control>("GameSetup").Visible = true;
     }
 
     private void OnlineSelected()
     {
-
+        
     }
 
     private void OptionsSelected()
     {
         GetNode<Control>("Main").Visible = false;
+        GetNode<Control>("GameSetup").Visible = false;
+        GetNode<Button>("Return").Visible = true;
         GetNode<Control>("Options").Visible = true;
     }
 
     private void ReturnSelected()
     {
         GetNode<Control>("Options").Visible = false;
+        GetNode<Control>("GameSetup").Visible = false;
+        GetNode<Button>("Return").Visible = false;
         GetNode<Control>("Main").Visible = true;
     }
 

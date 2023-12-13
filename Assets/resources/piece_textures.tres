@@ -16,7 +16,7 @@
 
 [resource]
 script = ExtResource("1_5gpyo")
-WhiteTextures = {
+_whiteTextures = {
 "bishop": ExtResource("8_8ga3o"),
 "king": ExtResource("11_krx4c"),
 "knight": ExtResource("9_dxxmj"),
@@ -24,7 +24,7 @@ WhiteTextures = {
 "queen": ExtResource("10_pqiqh"),
 "rook": ExtResource("7_otxwr")
 }
-BlackTextures = {
+_blackTextures = {
 "bishop": ExtResource("3_lapnu"),
 "king": ExtResource("6_qft8n"),
 "knight": ExtResource("4_prxxh"),

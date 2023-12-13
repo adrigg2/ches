@@ -93,6 +93,7 @@ public partial class Piece : CharacterBody2D
     public override void _Ready()
     {
         AddToGroup("pieces");
+        AddToGroup("to_save");
 
         _pieceType = (string)GetMeta("Piece_Type");
         _player = (int)GetMeta("Player");

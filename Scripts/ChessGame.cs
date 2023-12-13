@@ -11,6 +11,7 @@ public partial class ChessGame : Node2D
     [Export] private Button _draw;
     [Export] private Button _revert;
     [Export] private Button _reject;
+    [Export] private Button _saveGame;
     [Export] private Label _debugTracker;
     [Export] private Label _debugTracker2;
     [Export] private Label _endGame;
@@ -26,9 +27,12 @@ public partial class ChessGame : Node2D
         _draw.Pressed += AgreedDraw;
         _revert.Pressed += Revert;
         _reject.Pressed += Reject;
+        _saveGame.Pressed += SaveGame;
         _revertMenu.PreviousBoardSelected += RevertGameStatus;
         _board.BoardCellCount += SetBoardArrays;
         _board.PlayersSet += PlayersSet;
+
+        AddToGroup("to_save");
     }
 
     public void DisableMovement()
@@ -434,5 +438,30 @@ public partial class ChessGame : Node2D
         _reject.Visible = false;
         _draw.Position = new Vector2(20, 220);
         _endGame.Visible = false;
+    }
+
+    private void SaveGame()
+    {
+        using var saveGame = FileAccess.Open("user://savegame.save", FileAccess.ModeFlags.Write);
+
+        var nodesToSave = GetTree().GetNodesInGroup("to_save");
+        foreach (Node node in nodesToSave)
+        {
+            if (string.IsNullOrEmpty(node.SceneFilePath))
+            {
+                continue;
+            }
+
+            if (!node.HasMethod("Save"))
+            {
+                continue;
+            }
+
+            var nodeData = node.Call("Save");
+
+            var jsonString = Json.Stringify(nodeData);
+
+            saveGame.StoreLine(jsonString);
+        }
     }
 }
