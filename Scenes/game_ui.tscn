@@ -1,6 +1,7 @@
-[gd_scene load_steps=8 format=3 uid="uid://chgqwekgj1ekh"]
+[gd_scene load_steps=9 format=3 uid="uid://chgqwekgj1ekh"]
 
 [ext_resource type="Texture2D" uid="uid://dhpoor2vf6ljf" path="res://assets/restart_button.png" id="1_35f6e"]
+[ext_resource type="Script" path="res://scripts/GameUI.cs" id="1_awqr6"]
 [ext_resource type="Texture2D" uid="uid://cx7fp1a5ro6e4" path="res://assets/drawbutton.png" id="2_ayai8"]
 [ext_resource type="Texture2D" uid="uid://byvya0h40hh6g" path="res://assets/revertbutton.png" id="3_36jep"]
 [ext_resource type="Texture2D" uid="uid://bh2ndb678qixu" path="res://assets/nobutton.png" id="4_lv1r3"]
@@ -13,6 +14,7 @@ layout_mode = 3
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
+script = ExtResource("1_awqr6")
 metadata/_edit_use_anchors_ = true
 
 [node name="DebugTracker" type="Label" parent="."]
@@ -94,6 +96,7 @@ icon = ExtResource("4_lv1r3")
 metadata/_edit_use_anchors_ = true
 
 [node name="Panel" type="Panel" parent="." node_paths=PackedStringArray("_board", "_buttonRight", "_buttonLeft", "_return", "_revert", "Camera")]
+visible = false
 layout_mode = 0
 offset_right = 768.0
 offset_bottom = 384.0
@@ -137,7 +140,7 @@ mouse_filter = 2
 [node name="SubViewport" type="SubViewport" parent="Panel/HBoxContainer/VBoxContainer/MarginContainer/SubViewportContainer"]
 handle_input_locally = false
 size = Vector2i(256, 256)
-render_target_update_mode = 4
+render_target_update_mode = 0
 
 [node name="Board" type="TileMap" parent="Panel/HBoxContainer/VBoxContainer/MarginContainer/SubViewportContainer/SubViewport"]
 tile_set = ExtResource("7_vp8kj")

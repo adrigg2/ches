@@ -7,5 +7,3 @@
 script = ExtResource("1_pefa4")
 
 [node name="MainMenu" parent="." instance=ExtResource("1_6gj71")]
-
-[node name="Timer" type="Timer" parent="."]

@@ -1,9 +1,13 @@
 using Godot;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Ches;
 public partial class Main : Node
 {
 	public static GameSettings Settings { get; set; }
+
+	private ChessGame _game;
+	private GameUI _gameUI;
 
 	public override void _Ready()
 	{
@@ -16,12 +20,14 @@ public partial class Main : Node
 		PackedScene gameScene = (PackedScene)ResourceLoader.Load("res://scenes/chess_game.tscn");
 		PackedScene gameUIScene = (PackedScene)ResourceLoader.Load("res://scenes/game_ui.tscn");
 
-		ChessGame game = (ChessGame)gameScene.Instantiate();
-		Node gameUI = gameUIScene.Instantiate();
+		_game = (ChessGame)gameScene.Instantiate();
+		_gameUI = (GameUI)gameUIScene.Instantiate();
 
 		Settings = settings;
 
-		AddChild(gameUI);
-		AddChild(game);
+		AddChild(_gameUI);
+		AddChild(_game);
+
+		_gameUI.GameRestarted += (a, b) => { };
     }
 }
