@@ -1,8 +1,14 @@
+using Ches;
 using Godot;
 using System;
 
 public partial class GameSetup : Control
 {
+    [Signal]
+    public delegate void GameStartedEventHandler(GameSettings settings);
+
+    private bool _timer;
+
     public override void _Ready()
     {
         //START GAME MENU
@@ -22,7 +28,19 @@ public partial class GameSetup : Control
 
     private void StartGame()
     {
-        GetTree().ChangeSceneToFile("res://scenes/chess_game.tscn");
+        if (_timer)
+        {
+            double minutes = GetNode<SpinBox>("GameSettings/Minutes").Value;
+            double seconds = GetNode<SpinBox>("GameSettings/SecondsAdded").Value;
+
+            GameSettings settings = new GameSettings(_timer, minutes, seconds);
+            EmitSignal(SignalName.GameStarted, settings);
+        }
+        else
+        {
+            GameSettings settings = new GameSettings(_timer);
+            EmitSignal(SignalName.GameStarted, settings);
+        }
     }
 
     private void EnableTimer(bool toggled)
@@ -31,11 +49,13 @@ public partial class GameSetup : Control
         {
             GetNode<SpinBox>("GameSettings/Minutes").Editable = true;
             GetNode<SpinBox>("GameSettings/SecondsAdded").Editable = true;
+            _timer = true;
         }
         else
         {
             GetNode<SpinBox>("GameSettings/Minutes").Editable = false;
             GetNode<SpinBox>("GameSettings/SecondsAdded").Editable = false;
+            _timer = false;
         }
     }
 
