@@ -1,9 +1,10 @@
 using Godot;
-using System;
 
 namespace Ches;
 public partial class Main : Node
 {
+	public static GameSettings Settings { get; set; }
+
 	public override void _Ready()
 	{
 		GetNode<GameSetup>("MainMenu/GameSetup").GameStarted += GameStarted;
@@ -15,8 +16,10 @@ public partial class Main : Node
 		PackedScene gameScene = (PackedScene)ResourceLoader.Load("res://scenes/chess_game.tscn");
 		PackedScene gameUIScene = (PackedScene)ResourceLoader.Load("res://scenes/game_ui.tscn");
 
-		Node game = gameScene.Instantiate();
+		ChessGame game = (ChessGame)gameScene.Instantiate();
 		Node gameUI = gameUIScene.Instantiate();
+
+		Settings = settings;
 
 		AddChild(gameUI);
 		AddChild(game);

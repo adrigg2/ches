@@ -4,20 +4,10 @@
 [ext_resource type="TileSet" uid="uid://bq6f40jlbroyg" path="res://assets/tilesets/board_tiles.tres" id="2_vrpph"]
 [ext_resource type="Script" path="res://scripts/Board.cs" id="3_lbu5b"]
 
-[node name="ChessGame" type="Node2D" node_paths=PackedStringArray("_board", "_restart", "_draw", "_revert", "_reject", "_saveGame", "_debugTracker", "_debugTracker2", "_endGame", "_camera", "_revertMenu", "_ui")]
+[node name="ChessGame" type="Node2D" node_paths=PackedStringArray("_board", "_camera")]
 script = ExtResource("1_whhq8")
 _board = NodePath("Board")
-_restart = NodePath("")
-_draw = NodePath("")
-_revert = NodePath("")
-_reject = NodePath("")
-_saveGame = NodePath("")
-_debugTracker = NodePath("")
-_debugTracker2 = NodePath("")
-_endGame = NodePath("")
 _camera = NodePath("Camera2D")
-_revertMenu = NodePath("")
-_ui = NodePath("")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(384, 192)

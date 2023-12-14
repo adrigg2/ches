@@ -14,6 +14,7 @@ public partial class Player : Node2D
     private int _playerNum;
     private PackedScene _piece;
     private StringName _playerGroup;
+    private Timer _timer;
 
     private Dictionary<int, string> _pieceDict = new();
 
@@ -44,6 +45,16 @@ public partial class Player : Node2D
         _pieceDict.Add(3, "rook");
         _pieceDict.Add(4, "bishop");
         _pieceDict.Add(5, "knight");
+
+        if (Main.Settings.Timer)
+        {
+            _timer = new Timer();
+            _timer.WaitTime = Main.Settings.Minutes * 60;
+            _timer.Timeout += Timeout;
+            AddChild(_timer);
+            _timer.Start();
+            _timer.Paused = true;
+        }
     }
     public Vector2 SetPos(Vector2I tilepos)
     {
@@ -218,5 +229,10 @@ public partial class Player : Node2D
         piece.CastlingSetup += CastlingSetup;
         piece.AllowCastling += AllowCastling;
         piece.MoveRook += Castle;
+    }
+
+    private void Timeout()
+    {
+        EmitSignal(SignalName.Checkmate, _playerNum);
     }
 }
