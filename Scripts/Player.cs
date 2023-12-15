@@ -18,7 +18,7 @@ public partial class Player : Node2D
     private PackedScene _piece;
     private StringName _playerGroup;
     private Timer _timer;
-    private double _timeLeft;
+    [Export] private double _timeLeft;
 
     private Dictionary<int, string> _pieceDict = new();
 
@@ -59,6 +59,11 @@ public partial class Player : Node2D
             _timeLeft = Main.Settings.Minutes * 60;
             EmitSignal(SignalName.TimersSet, _timer, _playerNum);
             GD.Print("Player timer");
+        }
+
+        if (Piece.Turn == _playerNum)
+        {
+            _timer.Start(_timeLeft);
         }
     }
     public Vector2 SetPos(Vector2I tilepos)

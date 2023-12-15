@@ -45,9 +45,6 @@ public partial class GameUI : Control
             _timerLabel1.Visible = true;
             _timerLabel2.Visible = true;
 
-            _timerLabel1.Text = $"{Main.Settings.Minutes} : 00";
-            _timerLabel2.Text = $"{Main.Settings.Minutes} : 00";
-
             SetProcess(true);
         }
         else
@@ -58,9 +55,8 @@ public partial class GameUI : Control
 
     public override void _Process(double delta)
     {
-        GD.Print("A");
-        _timerLabel1.Text = $"{_timer1.TimeLeft / 60} : {_timer1.TimeLeft % 60}";
-        _timerLabel2.Text = $"{_timer2.TimeLeft / 60} : {_timer2.TimeLeft % 60}";
+        _timerLabel1.Text = $"{(int)_timer1.TimeLeft / 60} : {(int)_timer1.TimeLeft % 60}";
+        _timerLabel2.Text = $"{(int)_timer2.TimeLeft / 60} : {(int)_timer2.TimeLeft % 60}";
     }
 
     private void Revert()
