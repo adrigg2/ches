@@ -9,32 +9,21 @@
 [ext_resource type="PackedScene" uid="uid://gca3h7ok17i8" path="res://scenes/piece.tscn" id="6_k15a6"]
 [ext_resource type="TileSet" uid="uid://bq6f40jlbroyg" path="res://assets/tilesets/board_tiles.tres" id="7_vp8kj"]
 
-[node name="GameUI" type="Control"]
+[node name="GameUI" type="Control" node_paths=PackedStringArray("_restart", "_draw", "_revert", "_reject", "_saveGame", "_endGame", "_revertMenu")]
 layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_awqr6")
-metadata/_edit_use_anchors_ = true
-
-[node name="DebugTracker" type="Label" parent="."]
-layout_mode = 0
-offset_left = 512.0
-offset_right = 552.0
-offset_bottom = 24.0
-scale = Vector2(3.19449, 1.39672)
-theme_override_font_sizes/font_size = 17
-autowrap_mode = 2
-metadata/_edit_use_anchors_ = true
-
-[node name="DebugTracker2" type="Label" parent="."]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 34.0
-scale = Vector2(3.20036, 1.04143)
-theme_override_font_sizes/font_size = 17
-autowrap_mode = 2
-metadata/_edit_use_anchors_ = true
+_restart = NodePath("Restart")
+_draw = NodePath("Draw")
+_revert = NodePath("Revert")
+_reject = NodePath("RejectButton")
+_saveGame = NodePath("Save")
+_endGame = NodePath("EndGame")
+_revertMenu = NodePath("RevertMenu")
 
 [node name="EndGame" type="Label" parent="."]
 visible = false
@@ -76,12 +65,12 @@ metadata/_edit_use_anchors_ = true
 [node name="Save" type="Button" parent="."]
 layout_mode = 1
 anchors_preset = -1
-anchor_top = -1.85
-anchor_bottom = -1.85
-offset_left = 20.0
-offset_top = 147.0
-offset_right = 156.0
-offset_bottom = 219.0
+anchor_left = 0.0260417
+anchor_top = 0.184896
+anchor_right = 0.0260417
+anchor_bottom = 0.184896
+offset_right = 136.0
+offset_bottom = 72.0
 text = "Save"
 metadata/_edit_use_anchors_ = true
 
@@ -95,7 +84,7 @@ offset_bottom = 367.0
 icon = ExtResource("4_lv1r3")
 metadata/_edit_use_anchors_ = true
 
-[node name="Panel" type="Panel" parent="." node_paths=PackedStringArray("_board", "_buttonRight", "_buttonLeft", "_return", "_revert", "Camera")]
+[node name="RevertMenu" type="Panel" parent="." node_paths=PackedStringArray("_board", "_buttonRight", "_buttonLeft", "_return", "_revert", "Camera")]
 visible = false
 layout_mode = 0
 offset_right = 768.0
@@ -109,7 +98,7 @@ _revert = NodePath("HBoxContainer/VBoxContainer/Button2")
 _piece = ExtResource("6_k15a6")
 Camera = NodePath("HBoxContainer/VBoxContainer/MarginContainer/SubViewportContainer/SubViewport/Camera2D")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Panel"]
+[node name="HBoxContainer" type="HBoxContainer" parent="RevertMenu"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -117,32 +106,32 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Button" type="Button" parent="Panel/HBoxContainer"]
+[node name="Button" type="Button" parent="RevertMenu/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 0
 text = "<"
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Panel/HBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="RevertMenu/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 alignment = 1
 
-[node name="MarginContainer" type="MarginContainer" parent="Panel/HBoxContainer/VBoxContainer"]
+[node name="MarginContainer" type="MarginContainer" parent="RevertMenu/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 theme_override_constants/margin_top = 58
 
-[node name="SubViewportContainer" type="SubViewportContainer" parent="Panel/HBoxContainer/VBoxContainer/MarginContainer"]
+[node name="SubViewportContainer" type="SubViewportContainer" parent="RevertMenu/HBoxContainer/VBoxContainer/MarginContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 mouse_filter = 2
 
-[node name="SubViewport" type="SubViewport" parent="Panel/HBoxContainer/VBoxContainer/MarginContainer/SubViewportContainer"]
+[node name="SubViewport" type="SubViewport" parent="RevertMenu/HBoxContainer/VBoxContainer/MarginContainer/SubViewportContainer"]
 handle_input_locally = false
 size = Vector2i(256, 256)
 render_target_update_mode = 0
 
-[node name="Board" type="TileMap" parent="Panel/HBoxContainer/VBoxContainer/MarginContainer/SubViewportContainer/SubViewport"]
+[node name="Board" type="TileMap" parent="RevertMenu/HBoxContainer/VBoxContainer/MarginContainer/SubViewportContainer/SubViewport"]
 tile_set = ExtResource("7_vp8kj")
 rendering_quadrant_size = 32
 format = 2
@@ -151,20 +140,20 @@ layer_0/tile_data = PackedInt32Array(1, 65536, 0, 65536, 65536, 0, 3, 65536, 0, 
 layer_1/name = "Dynamic Tiles"
 layer_1/tile_data = PackedInt32Array()
 
-[node name="Camera2D" type="Camera2D" parent="Panel/HBoxContainer/VBoxContainer/MarginContainer/SubViewportContainer/SubViewport"]
+[node name="Camera2D" type="Camera2D" parent="RevertMenu/HBoxContainer/VBoxContainer/MarginContainer/SubViewportContainer/SubViewport"]
 position = Vector2(128, 128)
 
-[node name="Button2" type="Button" parent="Panel/HBoxContainer/VBoxContainer"]
+[node name="Button2" type="Button" parent="RevertMenu/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 4
 text = "Revert"
 
-[node name="Button" type="Button" parent="Panel/HBoxContainer/VBoxContainer"]
+[node name="Button" type="Button" parent="RevertMenu/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 4
 text = "Return"
 
-[node name="Button2" type="Button" parent="Panel/HBoxContainer"]
+[node name="Button2" type="Button" parent="RevertMenu/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 8
 text = ">"

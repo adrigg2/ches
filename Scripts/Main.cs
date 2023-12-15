@@ -25,9 +25,40 @@ public partial class Main : Node
 
 		Settings = settings;
 
-		AddChild(_gameUI);
 		AddChild(_game);
+		AddChild(_gameUI);
 
-		_gameUI.GameRestarted += (a, b) => { };
+		_gameUI.GameRestarted += () => _game.Reset();
+		_gameUI.DrawSelected += () => _game.AgreedDraw();
+		_gameUI.GameSaved += SaveGame;
+		_gameUI.GameReverted += (index) => _game.RevertGameStatus(index);
+
+		_game.TurnChanged += (turn, count) => _gameUI.ChangeTurn(turn, count);
+		_game.GameEnded += (loser) => _gameUI.GameEnded(loser);
+    }
+
+    private void SaveGame()
+    {
+        using var saveGame = FileAccess.Open("user://savegame.save", FileAccess.ModeFlags.Write);
+
+        var nodesToSave = GetTree().GetNodesInGroup("to_save");
+        foreach (Node node in nodesToSave)
+        {
+            if (string.IsNullOrEmpty(node.SceneFilePath))
+            {
+                continue;
+            }
+
+            if (!node.HasMethod("Save"))
+            {
+                continue;
+            }
+
+            var nodeData = node.Call("Save");
+
+            var jsonString = Json.Stringify(nodeData);
+
+            saveGame.StoreLine(jsonString);
+        }
     }
 }
