@@ -66,8 +66,9 @@ public partial class Piece : CharacterBody2D
     [Export] private int _seesKing;
     [Export] private int _lockedDirection;
     private static int _checkCount;
-    [Export] public static int Turn { get; set; } = 1;
+    public static int Turn { get; set; } = 1;
     [Export] public int CheckCountPublic { get => _checkCount; set => _checkCount = value; }
+    [Export] public int TurnPublic { get => Turn; set => Turn = value; }
 
     [Export] private PieceTextures _textures;
 

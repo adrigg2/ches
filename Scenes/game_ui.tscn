@@ -9,13 +9,14 @@
 [ext_resource type="PackedScene" uid="uid://gca3h7ok17i8" path="res://scenes/piece.tscn" id="6_k15a6"]
 [ext_resource type="TileSet" uid="uid://bq6f40jlbroyg" path="res://assets/tilesets/board_tiles.tres" id="7_vp8kj"]
 
-[node name="GameUI" type="Control" node_paths=PackedStringArray("_restart", "_draw", "_revert", "_reject", "_saveGame", "_endGame", "_revertMenu")]
+[node name="GameUI" type="Control" node_paths=PackedStringArray("_restart", "_draw", "_revert", "_reject", "_saveGame", "_endGame", "_timerLabel1", "_timerLabel2", "_revertMenu")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 1
 script = ExtResource("1_awqr6")
 _restart = NodePath("Restart")
 _draw = NodePath("Draw")
@@ -23,6 +24,8 @@ _revert = NodePath("Revert")
 _reject = NodePath("RejectButton")
 _saveGame = NodePath("Save")
 _endGame = NodePath("EndGame")
+_timerLabel1 = NodePath("TimerLabel1")
+_timerLabel2 = NodePath("TimerLabel2")
 _revertMenu = NodePath("RevertMenu")
 
 [node name="EndGame" type="Label" parent="."]
@@ -33,6 +36,28 @@ offset_bottom = 58.0
 theme_override_colors/font_color = Color(1, 1, 0, 1)
 theme_override_font_sizes/font_size = 40
 text = "White wins"
+horizontal_alignment = 1
+
+[node name="TimerLabel1" type="Label" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 258.0
+offset_top = 326.0
+offset_right = 259.0
+offset_bottom = 381.0
+theme_override_colors/font_color = Color(1, 1, 0, 1)
+theme_override_font_sizes/font_size = 40
+horizontal_alignment = 1
+
+[node name="TimerLabel2" type="Label" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 401.0
+offset_top = 6.0
+offset_right = 402.0
+offset_bottom = 61.0
+theme_override_colors/font_color = Color(1, 1, 0, 1)
+theme_override_font_sizes/font_size = 40
 horizontal_alignment = 1
 
 [node name="Restart" type="Button" parent="."]

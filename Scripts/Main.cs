@@ -25,9 +25,6 @@ public partial class Main : Node
 
 		Settings = settings;
 
-		AddChild(_game);
-		AddChild(_gameUI);
-
 		_gameUI.GameRestarted += () => _game.Reset();
 		_gameUI.DrawSelected += () => _game.AgreedDraw();
 		_gameUI.GameSaved += SaveGame;
@@ -35,6 +32,10 @@ public partial class Main : Node
 
 		_game.TurnChanged += (turn, count) => _gameUI.ChangeTurn(turn, count);
 		_game.GameEnded += (loser) => _gameUI.GameEnded(loser);
+		_game.TimersSet += (timer, player) => _gameUI.SetTimers(timer, player);
+
+		AddChild(_game);
+		AddChild(_gameUI);
     }
 
     private void SaveGame()

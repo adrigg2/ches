@@ -11,16 +11,21 @@ public partial class Player : Node2D
     [Signal]
     public delegate void CheckmateEventHandler(int looser);
 
+    [Signal]
+    public delegate void TimersSetEventHandler(Timer timer, int player);
+
     private int _playerNum;
     private PackedScene _piece;
     private StringName _playerGroup;
     private Timer _timer;
+    private double _timeLeft;
 
     private Dictionary<int, string> _pieceDict = new();
 
     public override void _Ready()
 	{
         AddToGroup("to_save");
+        AddToGroup("players");
 
         _playerNum = (int)GetMeta("player");
 
@@ -49,11 +54,11 @@ public partial class Player : Node2D
         if (Main.Settings.Timer)
         {
             _timer = new Timer();
-            _timer.WaitTime = Main.Settings.Minutes * 60;
             _timer.Timeout += Timeout;
             AddChild(_timer);
-            _timer.Start();
-            _timer.Paused = true;
+            _timeLeft = Main.Settings.Minutes * 60;
+            EmitSignal(SignalName.TimersSet, _timer, _playerNum);
+            GD.Print("Player timer");
         }
     }
     public Vector2 SetPos(Vector2I tilepos)
@@ -234,5 +239,18 @@ public partial class Player : Node2D
     private void Timeout()
     {
         EmitSignal(SignalName.Checkmate, _playerNum);
+    }
+
+    public void ChangeTurn(int turn)
+    {
+        if (turn == _playerNum)
+        {
+            _timer.Start(_timeLeft);
+        }
+        else
+        {
+            _timeLeft = _timer.TimeLeft + Main.Settings.Seconds;
+            _timer.Stop();
+        }
     }
 }

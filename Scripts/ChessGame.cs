@@ -12,6 +12,9 @@ public partial class ChessGame : Node2D
     [Signal]
     public delegate void GameEndedEventHandler(int loser);
 
+    [Signal]
+    public delegate void TimersSetEventHandler(Timer timer, int player);
+
     [Export] private Board _board;
     [Export] private Label _debugTracker;
     [Export] private Label _debugTracker2;
@@ -23,6 +26,7 @@ public partial class ChessGame : Node2D
 	{
         _board.BoardCellCount += SetBoardArrays;
         _board.PlayersSet += PlayersSet;
+        _board.TimersSet += (timer, player) => EmitSignal(SignalName.TimersSet, timer, player);
 
         AddToGroup("to_save");
     }
@@ -108,6 +112,8 @@ public partial class ChessGame : Node2D
         {
             Checkmate(0);
         }
+
+        GetTree().CallGroup("players", "ChangeTurn", Piece.Turn);
 
         DebugTracking(); //DEBUG
     }

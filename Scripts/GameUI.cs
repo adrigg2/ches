@@ -23,7 +23,12 @@ public partial class GameUI : Control
     [Export] private Button _reject;
     [Export] private Button _saveGame;
     [Export] private Label _endGame;
+    [Export] private Label _timerLabel1;
+    [Export] private Label _timerLabel2;
     [Export] private RevertMenu _revertMenu;
+
+    private Timer _timer1;
+    private Timer _timer2;
 
     public override void _Ready()
 	{
@@ -33,6 +38,29 @@ public partial class GameUI : Control
         _reject.Pressed += Reject;
         _saveGame.Pressed += () => EmitSignal(SignalName.GameSaved);
         _revertMenu.PreviousBoardSelected += (index) => EmitSignal(SignalName.GameReverted, index);
+
+
+        if (Main.Settings.Timer)
+        {
+            _timerLabel1.Visible = true;
+            _timerLabel2.Visible = true;
+
+            _timerLabel1.Text = $"{Main.Settings.Minutes} : 00";
+            _timerLabel2.Text = $"{Main.Settings.Minutes} : 00";
+
+            SetProcess(true);
+        }
+        else
+        {
+            SetProcess(false);
+        }
+    }
+
+    public override void _Process(double delta)
+    {
+        GD.Print("A");
+        _timerLabel1.Text = $"{_timer1.TimeLeft / 60} : {_timer1.TimeLeft % 60}";
+        _timerLabel2.Text = $"{_timer2.TimeLeft / 60} : {_timer2.TimeLeft % 60}";
     }
 
     private void Revert()
@@ -116,5 +144,19 @@ public partial class GameUI : Control
         _reject.Visible = false;
 
         EmitSignal(SignalName.GameRestarted);
+    }
+
+    public void SetTimers(Timer timer, int player)
+    {
+        GD.Print("Setting timers");
+        
+        if (player == 1)
+        {
+            _timer1 = timer;
+        }
+        else 
+        {
+            _timer2 = timer;
+        }
     }
 }

@@ -10,6 +10,9 @@ public partial class Board : TileMap
     [Signal]
     public delegate void PlayersSetEventHandler();
 
+    [Signal]
+    public delegate void TimersSetEventHandler(Timer timer, int player);
+
     private Player _player;
     private Vector2 _selectedPosition = new Vector2(-1, -1);
 
@@ -25,6 +28,7 @@ public partial class Board : TileMap
         {
             _player = new Player();
             _player.SetMeta("player", i);
+            _player.TimersSet += (timer, player) => EmitSignal(SignalName.TimersSet, timer, player);
             AddChild(_player);
         }
         EmitSignal(SignalName.PlayersSet);
