@@ -78,19 +78,18 @@ public partial class Board : TileMap
 
     public void Reset()
     {
+        Piece.Turn = 1;
+
         foreach(Node child in GetChildren())
         {
-            child.QueueFree();
+            if (child is Player player)
+            {
+                player.Reset();
+            }
         }
+
+        EmitSignal(SignalName.PlayersSet);
 
         ClearDynamicTiles();
-
-        for (int i = 1; i < 3; i++)
-        {
-            _player = new Player();
-            _player.SetMeta("player", i);
-            AddChild(_player);
-        }
-        EmitSignal(SignalName.PlayersSet);
     }
 }

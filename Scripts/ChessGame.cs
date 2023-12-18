@@ -163,6 +163,8 @@ public partial class ChessGame : Node2D
         }
 
         BoardHistory.Add(new BoardState(boardToSave, zoneOfControlToSave, Piece.Turn, true));
+
+        _camera.Zoom = new Vector2(1, 1);
     }
 
     public void Capture(Vector2 capturePos, CharacterBody2D capture)
@@ -283,6 +285,9 @@ public partial class ChessGame : Node2D
         }
 
         _board.Reset();
+
+        GetTree().CallGroup("pieces", "ChangeTurn");
+        GetTree().CallGroup("players", "ChangeTurn", Piece.Turn);
 
         _debugTracker.Visible = true; //DEBUG
         _debugTracker2.Visible = true; //DEBUG

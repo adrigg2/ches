@@ -258,4 +258,26 @@ public partial class Player : Node2D
             _timer.Stop();
         }
     }
+
+    public void Reset()
+    {
+        foreach (Node child in GetChildren())
+        {
+            if (child is Piece)
+            {
+                child.QueueFree();
+            }
+        }
+
+        if (_playerNum == 1)
+        {
+            PlayerSet(6, 7);
+        }
+        else if (_playerNum == 2)
+        {
+            PlayerSet(1, 0);
+        }
+
+        _timeLeft = Main.Settings.Minutes * 60;
+    }
 }

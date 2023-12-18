@@ -45,6 +45,9 @@ public partial class GameUI : Control
             _timerLabel1.Visible = true;
             _timerLabel2.Visible = true;
 
+            _timerLabel1.Text = $"{Main.Settings.Minutes} : 00";
+            _timerLabel2.Text = $"{Main.Settings.Minutes} : 00";
+
             SetProcess(true);
         }
         else
@@ -55,8 +58,15 @@ public partial class GameUI : Control
 
     public override void _Process(double delta)
     {
-        _timerLabel1.Text = $"{(int)_timer1.TimeLeft / 60} : {(int)_timer1.TimeLeft % 60}";
-        _timerLabel2.Text = $"{(int)_timer2.TimeLeft / 60} : {(int)_timer2.TimeLeft % 60}";
+        if (_timer1.TimeLeft != 0)
+        {
+            _timerLabel1.Text = $"{(int)_timer1.TimeLeft / 60} : {(int)_timer1.TimeLeft % 60}";
+        }
+
+        if (_timer2.TimeLeft != 0)
+        {
+            _timerLabel2.Text = $"{(int)_timer2.TimeLeft / 60} : {(int)_timer2.TimeLeft % 60}";
+        }
     }
 
     private void Revert()
@@ -138,6 +148,13 @@ public partial class GameUI : Control
         _draw.Visible = true;
         _revert.Visible = true;
         _reject.Visible = false;
+
+        Scale = new Vector2(1, 1);
+        Position = new Vector2(0, 0);
+        _revertMenu.Camera.Zoom = new Vector2(1, 1);
+
+        _timerLabel1.Text = $"{Main.Settings.Minutes} : 00";
+        _timerLabel2.Text = $"{Main.Settings.Minutes} : 00";
 
         EmitSignal(SignalName.GameRestarted);
     }
