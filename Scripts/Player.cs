@@ -210,9 +210,12 @@ public partial class Player : Node2D
         string pieceType;
         Vector2I position;
 
-        foreach (var piece in GetChildren())
+        foreach (var child in GetChildren())
         {
-            piece.QueueFree();
+            if (child is Piece piece)
+            {
+                piece.Delete();
+            }
         }
 
         for (int i = 0; i < newSituation.GetLength(0); i++)
@@ -263,9 +266,9 @@ public partial class Player : Node2D
     {
         foreach (Node child in GetChildren())
         {
-            if (child is Piece)
+            if (child is Piece piece)
             {
-                child.QueueFree();
+                piece.Delete();
             }
         }
 

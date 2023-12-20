@@ -1583,48 +1583,79 @@ public partial class Piece : CharacterBody2D
             int positionSituation;
             int moveCheck;
             int blockedPosition;
+            bool outOfBounds;
 
             if (_firstMovement == true)
             {
                 for (int i = 1; i <= 2; i++)
                 {
                     movePos = Position + new Vector2(CellPixels, CellPixels) * _playerDirectionVector;
-                    positionSituation = CheckCheckCells(movePos);
-                    moveCheck = CheckBoardCells(movePos);
-                    blockedPosition = moveCheck / 10;
+                    outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                    if (positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                    if (!outOfBounds)
                     {
-                        return;
-                    }
-                    else if (blockedPosition < 0)
-                    {
-                        positionSituation = CheckCheckCells(movePos + new Vector2(0, 32) * -_playerDirectionVector);
+                        positionSituation = CheckCheckCells(movePos);
+                        moveCheck = CheckBoardCells(movePos);
+                        blockedPosition = moveCheck / 10;
+
                         if (positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
                         {
                             return;
+                        }
+                        else if (blockedPosition < 0)
+                        {
+                            positionSituation = CheckCheckCells(movePos + new Vector2(0, 32) * -_playerDirectionVector);
+                            if (positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                            {
+                                return;
+                            }
                         }
                     }
 
                     movePos = Position + new Vector2(-CellPixels, CellPixels) * _playerDirectionVector;
-                    positionSituation = CheckCheckCells(movePos);
-                    moveCheck = CheckBoardCells(movePos);
-                    blockedPosition = moveCheck / 10;
+                    outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                    if (positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                    if (!outOfBounds)
                     {
-                        return;
-                    }
-                    else if (blockedPosition < 0)
-                    {
-                        positionSituation = CheckCheckCells(movePos + new Vector2(0, 32) * -_playerDirectionVector);
+                        positionSituation = CheckCheckCells(movePos);
+                        moveCheck = CheckBoardCells(movePos);
+                        blockedPosition = moveCheck / 10;
+
                         if (positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
                         {
                             return;
                         }
+                        else if (blockedPosition < 0)
+                        {
+                            positionSituation = CheckCheckCells(movePos + new Vector2(0, 32) * -_playerDirectionVector);
+                            if (positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                            {
+                                return;
+                            }
+                        }
                     }
 
                     movePos = Position + i * new Vector2(0, CellPixels) * _playerDirectionVector;
+                    outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
+
+                    if (!outOfBounds)
+                    {
+                        positionSituation = CheckCheckCells(movePos);
+
+                        if (positionSituation == SeesEnemyKing)
+                        {
+                            return;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                movePos = Position + new Vector2(0, CellPixels) * _playerDirectionVector;
+                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
+
+                if (!outOfBounds)
+                {
                     positionSituation = CheckCheckCells(movePos);
 
                     if (positionSituation == SeesEnemyKing)
@@ -1632,51 +1663,51 @@ public partial class Piece : CharacterBody2D
                         return;
                     }
                 }
-            }
-            else
-            {
-                movePos = Position + new Vector2(0, CellPixels) * _playerDirectionVector;
-                positionSituation = CheckCheckCells(movePos);
-
-                if (positionSituation == SeesEnemyKing)
-                {
-                    return;
-                }
 
                 movePos = Position + new Vector2(CellPixels, CellPixels) * _playerDirectionVector;
-                positionSituation = CheckCheckCells(movePos);
-                moveCheck = CheckBoardCells(movePos);
-                blockedPosition = moveCheck / 10;
+                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                if (!outOfBounds)
                 {
-                    return;
-                }
-                else if (blockedPosition < 0)
-                {
-                    positionSituation = CheckCheckCells(movePos + new Vector2(0, 32) * -_playerDirectionVector);
+                    positionSituation = CheckCheckCells(movePos);
+                    moveCheck = CheckBoardCells(movePos);
+                    blockedPosition = moveCheck / 10;
+
                     if (positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
                     {
                         return;
+                    }
+                    else if (blockedPosition < 0)
+                    {
+                        positionSituation = CheckCheckCells(movePos + new Vector2(0, 32) * -_playerDirectionVector);
+                        if (positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                        {
+                            return;
+                        }
                     }
                 }
 
                 movePos = Position + new Vector2(-CellPixels, CellPixels) * _playerDirectionVector;
-                positionSituation = CheckCheckCells(movePos);
-                moveCheck = CheckBoardCells(movePos);
-                blockedPosition = moveCheck / 10;
+                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                if (!outOfBounds)
                 {
-                    return;
-                }
-                else if (blockedPosition < 0)
-                {
-                    positionSituation = CheckCheckCells(movePos + new Vector2(0, 32) * -_playerDirectionVector);
+                    positionSituation = CheckCheckCells(movePos);
+                    moveCheck = CheckBoardCells(movePos);
+                    blockedPosition = moveCheck / 10;
+
                     if (positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
                     {
                         return;
                     }
+                    else if (blockedPosition < 0)
+                    {
+                        positionSituation = CheckCheckCells(movePos + new Vector2(0, 32) * -_playerDirectionVector);
+                        if (positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                        {
+                            return;
+                        }
+                    }                    
                 }
             }
 
@@ -1687,69 +1718,110 @@ public partial class Piece : CharacterBody2D
         {
             Vector2 movePos;
             int positionSituation;
+            bool outOfBounds;
 
             movePos = Position - new Vector2(CellPixels, 0) + new Vector2(0, -(2 * CellPixels));
-            positionSituation = CheckCheckCells(movePos);
+            outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-            if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+            if (!outOfBounds)
             {
-                return;
+                positionSituation = CheckCheckCells(movePos);
+
+                if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                {
+                    return;
+                }
             }
 
             movePos = Position + new Vector2(CellPixels, 0) + new Vector2(0, -(2 * CellPixels));
-            positionSituation = CheckCheckCells(movePos);
+            outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-            if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+            if (!outOfBounds)
             {
-                return;
+                positionSituation = CheckCheckCells(movePos);
+
+                if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                {
+                    return;
+                }
             }
 
             movePos = Position - new Vector2(0, CellPixels) + new Vector2((2 * CellPixels), 0);
-            positionSituation = CheckCheckCells(movePos);
+            outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-            if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+            if (!outOfBounds)
             {
-                return;
+                positionSituation = CheckCheckCells(movePos);
+
+                if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                {
+                    return;
+                }
             }
 
             movePos = Position + new Vector2(0, CellPixels) + new Vector2((2 * CellPixels), 0);
-            positionSituation = CheckCheckCells(movePos);
+            outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-            if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+            if (!outOfBounds)
             {
-                return;
+                positionSituation = CheckCheckCells(movePos);
+
+                if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                {
+                    return;
+                }
             }
 
             movePos = Position - new Vector2(CellPixels, 0) + new Vector2(0, (2 * CellPixels));
-            positionSituation = CheckCheckCells(movePos);
+            outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-            if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+            if (!outOfBounds)
             {
-                return;
+                positionSituation = CheckCheckCells(movePos);
+
+                if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                {
+                    return;
+                }
             }
 
             movePos = Position + new Vector2(CellPixels, 0) + new Vector2(0, (2 * CellPixels));
-            positionSituation = CheckCheckCells(movePos);
+            outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-            if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+            if (!outOfBounds)
             {
-                return;
+                positionSituation = CheckCheckCells(movePos);
+
+                if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                {
+                    return;
+                }
             }
 
             movePos = Position - new Vector2(0, CellPixels) + new Vector2(-(2 * CellPixels), 0);
-            positionSituation = CheckCheckCells(movePos);
+            outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-            if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+            if (!outOfBounds)
             {
-                return;
+                positionSituation = CheckCheckCells(movePos);
+
+                if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                {
+                    return;
+                }
             }
 
             movePos = Position + new Vector2(0, CellPixels) + new Vector2(-(2 * CellPixels), 0);
-            positionSituation = CheckCheckCells(movePos);
+            outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-            if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+            if (!outOfBounds)
             {
-                return;
+                positionSituation = CheckCheckCells(movePos);
+
+                if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                {
+                    return;
+                }
             }
 
             _checkmate = true;
@@ -1758,13 +1830,6 @@ public partial class Piece : CharacterBody2D
         void KingMateCheck()
         {
             Vector2 movePos;
-            Vector2 oppositePos;
-            int moveCheck;
-            int blockedPosition;
-            int positionSituation;
-            int oppositePositionSituation;
-            bool notOutOfBounds;
-            bool oppositeNotOutOfBounds;
 
             movePos = Position - new Vector2(0, CellPixels);
             if (checkPossibleMovement() == 0)
@@ -1818,6 +1883,14 @@ public partial class Piece : CharacterBody2D
 
             int checkPossibleMovement()
             {
+                Vector2 oppositePos;
+                int moveCheck;
+                int blockedPosition;
+                int positionSituation;
+                int oppositePositionSituation;
+                bool notOutOfBounds;
+                bool oppositeNotOutOfBounds;
+
                 oppositePos = (movePos - Position) * new Vector2(-1, -1) + Position;
                 notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * 8 && movePos.Y < CellPixels * 8;
                 oppositeNotOutOfBounds = oppositePos.X > 0 && oppositePos.Y > 0 && oppositePos.X < CellPixels * 8 && oppositePos.Y < CellPixels * 8;
@@ -1856,74 +1929,95 @@ public partial class Piece : CharacterBody2D
             int moveCheck;
             int blockedPosition;
             int positionSituation;
+            bool outOfBounds;
 
             _checkmate = false;
 
             for (int i = -1; i > -8; i--)
             {
                 movePos = Position + i * new Vector2(0, CellPixels);
-                moveCheck = CheckBoardCells(movePos);
-                blockedPosition = moveCheck / 10;
-                positionSituation = CheckCheckCells(movePos);
+                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                if (!outOfBounds)
                 {
-                    return;
-                }
-                else if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8 || blockedPosition == _player)
-                {
-                    break;
+                    moveCheck = CheckBoardCells(movePos);
+                    blockedPosition = moveCheck / 10;
+                    positionSituation = CheckCheckCells(movePos);
+
+                    if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                    {
+                        return;
+                    }
+                    else if (blockedPosition == _player)
+                    {
+                        break;
+                    }
                 }
             }
 
             for (int i = 1; i < 8; i++)
             {
                 movePos = Position + i * new Vector2(0, CellPixels);
-                moveCheck = CheckBoardCells(movePos);
-                blockedPosition = moveCheck / 10;
-                positionSituation = CheckCheckCells(movePos);
+                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                if (!outOfBounds)
                 {
-                    return;
-                }
-                else if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8 || blockedPosition == _player)
-                {
-                    break;
+                    moveCheck = CheckBoardCells(movePos);
+                    blockedPosition = moveCheck / 10;
+                    positionSituation = CheckCheckCells(movePos);
+
+                    if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                    {
+                        return;
+                    }
+                    else if (blockedPosition == _player)
+                    {
+                        break;
+                    }
                 }
             }
 
             for (int i = -1; i > -8; i--)
             {
                 movePos = Position + i * new Vector2(CellPixels, 0);
-                moveCheck = CheckBoardCells(movePos);
-                blockedPosition = moveCheck / 10;
-                positionSituation = CheckCheckCells(movePos);
+                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                if (!outOfBounds)
                 {
-                    return;
-                }
-                else if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8 || blockedPosition == _player)
-                {
-                    break;
+                    moveCheck = CheckBoardCells(movePos);
+                    blockedPosition = moveCheck / 10;
+                    positionSituation = CheckCheckCells(movePos);
+
+                    if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                    {
+                        return;
+                    }
+                    else if (blockedPosition == _player)
+                    {
+                        break;
+                    }
                 }
             }
 
             for (int i = 1; i < 8; i++)
             {
                 movePos = Position + i * new Vector2(CellPixels, 0);
-                moveCheck = CheckBoardCells(movePos);
-                blockedPosition = moveCheck / 10;
-                positionSituation = CheckCheckCells(movePos);
+                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                if (!outOfBounds)
                 {
-                    return;
-                }
-                else if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8 || blockedPosition == _player)
-                {
-                    break;
+                    moveCheck = CheckBoardCells(movePos);
+                    blockedPosition = moveCheck / 10;
+                    positionSituation = CheckCheckCells(movePos);
+
+                    if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                    {
+                        return;
+                    }
+                    else if (blockedPosition == _player)
+                    {
+                        break;
+                    }
                 }
             }
 
@@ -1936,74 +2030,95 @@ public partial class Piece : CharacterBody2D
             int moveCheck;
             int blockedPosition;
             int positionSituation;
+            bool outOfBounds;
 
             _checkmate = false;
 
             for (int i = -1; i > -8; i--)
             {
                 movePos = Position + i * new Vector2(CellPixels, CellPixels);
-                moveCheck = CheckBoardCells(movePos);
-                blockedPosition = moveCheck / 10;
-                positionSituation = CheckCheckCells(movePos);
+                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                if (!outOfBounds)
                 {
-                    return;
-                }
-                else if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8 || blockedPosition == _player)
-                {
-                    break;
+                    moveCheck = CheckBoardCells(movePos);
+                    blockedPosition = moveCheck / 10;
+                    positionSituation = CheckCheckCells(movePos);
+
+                    if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                    {
+                        return;
+                    }
+                    else if (blockedPosition == _player)
+                    {
+                        break;
+                    }
                 }
             }
 
             for (int i = 1; i < 8; i++)
             {
                 movePos = Position + i * new Vector2(CellPixels, CellPixels);
-                moveCheck = CheckBoardCells(movePos);
-                blockedPosition = moveCheck / 10;
-                positionSituation = CheckCheckCells(movePos);
+                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                if (!outOfBounds)
                 {
-                    return;
-                }
-                else if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8 || blockedPosition == _player)
-                {
-                    break;
+                    moveCheck = CheckBoardCells(movePos);
+                    blockedPosition = moveCheck / 10;
+                    positionSituation = CheckCheckCells(movePos);
+
+                    if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                    {
+                        return;
+                    }
+                    else if (blockedPosition == _player)
+                    {
+                        break;
+                    }
                 }
             }
 
             for (int i = -1; i > -8; i--)
             {
                 movePos = Position + i * new Vector2(CellPixels, -CellPixels);
-                moveCheck = CheckBoardCells(movePos);
-                blockedPosition = moveCheck / 10;
-                positionSituation = CheckCheckCells(movePos);
+                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                if (!outOfBounds)
                 {
-                    return;
-                }
-                else if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8 || blockedPosition == _player)
-                {
-                    break;
+                    moveCheck = CheckBoardCells(movePos);
+                    blockedPosition = moveCheck / 10;
+                    positionSituation = CheckCheckCells(movePos);
+
+                    if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                    {
+                        return;
+                    }
+                    else if (blockedPosition == _player)
+                    {
+                        break;
+                    }
                 }
             }
 
             for (int i = 1; i < 8; i++)
             {
                 movePos = Position + i * new Vector2(CellPixels, -CellPixels);
-                moveCheck = CheckBoardCells(movePos);
-                blockedPosition = moveCheck / 10;
-                positionSituation = CheckCheckCells(movePos);
+                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                if (!outOfBounds)
                 {
-                    return;
-                }
-                else if (movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8 || blockedPosition == _player)
-                {
-                    break;
+                    moveCheck = CheckBoardCells(movePos);
+                    blockedPosition = moveCheck / 10;
+                    positionSituation = CheckCheckCells(movePos);
+
+                    if (positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                    {
+                        return;
+                    }
+                    else if (blockedPosition == _player)
+                    {
+                        break;
+                    }
                 }
             }
 
@@ -2565,15 +2680,24 @@ public partial class Piece : CharacterBody2D
         }
     }
 
-    int CheckBoardCells(Vector2 position)
+    private int CheckBoardCells(Vector2 position)
     {
         Vector2I cell = Board.LocalToMap(position);
         return BoardCells[cell.X, cell.Y];
     }
 
-    int CheckCheckCells(Vector2 position)
+    private int CheckCheckCells(Vector2 position)
     {
         Vector2I cell = Board.LocalToMap(position);
         return BoardCellsCheck[cell.X, cell.Y];
+    }
+
+    public void Delete()
+    {
+        foreach (StringName group in GetGroups())
+        {
+            RemoveFromGroup(group);
+        }
+        QueueFree();
     }
 }

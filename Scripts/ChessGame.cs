@@ -275,6 +275,8 @@ public partial class ChessGame : Node2D
 
     public void Reset()
     {
+        BoardHistory.Clear();
+
         for (int i = 0; i < Piece.BoardCellsCheck.GetLength(0); i++)
         {
             for (int j = 0; j < Piece.BoardCellsCheck.GetLength(1); j++)

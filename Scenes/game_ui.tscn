@@ -116,10 +116,10 @@ offset_right = 768.0
 offset_bottom = 384.0
 script = ExtResource("5_43w66")
 _board = NodePath("HBoxContainer/VBoxContainer/MarginContainer/SubViewportContainer/SubViewport/Board")
-_buttonRight = NodePath("HBoxContainer/Button")
-_buttonLeft = NodePath("HBoxContainer/Button2")
-_return = NodePath("HBoxContainer/VBoxContainer/Button")
-_revert = NodePath("HBoxContainer/VBoxContainer/Button2")
+_buttonRight = NodePath("HBoxContainer/Next")
+_buttonLeft = NodePath("HBoxContainer/Previous")
+_return = NodePath("HBoxContainer/VBoxContainer/Return")
+_revert = NodePath("HBoxContainer/VBoxContainer/Revert")
 _piece = ExtResource("6_k15a6")
 Camera = NodePath("HBoxContainer/VBoxContainer/MarginContainer/SubViewportContainer/SubViewport/Camera2D")
 
@@ -131,7 +131,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Button" type="Button" parent="RevertMenu/HBoxContainer"]
+[node name="Previous" type="Button" parent="RevertMenu/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 0
 text = "<"
@@ -168,17 +168,17 @@ layer_1/tile_data = PackedInt32Array()
 [node name="Camera2D" type="Camera2D" parent="RevertMenu/HBoxContainer/VBoxContainer/MarginContainer/SubViewportContainer/SubViewport"]
 position = Vector2(128, 128)
 
-[node name="Button2" type="Button" parent="RevertMenu/HBoxContainer/VBoxContainer"]
+[node name="Revert" type="Button" parent="RevertMenu/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 4
 text = "Revert"
 
-[node name="Button" type="Button" parent="RevertMenu/HBoxContainer/VBoxContainer"]
+[node name="Return" type="Button" parent="RevertMenu/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 4
 text = "Return"
 
-[node name="Button2" type="Button" parent="RevertMenu/HBoxContainer"]
+[node name="Next" type="Button" parent="RevertMenu/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 8
 text = ">"
