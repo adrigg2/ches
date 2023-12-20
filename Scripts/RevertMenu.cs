@@ -21,6 +21,8 @@ public partial class RevertMenu : Panel
 
 	private int _boardHistoryIndex;
 
+	public int Turn { get; set; }
+
     public override void _Ready()
 	{
 		_buttonRight.Pressed += Right;
@@ -34,6 +36,8 @@ public partial class RevertMenu : Panel
 		_pieceDict.Add(3, "rook");
 		_pieceDict.Add(4, "bishop");
 		_pieceDict.Add(5, "knight");
+
+		Turn = Piece.Turn;
 	}
 
 	public void SetUp()
@@ -102,6 +106,12 @@ public partial class RevertMenu : Panel
 				if (cellSituation > 0)
 				{
 					Piece piece = (Piece)_piece.Instantiate();
+
+					if (Turn == 2)
+					{
+						piece.Scale = new Vector2(-1, -1);
+					}
+
 					piece.SetMeta("Player", cellSituation / 10);
 					piece.SetMeta("Piece_Type", _pieceDict[cellSituation % 10]);
 					_board.AddChild(piece);

@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Runtime.CompilerServices;
 
 namespace Ches;
 public partial class GameUI : Control
@@ -84,6 +85,8 @@ public partial class GameUI : Control
 
     public void ChangeTurn(int turn, int situationCount)
     {
+        _revertMenu.Turn = turn;
+
         if (turn == 2)
         {
             Scale = new Vector2(-1, -1);
