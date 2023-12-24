@@ -20,6 +20,8 @@ public partial class Player : Node2D
     private Timer _timer;
     [Export] private double _timeLeft;
 
+    private bool _check = false;
+
     private Dictionary<int, string> _pieceDict = new();
 
     public override void _Ready()
@@ -59,12 +61,12 @@ public partial class Player : Node2D
             _timeLeft = Main.Settings.Minutes * 60;
             EmitSignal(SignalName.TimersSet, _timer, _playerNum);
             GD.Print("Player timer");
+            if (Piece.Turn == _playerNum)
+            {
+                _timer.Start(_timeLeft);
+            }
         }
 
-        if (Piece.Turn == _playerNum)
-        {
-            _timer.Start(_timeLeft);
-        }
     }
     public Vector2 SetPos(Vector2I tilepos)
     {
@@ -131,46 +133,45 @@ public partial class Player : Node2D
 
     public void CheckUpdate()
     {
-        bool checkUpdated = true;
-        foreach (Node piece in GetChildren())
+        foreach (Node child in GetChildren())
         {
-            if (piece.HasMeta("Piece_Type"))
+            if (child is Piece piece)
             {
-                if ((bool)piece.Get("_checkUpdatedCheck") == false)
+                if (!piece.CheckUpdatedCheck)
                 {
-                    checkUpdated = false;
-                    break;
+                    return;
                 }
             }
         }
-        if (checkUpdated)
-        {
-            EmitSignal(SignalName.CheckFinished);
-        }
+        EmitSignal(SignalName.CheckFinished);
     }
 
     public void PlayerInCheck(bool isInCheck)
     {
+        _check = isInCheck;
         GetTree().CallGroup(_playerGroup, "SetCheck", isInCheck);
     }
 
     public void CheckmateCheck()
     {
-        bool checkmate = true;
-        foreach (Node piece in GetChildren())
+        foreach (Node child in GetChildren())
         {
-            if (piece.HasMeta("Piece_Type"))
+            if (child is Piece piece)
             {
-                if ((bool)piece.Get("_checkmate") == false)
+                if (!piece.Checkmate)
                 {
-                    checkmate = false;
-                    break;
+                    return;
                 }
             }
         }
-        if (checkmate)
+
+        if (_check)
         {
             EmitSignal(SignalName.Checkmate, _playerNum);
+        }
+        else
+        {
+            EmitSignal(SignalName.Checkmate, 0);
         }
     }
 
@@ -251,14 +252,17 @@ public partial class Player : Node2D
 
     public void ChangeTurn(int turn)
     {
-        if (turn == _playerNum)
+        if (Main.Settings.Timer)
         {
-            _timer.Start(_timeLeft);
-        }
-        else
-        {
-            _timeLeft = _timer.TimeLeft + Main.Settings.Seconds;
-            _timer.Stop();
+            if (turn == _playerNum)
+            {
+                _timer.Start(_timeLeft);
+            }
+            else
+            {
+                _timeLeft = _timer.TimeLeft + Main.Settings.Seconds;
+                _timer.Stop();
+            }
         }
     }
 

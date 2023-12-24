@@ -340,6 +340,15 @@ public partial class ChessGame : Node2D
         Piece.BoardCellsCheck = BoardHistory[boardIndex].ZoneOfControl;
         Piece.Turn = BoardHistory[boardIndex].Turn;
 
+        if (Piece.Turn == 1)
+        {
+            _camera.Zoom = new Vector2(1, 1);
+        }
+        else if (Piece.Turn == 2)
+        {
+            _camera.Zoom = new Vector2(-1, -1);
+        }
+
         PlayersSet();
     }
 
