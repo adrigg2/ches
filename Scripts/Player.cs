@@ -158,7 +158,7 @@ public partial class Player : Node2D
         {
             if (child is Piece piece)
             {
-                if (!piece.Checkmate)
+                if (!piece.Unmovable)
                 {
                     return;
                 }
