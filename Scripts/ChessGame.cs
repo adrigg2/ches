@@ -148,6 +148,7 @@ public partial class ChessGame : Node2D
         }
 
         GetTree().CallGroup("pieces", "SetInitialTurn");
+        GetTree().CallGroup("pieces", "CheckMobility");
         GetTree().CallGroup("black_pieces", "UpdateCheck");
 
         int[,] boardToSave = new int[Piece.BoardCells.GetLength(0), Piece.BoardCells.GetLength(1)];
