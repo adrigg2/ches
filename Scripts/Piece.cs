@@ -898,7 +898,6 @@ public partial class Piece : CharacterBody2D
     public void ChangeTurn()
     {
         _checkUpdatedCheck = false;
-        _unmovable = false;
 
         if (_isInCheck && _pieceType == "king")
         {
@@ -1561,6 +1560,8 @@ public partial class Piece : CharacterBody2D
 
     public void CheckCheckmate()
     {
+        _unmovable = false;
+
         if (_pieceType != "king" && _checkCount > 1)
         {
             _unmovable = true;
@@ -1931,6 +1932,8 @@ public partial class Piece : CharacterBody2D
 
                 if (notOutOfBounds && oppositeNotOutOfBounds)
                 {
+                    GD.Print($"{movePos} {oppositePos} not out of bounds movecheck");
+
                     moveCheck = CheckBoardCells(movePos);
                     blockedPosition = moveCheck / 10;
                     positionSituation = CheckCheckCells(movePos);
@@ -1938,6 +1941,7 @@ public partial class Piece : CharacterBody2D
 
                     if ((positionSituation == 0 && oppositePositionSituation == 0 && blockedPosition <= 0) || positionSituation == NotProtectedAndSees || positionSituation == NotProtected)
                     {
+                        GD.Print($"{movePos} {oppositePos} available movecheck");
                         return true;
                     }
                 }
@@ -1947,12 +1951,17 @@ public partial class Piece : CharacterBody2D
                     blockedPosition = moveCheck / 10;
                     positionSituation = CheckCheckCells(movePos);
 
+                    GD.Print($"{oppositePos} out of bounds, {oppositePos} not out of bounds movecheck");
+                    GD.Print($"{movePos} not out of bounds movecheck");
+
                     if ((positionSituation == 0 && blockedPosition <= 0) || positionSituation == NotProtectedAndSees || positionSituation == NotProtected)
                     {
+                        GD.Print($"{movePos} available movecheck");
                         return true;
                     }
                 }
 
+                GD.Print("Both out of bounds movecheck");
                 return false;
             }
         }
@@ -2194,6 +2203,8 @@ public partial class Piece : CharacterBody2D
 
     public void CheckMobility()
     {
+        _unmovable = false;
+
         if (_pieceType != "king" && _checkCount > 1)
         {
             _unmovable = true;
@@ -2522,6 +2533,8 @@ public partial class Piece : CharacterBody2D
 
                 if (notOutOfBounds && oppositeNotOutOfBounds)
                 {
+                    GD.Print($"{movePos} {oppositePos} not out of bounds movecheck");
+
                     moveCheck = CheckBoardCells(movePos);
                     blockedPosition = moveCheck / 10;
                     positionSituation = CheckCheckCells(movePos);
@@ -2529,21 +2542,28 @@ public partial class Piece : CharacterBody2D
 
                     if ((positionSituation == 0 && oppositePositionSituation == 0 && blockedPosition <= 0) || positionSituation == NotProtectedAndSees || positionSituation == NotProtected)
                     {
+                        GD.Print($"{movePos} {oppositePos} available movecheck");
+
                         return true;
                     }
                 }
                 else if (notOutOfBounds)
                 {
+                    GD.Print($"{oppositePos} out of bounds, {oppositePos} not out of bounds movecheck");
+                    GD.Print($"{movePos} not out of bounds movecheck");
+
                     moveCheck = CheckBoardCells(movePos);
                     blockedPosition = moveCheck / 10;
                     positionSituation = CheckCheckCells(movePos);
 
                     if ((positionSituation == 0 && blockedPosition <= 0) || positionSituation == NotProtectedAndSees || positionSituation == NotProtected)
                     {
+                        GD.Print($"{movePos} available movecheck");
                         return true;
                     }
                 }
 
+                GD.Print("Both out of bounds movecheck");
                 return false;
             }
         }
