@@ -1,8 +1,7 @@
 using Godot;
 using System.Collections.Generic;
-using System.Net.NetworkInformation;
 
-namespace Ches;
+namespace Ches.Chess;
 public partial class Player : Node2D
 {
     [Signal]

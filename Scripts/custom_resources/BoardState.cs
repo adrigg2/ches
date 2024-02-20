@@ -1,6 +1,6 @@
 using Godot;
 
-namespace Ches;
+namespace Ches.Chess;
 public partial class BoardState : Resource
 {
     private int[,] _zoneOfControl;

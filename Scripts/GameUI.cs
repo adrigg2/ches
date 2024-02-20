@@ -1,8 +1,6 @@
 using Godot;
-using System;
-using System.Runtime.CompilerServices;
 
-namespace Ches;
+namespace Ches.Chess;
 public partial class GameUI : Control
 {
     [Signal]

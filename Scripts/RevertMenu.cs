@@ -1,7 +1,7 @@
-using Ches;
 using Godot;
 using System.Collections.Generic;
 
+namespace Ches.Chess;
 public partial class RevertMenu : Panel
 {
 	[Signal]

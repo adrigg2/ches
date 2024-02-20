@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Ches;
+namespace Ches.Chess;
 public partial class ChessGame : Node2D
 {
     [Signal]

@@ -1,7 +1,6 @@
-using Ches;
 using Godot;
-using System;
 
+namespace Ches.Chess;
 public partial class GameSetup : Control
 {
     [Signal]
