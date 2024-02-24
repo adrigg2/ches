@@ -49,21 +49,22 @@ public partial class Piece : BasePiece
     const int NotProtectedAndSees = 6;
     const int NotProtected = 7;
     const int KingInCheck = 8;
-    const int Top = 1;
-    const int TopRight = 2;
-    const int Right = 3;
-    const int BottomRight = 4;
-    const int Bottom = 5;
-    const int BottomLeft = 6;
-    const int Left = 7;
-    const int TopLeft = 8;
-    const int Vertical = 1;
-    const int Horizontal = 2;
-    const int MainDiagonal = 3;
-    const int SecondaryDiagonal = 4;
+    const int Top = 0;
+    const int TopRight = 1;
+    const int Right = 2;
+    const int BottomRight = 3;
+    const int Bottom = 4;
+    const int BottomLeft = 5;
+    const int Left = 6;
+    const int TopLeft = 7;
+    readonly int[] NotBlocked = Array.Empty<int>();
+    readonly int[] Vertical = { 0, 4 };
+    readonly int[] Horizontal = { 2, 6 };
+    readonly int[] MainDiagonal = { 1, 5 };
+    readonly int[] SecondaryDiagonal = { 3, 7 };
 
     [Export] private int _seesKing;
-    [Export] private int _lockedDirection;
+    [Export] private int[] _lockedDirection;
     private int _firstMovementBonus = 0;
     private int[] _movementDirections; // 0 -> Up, 1 -> Up-Right, etc. Value indicates max number of cells
     private static int _checkCount;
@@ -216,7 +217,7 @@ public partial class Piece : BasePiece
 
             for (int j = 1; j <= _movementDirections[i]; j++)
             {
-                if (_lockedDirection != 0 && _lockedDirection != MainDiagonal)
+                if (_lockedDirection != NotBlocked && _lockedDirection != MainDiagonal)
                 {
                     break;
                 }
@@ -354,7 +355,7 @@ public partial class Piece : BasePiece
         if (player != Turn)
         {
             _seesKing = 0;
-            _lockedDirection = 0;
+            _lockedDirection = NotBlocked;
             UpdateCheck();
         }
         else
@@ -1051,7 +1052,7 @@ public partial class Piece : BasePiece
                     movePos = Position + new Vector2(CellPixels, CellPixels) * _playerDirectionVector;
                     outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                    if (!outOfBounds && (_lockedDirection == 0 || _lockedDirection == MainDiagonal))
+                    if (!outOfBounds && (_lockedDirection == NotBlocked || _lockedDirection == MainDiagonal))
                     {
                         positionSituation = CheckCheckCells(movePos);
                         moveCheck = CheckBoardCells(movePos);
@@ -1074,7 +1075,7 @@ public partial class Piece : BasePiece
                     movePos = Position + new Vector2(-CellPixels, CellPixels) * _playerDirectionVector;
                     outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                    if (!outOfBounds && (_lockedDirection == 0 || _lockedDirection == SecondaryDiagonal))
+                    if (!outOfBounds && (_lockedDirection == NotBlocked || _lockedDirection == SecondaryDiagonal))
                     {
                         positionSituation = CheckCheckCells(movePos);
                         moveCheck = CheckBoardCells(movePos);
@@ -1126,7 +1127,7 @@ public partial class Piece : BasePiece
                 movePos = Position + new Vector2(CellPixels, CellPixels) * _playerDirectionVector;
                 outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (!outOfBounds && (_lockedDirection == 0 || _lockedDirection == MainDiagonal))
+                if (!outOfBounds && (_lockedDirection == NotBlocked || _lockedDirection == MainDiagonal))
                 {
                     positionSituation = CheckCheckCells(movePos);
                     moveCheck = CheckBoardCells(movePos);
@@ -1149,7 +1150,7 @@ public partial class Piece : BasePiece
                 movePos = Position + new Vector2(-CellPixels, CellPixels) * _playerDirectionVector;
                 outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (!outOfBounds && (_lockedDirection == 0 || _lockedDirection == SecondaryDiagonal))
+                if (!outOfBounds && (_lockedDirection == NotBlocked || _lockedDirection == SecondaryDiagonal))
                 {
                     positionSituation = CheckCheckCells(movePos);
                     moveCheck = CheckBoardCells(movePos);
@@ -1179,7 +1180,7 @@ public partial class Piece : BasePiece
             int positionSituation;
             bool outOfBounds;
 
-            if (_lockedDirection != 0)
+            if (_lockedDirection != NotBlocked)
             {
                 _unmovable = true;
                 return;
@@ -1412,7 +1413,7 @@ public partial class Piece : BasePiece
                 movePos = Position + i * new Vector2(0, CellPixels);
                 outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (!outOfBounds && (_lockedDirection == Vertical || _lockedDirection == 0))
+                if (!outOfBounds && (_lockedDirection == Vertical || _lockedDirection == NotBlocked))
                 {
                     moveCheck = CheckBoardCells(movePos);
                     blockedPosition = moveCheck / 10;
@@ -1438,7 +1439,7 @@ public partial class Piece : BasePiece
                 movePos = Position + i * new Vector2(0, CellPixels);
                 outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (!outOfBounds && (_lockedDirection == Vertical || _lockedDirection == 0))
+                if (!outOfBounds && (_lockedDirection == Vertical || _lockedDirection == NotBlocked))
                 {
                     moveCheck = CheckBoardCells(movePos);
                     blockedPosition = moveCheck / 10;
@@ -1464,7 +1465,7 @@ public partial class Piece : BasePiece
                 movePos = Position + i * new Vector2(CellPixels, 0);
                 outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (!outOfBounds && (_lockedDirection == Horizontal || _lockedDirection == 0))
+                if (!outOfBounds && (_lockedDirection == Horizontal || _lockedDirection == NotBlocked))
                 {
                     moveCheck = CheckBoardCells(movePos);
                     blockedPosition = moveCheck / 10;
@@ -1490,7 +1491,7 @@ public partial class Piece : BasePiece
                 movePos = Position + i * new Vector2(CellPixels, 0);
                 outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (!outOfBounds && (_lockedDirection == Horizontal || _lockedDirection == 0))
+                if (!outOfBounds && (_lockedDirection == Horizontal || _lockedDirection == NotBlocked))
                 {
                     moveCheck = CheckBoardCells(movePos);
                     blockedPosition = moveCheck / 10;
@@ -1529,7 +1530,7 @@ public partial class Piece : BasePiece
                 movePos = Position + i * new Vector2(CellPixels, CellPixels);
                 outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (!outOfBounds && (_lockedDirection == MainDiagonal || _lockedDirection == 0))
+                if (!outOfBounds && (_lockedDirection == MainDiagonal || _lockedDirection == NotBlocked))
                 {
                     moveCheck = CheckBoardCells(movePos);
                     blockedPosition = moveCheck / 10;
@@ -1555,7 +1556,7 @@ public partial class Piece : BasePiece
                 movePos = Position + i * new Vector2(CellPixels, CellPixels);
                 outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (!outOfBounds && (_lockedDirection == MainDiagonal || _lockedDirection == 0))
+                if (!outOfBounds && (_lockedDirection == MainDiagonal || _lockedDirection == NotBlocked))
                 {
                     moveCheck = CheckBoardCells(movePos);
                     blockedPosition = moveCheck / 10;
@@ -1581,7 +1582,7 @@ public partial class Piece : BasePiece
                 movePos = Position + i * new Vector2(CellPixels, -CellPixels);
                 outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (!outOfBounds && (_lockedDirection == SecondaryDiagonal || _lockedDirection == 0))
+                if (!outOfBounds && (_lockedDirection == SecondaryDiagonal || _lockedDirection == NotBlocked))
                 {
                     moveCheck = CheckBoardCells(movePos);
                     blockedPosition = moveCheck / 10;
@@ -1607,7 +1608,7 @@ public partial class Piece : BasePiece
                 movePos = Position + i * new Vector2(CellPixels, -CellPixels);
                 outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (!outOfBounds && (_lockedDirection == SecondaryDiagonal || _lockedDirection == 0))
+                if (!outOfBounds && (_lockedDirection == SecondaryDiagonal || _lockedDirection == NotBlocked))
                 {
                     moveCheck = CheckBoardCells(movePos);
                     blockedPosition = moveCheck / 10;
@@ -1692,7 +1693,7 @@ public partial class Piece : BasePiece
                     movePos = Position + new Vector2(CellPixels, CellPixels) * _playerDirectionVector;
                     outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                    if (!outOfBounds && (_lockedDirection == 0 || _lockedDirection == MainDiagonal))
+                    if (!outOfBounds && (_lockedDirection == NotBlocked || _lockedDirection == MainDiagonal))
                     {
                         blockedPosition = CheckBoardCells(movePos) / 10;
 
@@ -1705,7 +1706,7 @@ public partial class Piece : BasePiece
                     movePos = Position + new Vector2(-CellPixels, CellPixels) * _playerDirectionVector;
                     outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                    if (!outOfBounds && (_lockedDirection == 0 || _lockedDirection == SecondaryDiagonal))
+                    if (!outOfBounds && (_lockedDirection == NotBlocked || _lockedDirection == SecondaryDiagonal))
                     {
                         blockedPosition = CheckBoardCells(movePos) / 10;
 
@@ -1718,7 +1719,7 @@ public partial class Piece : BasePiece
                     movePos = Position + i * new Vector2(0, CellPixels) * _playerDirectionVector;
                     outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                    if (!outOfBounds && (_lockedDirection == 0 || _lockedDirection == Vertical))
+                    if (!outOfBounds && (_lockedDirection == NotBlocked || _lockedDirection == Vertical))
                     {
                         blockedPosition = CheckBoardCells(movePos) / 10;
 
@@ -1734,7 +1735,7 @@ public partial class Piece : BasePiece
                 movePos = Position + new Vector2(0, CellPixels) * _playerDirectionVector;
                 outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (!outOfBounds && (_lockedDirection == 0 || _lockedDirection == Vertical))
+                if (!outOfBounds && (_lockedDirection == NotBlocked || _lockedDirection == Vertical))
                 {
                     blockedPosition = CheckBoardCells(movePos) / 10;
 
@@ -1747,7 +1748,7 @@ public partial class Piece : BasePiece
                 movePos = Position + new Vector2(CellPixels, CellPixels) * _playerDirectionVector;
                 outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (!outOfBounds && (_lockedDirection == 0 || _lockedDirection == MainDiagonal))
+                if (!outOfBounds && (_lockedDirection == NotBlocked || _lockedDirection == MainDiagonal))
                 {
                     blockedPosition = CheckBoardCells(movePos) / 10;
 
@@ -1760,7 +1761,7 @@ public partial class Piece : BasePiece
                 movePos = Position + new Vector2(-CellPixels, CellPixels) * _playerDirectionVector;
                 outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (!outOfBounds && (_lockedDirection == 0 || _lockedDirection == SecondaryDiagonal))
+                if (!outOfBounds && (_lockedDirection == NotBlocked || _lockedDirection == SecondaryDiagonal))
                 {
                     blockedPosition = CheckBoardCells(movePos) / 10;
 
@@ -1780,7 +1781,7 @@ public partial class Piece : BasePiece
             int blockedPosition;
             bool outOfBounds;
 
-            if (_lockedDirection != 0)
+            if (_lockedDirection != NotBlocked)
             {
                 _unmovable = true;
                 return;
@@ -2012,7 +2013,7 @@ public partial class Piece : BasePiece
                 movePos = Position + i * new Vector2(0, CellPixels);
                 outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (!outOfBounds && (_lockedDirection == Vertical || _lockedDirection == 0))
+                if (!outOfBounds && (_lockedDirection == Vertical || _lockedDirection == NotBlocked))
                 {
                     blockedPosition = CheckBoardCells(movePos) / 10;
 
@@ -2036,7 +2037,7 @@ public partial class Piece : BasePiece
                 movePos = Position + i * new Vector2(0, CellPixels);
                 outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (!outOfBounds && (_lockedDirection == Vertical || _lockedDirection == 0))
+                if (!outOfBounds && (_lockedDirection == Vertical || _lockedDirection == NotBlocked))
                 {
                     blockedPosition = CheckBoardCells(movePos) / 10;
 
@@ -2060,7 +2061,7 @@ public partial class Piece : BasePiece
                 movePos = Position + i * new Vector2(CellPixels, 0);
                 outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (!outOfBounds && (_lockedDirection == Horizontal || _lockedDirection == 0))
+                if (!outOfBounds && (_lockedDirection == Horizontal || _lockedDirection == NotBlocked))
                 {
                     blockedPosition = CheckBoardCells(movePos) / 10;
 
@@ -2084,7 +2085,7 @@ public partial class Piece : BasePiece
                 movePos = Position + i * new Vector2(CellPixels, 0);
                 outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (!outOfBounds && (_lockedDirection == Horizontal || _lockedDirection == 0))
+                if (!outOfBounds && (_lockedDirection == Horizontal || _lockedDirection == NotBlocked))
                 {
                     blockedPosition = CheckBoardCells(movePos) / 10;
 
@@ -2119,7 +2120,7 @@ public partial class Piece : BasePiece
                 movePos = Position + i * new Vector2(CellPixels, CellPixels);
                 outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (!outOfBounds && (_lockedDirection == MainDiagonal || _lockedDirection == 0))
+                if (!outOfBounds && (_lockedDirection == MainDiagonal || _lockedDirection == NotBlocked))
                 {
                     blockedPosition = CheckBoardCells(movePos) / 10;
 
@@ -2143,7 +2144,7 @@ public partial class Piece : BasePiece
                 movePos = Position + i * new Vector2(CellPixels, CellPixels);
                 outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (!outOfBounds && (_lockedDirection == MainDiagonal || _lockedDirection == 0))
+                if (!outOfBounds && (_lockedDirection == MainDiagonal || _lockedDirection == NotBlocked))
                 {
                     blockedPosition = CheckBoardCells(movePos) / 10;
 
@@ -2167,7 +2168,7 @@ public partial class Piece : BasePiece
                 movePos = Position + i * new Vector2(CellPixels, -CellPixels);
                 outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (!outOfBounds && (_lockedDirection == SecondaryDiagonal || _lockedDirection == 0))
+                if (!outOfBounds && (_lockedDirection == SecondaryDiagonal || _lockedDirection == NotBlocked))
                 {
                     blockedPosition = CheckBoardCells(movePos) / 10;
 
@@ -2191,7 +2192,7 @@ public partial class Piece : BasePiece
                 movePos = Position + i * new Vector2(CellPixels, -CellPixels);
                 outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-                if (!outOfBounds && (_lockedDirection == SecondaryDiagonal || _lockedDirection == 0))
+                if (!outOfBounds && (_lockedDirection == SecondaryDiagonal || _lockedDirection == NotBlocked))
                 {
                     blockedPosition = CheckBoardCells(movePos) / 10;
 
