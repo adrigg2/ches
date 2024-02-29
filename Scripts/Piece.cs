@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Linq;
 
 namespace Ches.Chess;
 public partial class Piece : BasePiece
@@ -67,6 +68,7 @@ public partial class Piece : BasePiece
     [Export] private int[] _lockedDirection;
     private int _firstMovementBonus = 0;
     private int[] _movementDirections; // 0 -> Up, 1 -> Up-Right, etc. Value indicates max number of cells
+    private int[] _captureDirections;
     private static int _checkCount;
 
     public static int Turn { get; set; } = 1;
@@ -88,6 +90,7 @@ public partial class Piece : BasePiece
     [Export] private bool _firstMovement = true;
     [Export] private static bool _isInCheck = false;
     private bool _enPassant = false;
+    private bool _knightMovement = false;
     public bool Unmovable { get => _unmovable; }
     public bool CheckUpdatedCheck { get => _checkUpdatedCheck; }
 
@@ -119,10 +122,12 @@ public partial class Piece : BasePiece
             if (player == 1)
             {
                 _movementDirections = new int[] { 0, 0, 0, 0, 1, 0, 0, 0 };
+                _captureDirections = new int[] { 0, 0, 0, 1, 0, 1, 0, 0 };
             }
             else
             {
                 _movementDirections = new int[] { 1, 0, 0, 0, 0, 0, 0, 0 };
+                _captureDirections = new int[] { 0, 1, 0, 0, 0, 0, 0, 1 };
             }
             _firstMovementBonus = 1;
         }
@@ -130,26 +135,32 @@ public partial class Piece : BasePiece
         {
             id = player * 10 + 1;
             _movementDirections = new int[] { 1, 1, 1, 1, 1, 1, 1, 1 };
+            _captureDirections = new int[] { 1, 1, 1, 1, 1, 1, 1, 1 };
         }
         else if (_pieceType == "queen")
         {
             id = player * 10 + 2;
             _movementDirections = new int[] { 8, 8, 8, 8, 8, 8, 8, 8 };
+            _captureDirections = new int[] { 8, 8, 8, 8, 8, 8, 8, 8 };
         }
         else if (_pieceType == "rook")
         {
             id = player * 10 + 3;
             _movementDirections = new int[] { 8, 0, 8, 0, 8, 0, 8, 0 };
+            _captureDirections = new int[] { 8, 0, 8, 0, 8, 0, 8, 0 };
         }
         else if (_pieceType == "bishop")
         {
             id = player * 10 + 4;
             _movementDirections = new int[] { 0, 8, 0, 8, 0, 8, 0, 8 };
+            _captureDirections = new int[] { 0, 8, 0, 8, 0, 8, 0, 8 };
         }
         else if (_pieceType == "knight")
         {
             id = player * 10 + 5;
             _movementDirections = new int[] { 0, 0, 0, 0, 0, 0, 0, 0 };
+            _captureDirections = new int[] { 0, 0, 0, 0, 0, 0, 0, 0 };
+            _knightMovement = true;
         }
 
         if (player == 2)
@@ -182,10 +193,10 @@ public partial class Piece : BasePiece
 
     protected override void Movement()
     {
-        if (Turn != player || _unmovable)
-        {
-            return;
-        }
+        //if (Turn != player || _unmovable)
+        //{
+        //    return;
+        //}
 
         EmitSignal(SignalName.PieceSelected);
 
@@ -205,19 +216,14 @@ public partial class Piece : BasePiece
 
         for (int i = 0; i < directions.Length; i++)
         {
-            if (_movementDirections[i] == 0)
-            {
-                continue;
-            }
-
-            if (_firstMovement)
+            if (_firstMovement && _movementDirections[i] > 0)
             {
                 _movementDirections[i] += _firstMovementBonus;
             }
 
-            for (int j = 1; j <= _movementDirections[i]; j++)
+            for (int j = 1; j <= _movementDirections[i] || j <= _captureDirections[i]; j++)
             {
-                if (_lockedDirection != NotBlocked && _lockedDirection != MainDiagonal)
+                if (!_lockedDirection.IsEmpty() && !_lockedDirection.Contains(i))
                 {
                     break;
                 }
@@ -244,7 +250,7 @@ public partial class Piece : BasePiece
                         GD.Print("Position blocked by friendly piece");
                         break;
                     }
-                    else if ((!_isInCheck && blockedPos > 0) || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)
+                    else if (((!_isInCheck && blockedPos > 0) || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees) && j <= _captureDirections[i])
                     {
                         GD.Print("Capture is posible");
                         CharacterBody2D capture = (CharacterBody2D)_capture.Instantiate();
@@ -252,7 +258,7 @@ public partial class Piece : BasePiece
                         capture.Position = movePos;
                         break;
                     }
-                    else if (!_isInCheck || positionSituation == SeesEnemyKing)
+                    else if ((!_isInCheck || positionSituation == SeesEnemyKing) && j <= _movementDirections[i])
                     {
                         GD.Print("Movement is posible");
                         CharacterBody2D movement = (CharacterBody2D)_movement.Instantiate();
@@ -266,6 +272,49 @@ public partial class Piece : BasePiece
             {
                 _movementDirections[i] -= _firstMovementBonus;
             }
+        }
+
+        if (_knightMovement)
+        {
+            directions = new Vector2I[]
+            {
+            new Vector2I(-1, -2),
+            new Vector2I(1, -2),
+            new Vector2I(2, -1),
+            new Vector2I(2, 1),
+            new Vector2I(1, 2),
+            new Vector2I(1, 2),
+            new Vector2I(-2, -1),
+            new Vector2I(-2, 1)
+            };
+
+            foreach (Vector2I direction in directions)
+            {
+                Vector2 movePos = Position + new Vector2(CellPixels * direction[0], CellPixels * direction[1]);
+                bool notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * 8 && movePos.Y < CellPixels * 8;
+                if (notOutOfBounds)
+                {
+                    int moveCheck = CheckBoardCells(movePos);
+                    int blockedPosition = moveCheck / 10;
+                    int positionSituation = CheckCheckCells(movePos);
+                    bool canTakePiece = positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees;
+
+                    if (blockedPosition <= 0 && (!_isInCheck || positionSituation == SeesEnemyKing))
+                    {
+                        GD.Print("Movement is posible");
+                        CharacterBody2D movement = (CharacterBody2D)_movement.Instantiate();
+                        AddChild(movement);
+                        movement.Position = movePos;
+                    }
+                    else if (blockedPosition > 0 && blockedPosition != player && (!_isInCheck || canTakePiece))
+                    {
+                        GD.Print("Capture is posible");
+                        CharacterBody2D capture = (CharacterBody2D)_capture.Instantiate();
+                        AddChild(capture);
+                        capture.Position = movePos;
+                    }
+                }
+            } 
         }
     }
 
