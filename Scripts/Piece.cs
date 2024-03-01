@@ -1,5 +1,6 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Ches.Chess;
@@ -193,10 +194,10 @@ public partial class Piece : BasePiece
 
     protected override void Movement()
     {
-        //if (Turn != player || _unmovable)
-        //{
-        //    return;
-        //}
+        if (Turn != player || _unmovable)
+        {
+            return;
+        }
 
         EmitSignal(SignalName.PieceSelected);
 
@@ -295,18 +296,18 @@ public partial class Piece : BasePiece
                 if (notOutOfBounds)
                 {
                     int moveCheck = CheckBoardCells(movePos);
-                    int blockedPosition = moveCheck / 10;
+                    int blockedPos = moveCheck / 10;
                     int positionSituation = CheckCheckCells(movePos);
                     bool canTakePiece = positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees;
 
-                    if (blockedPosition <= 0 && (!_isInCheck || positionSituation == SeesEnemyKing))
+                    if (blockedPos <= 0 && (!_isInCheck || positionSituation == SeesEnemyKing))
                     {
                         GD.Print("Movement is posible");
                         CharacterBody2D movement = (CharacterBody2D)_movement.Instantiate();
                         AddChild(movement);
                         movement.Position = movePos;
                     }
-                    else if (blockedPosition > 0 && blockedPosition != player && (!_isInCheck || canTakePiece))
+                    else if (blockedPos > 0 && blockedPos != player && (!_isInCheck || canTakePiece))
                     {
                         GD.Print("Capture is posible");
                         CharacterBody2D capture = (CharacterBody2D)_capture.Instantiate();
@@ -436,580 +437,112 @@ public partial class Piece : BasePiece
 
     public void UpdateCheck()
     {
-        Vector2[] checkPosArray = new Vector2[8];
-        if (_pieceType == "pawn")
+        Vector2I[] directions =
         {
-            GD.Print(player, " ", _pieceType, " is check");
-            PawnCheck();
-        }
-        else if (_pieceType == "knight")
+            new Vector2I(0, 1),
+            new Vector2I(1, 1),
+            new Vector2I(1, 0),
+            new Vector2I(1, -1),
+            new Vector2I(0, -1),
+            new Vector2I(-1, -1),
+            new Vector2I(-1, 0),
+            new Vector2I(-1, 1)
+        };
+
+        for (int i = 0; i < directions.Length; i++)
         {
-            GD.Print(player, " ", _pieceType, " is check");
-            KnightCheck();
-        }
-        else if (_pieceType == "king")
-        {
-            GD.Print(player, " ", _pieceType, " is check");
-            KingCheck();
-        }
-        else
-        {
-            if (_pieceType == "queen" || _pieceType == "rook")
+            List<Vector2> controlledPositions = new List<Vector2>();
+            int situation = Path;
+            for (int j = 1; j <= _captureDirections[i]; j++)
             {
-                GD.Print(player, " ", _pieceType, " is check");
-                StraightCheck();
-            }
+                Vector2 movePos = Position + j * new Vector2(CellPixels, CellPixels) * directions[i];
 
-            if (_pieceType == "queen" || _pieceType == "bishop")
-            {
-                GD.Print(player, " ", _pieceType, " is check");
-                DiagonalCheck();
-            }
-        }
+                bool outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-        void PawnCheck()
-        {
-            Vector2 movePos;
-            int moveCheck;
-            int blockedPosition;
-            int checkId;
-            bool notOutOfBounds;
-
-            movePos = Position + new Vector2(CellPixels, CellPixels) * _playerDirectionVector;
-            notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * 8 && movePos.Y < CellPixels * 8;
-
-            if (notOutOfBounds)
-            {
-                moveCheck = CheckBoardCells(movePos);
-                blockedPosition = moveCheck / 10;
-                checkId = moveCheck % 10;
-
-                if (blockedPosition != player && checkId == 1)
+                if (outOfBounds)
                 {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SeesEnemyKing);
+                    break;
                 }
-                else if (blockedPosition == player)
+
+                int moveCheck = CheckBoardCells(movePos);
+                int blockedPos = moveCheck / 10;
+                int checkId = moveCheck % 10;
+
+                if (blockedPos == player)
                 {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SeesFriendlyPiece);
+                    controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
+                    situation = SeesFriendlyPiece;
+                    break;
+                }
+                else if (blockedPos != player && checkId == 1)
+                {
+                    controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
+                    situation = SeesEnemyKing;
+                    break;
+                }
+                else if (blockedPos != player && blockedPos != 0 && checkId != 1)
+                {
+                    controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
+                    break;
                 }
                 else
                 {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, Path);
+                    controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
                 }
             }
 
-            movePos = Position + new Vector2(-CellPixels, CellPixels) * _playerDirectionVector;
-            notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * 8 && movePos.Y < CellPixels * 8;
-
-            if (notOutOfBounds)
-            {
-                moveCheck = CheckBoardCells(movePos);
-                blockedPosition = moveCheck / 10;
-                checkId = moveCheck % 10;
-
-                if (blockedPosition != player && checkId == 1)
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SeesEnemyKing);
-                }
-                else if (blockedPosition == player)
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, SeesFriendlyPiece);
-                }
-                else
-                {
-                    checkPosArray[1] = movePos;
-                    CaptureCheck(checkPosArray, Position, 1, Path);
-                }
-            }
+            UpdateCheckCells(situation, controlledPositions);
         }
 
-        void KnightCheck()
+        if (_knightMovement)
         {
-            Vector2 movePos;
-
-            movePos = Position - new Vector2(CellPixels, 0) + new Vector2(0, -(2 * CellPixels));
-            MovePossibilityCheck();
-
-            movePos = Position + new Vector2(CellPixels, 0) + new Vector2(0, -(2 * CellPixels));
-            MovePossibilityCheck();
-
-            movePos = Position - new Vector2(0, CellPixels) + new Vector2((2 * CellPixels), 0);
-            MovePossibilityCheck();
-
-            movePos = Position + new Vector2(0, CellPixels) + new Vector2((2 * CellPixels), 0);
-            MovePossibilityCheck();
-
-            movePos = Position - new Vector2(CellPixels, 0) + new Vector2(0, (2 * CellPixels));
-            MovePossibilityCheck();
-
-            movePos = Position + new Vector2(CellPixels, 0) + new Vector2(0, (2 * CellPixels));
-            MovePossibilityCheck();
-
-            movePos = Position - new Vector2(0, CellPixels) + new Vector2(-(2 * CellPixels), 0);
-            MovePossibilityCheck();
-
-            movePos = Position + new Vector2(0, CellPixels) + new Vector2(-(2 * CellPixels), 0);
-            MovePossibilityCheck();
-
-            void MovePossibilityCheck()
+            directions = new Vector2I[]
             {
+            new Vector2I(-1, -2),
+            new Vector2I(1, -2),
+            new Vector2I(2, -1),
+            new Vector2I(2, 1),
+            new Vector2I(1, 2),
+            new Vector2I(1, 2),
+            new Vector2I(-2, -1),
+            new Vector2I(-2, 1)
+            };
+
+            foreach (Vector2I direction in directions)
+            {
+                Vector2 movePos = Position + new Vector2(CellPixels * direction[0], CellPixels * direction[1]);
                 bool notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * 8 && movePos.Y < CellPixels * 8;
 
+                List<Vector2> controlledPositions = new List<Vector2>();
+                int situation = Path;
                 if (notOutOfBounds)
                 {
                     int moveCheck = CheckBoardCells(movePos);
-                    int blockedPosition = moveCheck / 10;
+                    int blockedPos = moveCheck / 10;
                     int checkId = moveCheck % 10;
 
-                    if (blockedPosition != player && checkId == 1)
+                    if (blockedPos == player)
                     {
-                        checkPosArray[1] = movePos;
-                        CaptureCheck(checkPosArray, Position, 1, SeesEnemyKing);
+                        controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
+                        situation = SeesFriendlyPiece;
+                        break;
                     }
-                    else if (blockedPosition == player)
+                    else if (blockedPos != player && checkId == 1)
                     {
-                        checkPosArray[1] = movePos;
-                        CaptureCheck(checkPosArray, Position, 1, SeesFriendlyPiece);
+                        controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
+                        situation = SeesEnemyKing;
+                        break;
                     }
-                    else
+                    else if (blockedPos != player && blockedPos != 0 && checkId != 1)
                     {
-                        checkPosArray[1] = movePos;
-                        CaptureCheck(checkPosArray, Position, 1, Path);
+                        controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
+                        break;
                     }
                 }
+
+                UpdateCheckCells(situation, controlledPositions);
             }
         }
-
-        void KingCheck()
-        {
-            Vector2 movePos;
-
-            movePos = Position - new Vector2(0, CellPixels);
-            MovePossibilityCheck();
-
-            movePos = Position + new Vector2(0, CellPixels);
-            MovePossibilityCheck();
-
-            movePos = Position - new Vector2(CellPixels, 0);
-            MovePossibilityCheck();
-
-            movePos = Position + new Vector2(CellPixels, 0);
-            MovePossibilityCheck();
-
-            movePos = Position - new Vector2(CellPixels, CellPixels);
-            MovePossibilityCheck();
-
-            movePos = Position + new Vector2(CellPixels, CellPixels);
-            MovePossibilityCheck();
-
-            movePos = Position - new Vector2(CellPixels, -CellPixels);
-            MovePossibilityCheck();
-
-            movePos = Position + new Vector2(CellPixels, -CellPixels);
-            MovePossibilityCheck();
-
-            void MovePossibilityCheck()
-            {
-                bool notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * 8 && movePos.Y < CellPixels * 8;
-
-                if (notOutOfBounds)
-                {
-                    int moveCheck = CheckBoardCells(movePos);
-                    int blockedPosition = moveCheck / 10;
-
-                    if (blockedPosition == player)
-                    {
-                        checkPosArray[1] = movePos;
-                        CaptureCheck(checkPosArray, Position, 1, SeesFriendlyPiece);
-                    }
-                    else
-                    {
-                        checkPosArray[1] = movePos;
-                        CaptureCheck(checkPosArray, Position, 1, Path);
-                    }
-                }
-            }
-        }
-
-        void StraightCheck()
-        {
-            Vector2 movePos;
-            int moveCheck;
-            int blockedPosition;
-            int checkId;
-            bool outOfBounds;
-
-            for (int i = -1; i > -8; i--)
-            {
-                movePos = Position + i * new Vector2(0, CellPixels);
-                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
-
-                if (outOfBounds)
-                {
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, Path);
-                    break;
-                }
-
-                moveCheck = CheckBoardCells(movePos);
-                blockedPosition = moveCheck / 10;
-                checkId = moveCheck % 10;
-
-                if (blockedPosition > 0 && blockedPosition != player && checkId != 1)
-                {
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, Path);
-                    break;
-                }
-                else if (blockedPosition != 0 && blockedPosition != player && checkId == 1)
-                {
-                    checkPosArray[Math.Abs(i)] = movePos;
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesEnemyKing);
-                    break;
-                }
-                else if (blockedPosition == player)
-                {
-                    checkPosArray[Math.Abs(i)] = movePos;
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesFriendlyPiece);
-                    break;
-                }
-                else
-                {
-                    checkPosArray[Math.Abs(i)] = movePos;
-                }
-            }
-
-            for (int i = 1; i < 8; i++)
-            {
-                movePos = Position + i * new Vector2(0, CellPixels);
-                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
-
-                if (outOfBounds)
-                {
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, Path);
-                    break;
-                }
-
-                moveCheck = CheckBoardCells(movePos);
-                blockedPosition = moveCheck / 10;
-                checkId = moveCheck % 10;
-
-                if (blockedPosition > 0 && blockedPosition != player && checkId != 1)
-                {
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, Path);
-                    break;
-                }
-                else if (blockedPosition != 0 && blockedPosition != player && checkId == 1)
-                {
-                    checkPosArray[Math.Abs(i)] = movePos;
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesEnemyKing);
-                    break;
-                }
-                else if (blockedPosition == player)
-                {
-                    checkPosArray[Math.Abs(i)] = movePos;
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesFriendlyPiece);
-                    break;
-                }
-                else
-                {
-                    checkPosArray[Math.Abs(i)] = movePos;
-                }
-            }
-
-            for (int i = -1; i > -8; i--)
-            {
-                movePos = Position + i * new Vector2(CellPixels, 0);
-                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
-
-                if (outOfBounds)
-                {
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, Path);
-                    break;
-                }
-
-                moveCheck = CheckBoardCells(movePos);
-                blockedPosition = moveCheck / 10;
-                checkId = moveCheck % 10;
-
-                if (blockedPosition > 0 && blockedPosition != player && checkId != 1)
-                {
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, Path);
-                    break;
-                }
-                else if (blockedPosition != 0 && blockedPosition != player && checkId == 1)
-                {
-                    checkPosArray[Math.Abs(i)] = movePos;
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesEnemyKing);
-                    break;
-                }
-                else if (blockedPosition == player)
-                {
-                    checkPosArray[Math.Abs(i)] = movePos;
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesFriendlyPiece);
-                    break;
-                }
-                else
-                {
-                    checkPosArray[Math.Abs(i)] = movePos;
-                }
-            }
-
-            for (int i = 1; i < 8; i++)
-            {
-                movePos = Position + i * new Vector2(CellPixels, 0);
-                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
-
-                if (outOfBounds)
-                {
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, Path);
-                    break;
-                }
-
-                moveCheck = CheckBoardCells(movePos);
-                blockedPosition = moveCheck / 10;
-                checkId = moveCheck % 10;
-
-                if (blockedPosition > 0 && blockedPosition != player && checkId != 1)
-                {
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, Path);
-                    break;
-                }
-                else if (blockedPosition != 0 && blockedPosition != player && checkId == 1)
-                {
-                    checkPosArray[Math.Abs(i)] = movePos;
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesEnemyKing);
-                    break;
-                }
-                else if (blockedPosition == player)
-                {
-                    checkPosArray[Math.Abs(i)] = movePos;
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesFriendlyPiece);
-                    break;
-                }
-                else
-                {
-                    checkPosArray[Math.Abs(i)] = movePos;
-                }
-            }
-        }
-
-        void DiagonalCheck()
-        {
-            Vector2 movePos;
-            int moveCheck;
-            int blockedPosition;
-            int checkId;
-            bool outOfBounds;
-
-            for (int i = -1; i > -8; i--)
-            {
-                movePos = Position + i * new Vector2(CellPixels, CellPixels);
-                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
-
-                if (outOfBounds)
-                {
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, Path);
-                    break;
-                }
-
-                moveCheck = CheckBoardCells(movePos);
-                blockedPosition = moveCheck / 10;
-                checkId = moveCheck % 10;
-
-                if (blockedPosition > 0 && blockedPosition != player && checkId != 1)
-                {
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, Path);
-                    break;
-                }
-                else if (blockedPosition != 0 && blockedPosition != player && checkId == 1)
-                {
-                    checkPosArray[Math.Abs(i)] = movePos;
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesEnemyKing);
-                    break;
-                }
-                else if (blockedPosition == player)
-                {
-                    checkPosArray[Math.Abs(i)] = movePos;
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesFriendlyPiece);
-                    break;
-                }
-                else
-                {
-                    checkPosArray[Math.Abs(i)] = movePos;
-                }
-            }
-
-            for (int i = 1; i < 8; i++)
-            {
-                movePos = Position + i * new Vector2(CellPixels, CellPixels);
-                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
-
-                if (outOfBounds)
-                {
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, Path);
-                    break;
-                }
-
-                moveCheck = CheckBoardCells(movePos);
-                blockedPosition = moveCheck / 10;
-                checkId = moveCheck % 10;
-
-                if (blockedPosition > 0 && blockedPosition != player && checkId != 1)
-                {
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, Path);
-                    break;
-                }
-                else if (blockedPosition != 0 && blockedPosition != player && checkId == 1)
-                {
-                    checkPosArray[Math.Abs(i)] = movePos;
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesEnemyKing);
-                    break;
-                }
-                else if (blockedPosition == player)
-                {
-                    checkPosArray[Math.Abs(i)] = movePos;
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesFriendlyPiece);
-                    break;
-                }
-                else
-                {
-                    checkPosArray[Math.Abs(i)] = movePos;
-                }
-            }
-
-            for (int i = -1; i > -8; i--)
-            {
-                movePos = Position + i * new Vector2(CellPixels, -CellPixels);
-                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
-
-                if (outOfBounds)
-                {
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, Path);
-                    break;
-                }
-
-                moveCheck = CheckBoardCells(movePos);
-                blockedPosition = moveCheck / 10;
-                checkId = moveCheck % 10;
-
-                if (blockedPosition > 0 && blockedPosition != player && checkId != 1)
-                {
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, Path);
-                    break;
-                }
-                else if (blockedPosition != 0 && blockedPosition != player && checkId == 1)
-                {
-                    checkPosArray[Math.Abs(i)] = movePos;
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesEnemyKing);
-                    break;
-                }
-                else if (blockedPosition == player)
-                {
-                    checkPosArray[Math.Abs(i)] = movePos;
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesFriendlyPiece);
-                    break;
-                }
-                else
-                {
-                    checkPosArray[Math.Abs(i)] = movePos;
-                }
-            }
-
-            for (int i = 1; i < 8; i++)
-            {
-                movePos = Position + i * new Vector2(CellPixels, -CellPixels);
-                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
-
-                if (outOfBounds)
-                {
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, Path);
-                    break;
-                }
-
-                moveCheck = CheckBoardCells(movePos);
-                blockedPosition = moveCheck / 10;
-                checkId = moveCheck % 10;
-
-                if (blockedPosition > 0 && blockedPosition != player && checkId != 1)
-                {
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i) - 1, Path);
-                    break;
-                }
-                else if (blockedPosition != 0 && blockedPosition != player && checkId == 1)
-                {
-                    checkPosArray[Math.Abs(i)] = movePos;
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesEnemyKing);
-                    break;
-                }
-                else if (blockedPosition == player)
-                {
-                    checkPosArray[Math.Abs(i)] = movePos;
-                    CaptureCheck(checkPosArray, Position, Math.Abs(i), SeesFriendlyPiece);
-                    break;
-                }
-                else
-                {
-                    checkPosArray[Math.Abs(i)] = movePos;
-                }
-            }
-        }
-
-        void CaptureCheck(Vector2[] capturePos, Vector2 checkPiece, int maxIndex, int checkSituation)
-        {
-            Vector2I arrPos;
-            TileMap board = GetNode<TileMap>("../..");
-
-            arrPos = board.LocalToMap(checkPiece);
-
-            EmitSignal(SignalName.ZoneOfControlChecked, arrPos, checkSituation, true, false);
-
-            for (int i = 1; i <= maxIndex; i++)
-            {
-                arrPos = board.LocalToMap(capturePos[i]);
-
-                if (checkSituation == SeesFriendlyPiece)
-                {
-                    if (i != maxIndex)
-                    {
-                        EmitSignal(SignalName.ZoneOfControlChecked, arrPos, checkSituation, false, false);
-                    }
-                    else
-                    {
-                        EmitSignal(SignalName.ZoneOfControlChecked, arrPos, checkSituation, true, true);
-                    }
-                }
-                else if (checkSituation == SeesEnemyKing)
-                {
-                    if (i != maxIndex)
-                    {
-                        EmitSignal(SignalName.ZoneOfControlChecked, arrPos, checkSituation, false, false);
-                    }
-                    else
-                    {
-                        EmitSignal(SignalName.ZoneOfControlChecked, arrPos, KingInCheck, false, false);
-                    }
-                }
-                else
-                {
-                    EmitSignal(SignalName.ZoneOfControlChecked, arrPos, checkSituation, false, false);
-                }
-            }
-
-            if (checkSituation == SeesEnemyKing)
-            {
-                GD.Print("----------UPDATE TILES CHECK----------");
-                EmitSignal(SignalName.UpdateTiles, Position, new Vector2I(0, 2), Name);
-                _checkCount++;
-            }
-        }
-
-
-        _checkUpdatedCheck = true;
-        EmitSignal(SignalName.CheckUpdated);
     }
 
     public void CheckCheckState()
@@ -2828,6 +2361,60 @@ public partial class Piece : BasePiece
     {
         Vector2I cell = Board.LocalToMap(position);
         return BoardCellsCheck[cell.X, cell.Y];
+    }
+
+    private void UpdateCheckCells(int situation, List<Vector2> controlledPositions)
+    {
+        int position = CheckCheckCells(Position);
+        Vector2I cellCoords = Board.LocalToMap(Position);
+
+        if (situation == SeesEnemyKing)
+        {
+            if (position == Protected)
+            {
+                BoardCellsCheck[cellCoords.X, cellCoords.Y] = ProtectedAndSees;
+            }
+            else
+            {
+                BoardCellsCheck[cellCoords.X, cellCoords.Y] = NotProtectedAndSees;
+            }
+        }
+        else if (position != Protected && position != ProtectedAndSees)
+        {
+            BoardCellsCheck[cellCoords.X, cellCoords.Y] = NotProtected;
+        }
+
+        foreach (Vector2 controlledPosition in controlledPositions)
+        {
+            cellCoords = Board.LocalToMap(controlledPosition);
+            if (situation == Path || (controlledPosition != controlledPositions.Last() && situation == SeesFriendlyPiece))
+            {
+                BoardCellsCheck[cellCoords.X, cellCoords.Y] = Path;
+            }
+            else if (controlledPosition != controlledPositions.Last() && situation == SeesEnemyKing)
+            {
+                BoardCellsCheck[cellCoords.X, cellCoords.Y] = SeesEnemyKing;
+            }
+            else if (controlledPosition == controlledPositions.Last())
+            {
+                if (situation == SeesEnemyKing)
+                {
+                    BoardCellsCheck[cellCoords.X, cellCoords.Y] = KingInCheck;
+                }
+                else if (situation == SeesFriendlyPiece)
+                {
+                    int oldSituation = CheckCheckCells(controlledPosition);
+                    if (oldSituation == NotProtected)
+                    {
+                        BoardCellsCheck[cellCoords.X, cellCoords.Y] = Protected;
+                    }
+                    else if (oldSituation == NotProtectedAndSees)
+                    {
+                        BoardCellsCheck[cellCoords.X, cellCoords.Y] = ProtectedAndSees;
+                    }
+                }
+            }
+        }
     }
 
     public void Delete()
