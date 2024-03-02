@@ -77,44 +77,63 @@ public partial class Player : Node2D
 
     public void PlayerSet(int firstRow, int secondRow)
     {
+        int[] movementDirections;
+        int[] captureDirections;
+
         for (int i = 0; i < 8; i++)
         {
             Piece pawn = (Piece)_piece.Instantiate();
-            GeneratePiece(pawn, new Vector2I(0, firstRow), new Vector2I(1, 0), "pawn", i);
+            movementDirections = new int[] { };
+            captureDirections = new int[] { };
+            pawn.SetFields(movementDirections, captureDirections, "pawn", firstMovementBonus: 1);
+            GeneratePiece(pawn, new Vector2I(0, firstRow), new Vector2I(1, 0), i);
         }
 
         for (int i = 0; i < 2; i++)
         {
             Piece rook = (Piece)_piece.Instantiate();
-            GeneratePiece(rook, new Vector2I(0, secondRow), new Vector2I(7, 0), "rook", i);
+            movementDirections = new int[] { 8, 0, 8, 0, 8, 0, 8, 0 };
+            captureDirections = new int[] { 8, 0, 8, 0, 8, 0, 8, 0 };
+            rook.SetFields(movementDirections, captureDirections, "rook");
+            GeneratePiece(rook, new Vector2I(0, secondRow), new Vector2I(7, 0), i);
         }
 
         for (int i = 0; i < 2; i++)
         {
             Piece knight = (Piece)_piece.Instantiate();
-            GeneratePiece(knight, new Vector2I(1, secondRow), new Vector2I(5, 0), "knight", i);
+            movementDirections = new int[] { 0, 0, 0, 0, 0, 0, 0, 0 };
+            captureDirections = new int[] { 0, 0, 0, 0, 0, 0, 0, 0 };
+            knight.SetFields(movementDirections, captureDirections, "knight", knightMovement: true, knightCapture: true);
+            GeneratePiece(knight, new Vector2I(1, secondRow), new Vector2I(5, 0), i);
         }
 
         for (int i = 0; i < 2; i++)
         {
             Piece bishop = (Piece)_piece.Instantiate();
-            GeneratePiece(bishop, new Vector2I(2, secondRow), new Vector2I(3, 0), "bishop", i);
+            movementDirections = new int[] { 0, 8, 0, 8, 0, 8, 0, 8 };
+            captureDirections = new int[] { 0, 8, 0, 8, 0, 8, 0, 8 };
+            bishop.SetFields(movementDirections, captureDirections, "bishop");
+            GeneratePiece(bishop, new Vector2I(2, secondRow), new Vector2I(3, 0), i);
         }
 
         Piece king = (Piece)_piece.Instantiate();
-        GeneratePiece(king, new Vector2I(4, secondRow), new Vector2I(0, 0), "king");
+        movementDirections = new int[] { 1, 1, 1, 1, 1, 1, 1, 1 };
+        captureDirections = new int[] { 1, 1, 1, 1, 1, 1, 1, 1 };
+        king.SetFields(movementDirections, captureDirections, "king");
+        GeneratePiece(king, new Vector2I(4, secondRow), new Vector2I(0, 0));
 
         Piece queen = (Piece)_piece.Instantiate();
-        GeneratePiece(queen, new Vector2I(3, secondRow), new Vector2I(0, 0), "queen");
+        movementDirections = new int[] { 8, 8, 8, 8, 8, 8, 8, 8 };
+        captureDirections = new int[] { 8, 8, 8, 8, 8, 8, 8, 8 };
+        queen.SetFields(movementDirections, captureDirections, "queen");
+        GeneratePiece(queen, new Vector2I(3, secondRow), new Vector2I(0, 0));
     }
 
-    public void GeneratePiece(Piece piece, Vector2I icell, Vector2I cells, string pieceType, int index = 0)
+    public void GeneratePiece(Piece piece, Vector2I icell, Vector2I cells, int index = 0)
     {
         Vector2 ipos;
         Vector2I cell;
 
-        piece.SetMeta("Player", _playerNum);
-        piece.SetMeta("Piece_Type", pieceType);
         AddChild(piece);
 
         piece.CheckUpdated += CheckUpdate;
@@ -204,6 +223,7 @@ public partial class Player : Node2D
         }
     }
 
+    // FIXME: use SetFields when respawning old pieces
     public void RevertPieces(int[,] newSituation)
     {
         int cellSituation;
@@ -228,7 +248,7 @@ public partial class Player : Node2D
                     Piece piece = (Piece)_piece.Instantiate();
                     pieceType = _pieceDict[cellSituation % 10];
                     position = new Vector2I(i, j);
-                    GeneratePiece(piece, position, new Vector2I(0, 0), pieceType);
+                    GeneratePiece(piece, position, new Vector2I(0, 0));
                 }
             }
         }
