@@ -14,12 +14,16 @@ public partial class Board : TileMap
 
     private Player _player;
     private Vector2 _selectedPosition = new Vector2(-1, -1);
+    private int[,] _cells;
+    private int[,] _checkCells;
+    public int[,] Cells { get => _cells; set => _cells = value; }
+    public int[,] CheckCells { get => _checkCells; set => _checkCells = value; }
 
     public override void _Ready()
 	{
         AddToGroup("to_save");
 
-        Piece.Board = this;
+        Piece.GameBoard = this;
 
         EmitSignal(SignalName.BoardCellCount, 8, 8);
 
@@ -90,5 +94,29 @@ public partial class Board : TileMap
         EmitSignal(SignalName.PlayersSet);
 
         ClearDynamicTiles();
+    }
+
+    public int CheckBoardCells(Vector2 position)
+    {
+        Vector2I cell = LocalToMap(position);
+        return _cells[cell.X, cell.Y];
+    }
+
+    public int CheckCheckCells(Vector2 position)
+    {
+        Vector2I cell = LocalToMap(position);
+        return _checkCells[cell.X, cell.Y];
+    }
+
+    public void SetBoardCells(Vector2 position, int value)
+    {
+        Vector2I cell = LocalToMap(position);
+        _cells[cell.X, cell.Y] = value;
+    }
+
+    public void SetCheckCells(Vector2 position, int value)
+    {
+        Vector2I cell = LocalToMap(position);
+        _checkCells[cell.X, cell.Y] = value;
     }
 }

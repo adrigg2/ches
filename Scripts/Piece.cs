@@ -2,7 +2,6 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 
 namespace Ches.Chess;
 public partial class Piece : BasePiece
@@ -15,9 +14,6 @@ public partial class Piece : BasePiece
 
     [Signal]
     public delegate void CheckUpdatedEventHandler();
-
-    [Signal]
-    public delegate void ZoneOfControlCheckedEventHandler(Vector2I position, int checkSituation, bool pieceCell, bool protectedPiece);
 
     [Signal]
     public delegate void PlayerInCheckEventHandler(bool isInCheck);
@@ -81,11 +77,11 @@ public partial class Piece : BasePiece
     [Export] private PackedScene _capture;
     [Export] private PackedScene _promotion;
 
-    public static TileMap Board { get; set; }
+    public static Board GameBoard { get; set; }
 
     private Vector2 _playerDirectionVector;
 
-    private string _pieceType;
+    [Export]private string _pieceType;
 
     [Export] private bool _checkUpdatedCheck;
     [Export] private bool _unmovable;
@@ -97,11 +93,9 @@ public partial class Piece : BasePiece
     public bool Unmovable { get => _unmovable; }
     public bool CheckUpdatedCheck { get => _checkUpdatedCheck; }
 
-    public static int[,] BoardCells { get; set; }
-    public static int[,] BoardCellsCheck { get; set; }
-
-    public void SetFields(int[] movementDirections, int[] captureDirections, string pieceType, bool knightMovement = false, bool knightCapture = false, int firstMovementBonus = 0)
+    public void SetFields(int player, int[] movementDirections, int[] captureDirections, string pieceType, bool knightMovement = false, bool knightCapture = false, int firstMovementBonus = 0)
     {
+        this.player = player;
         _seesKing = 0;
         _lockedDirection = NotBlocked;
         _firstMovementBonus = firstMovementBonus;
@@ -120,9 +114,6 @@ public partial class Piece : BasePiece
     {
         AddToGroup("pieces");
         AddToGroup("to_save");
-
-        _pieceType = (string)GetMeta("Piece_Type");
-        player = (int)GetMeta("Player");
 
         if (player == 1)
         {
@@ -173,11 +164,13 @@ public partial class Piece : BasePiece
 
         if (player == 2)
         {
+            GD.Print("SEtting texture");
             Sprite2D sprite = GetNode<Sprite2D>("Sprite2D");
             sprite.Texture = _textures.GetBlackTexture(_pieceType);
         }
         else if (player == 1)
         {
+            GD.Print("SEtting texture");
             Sprite2D sprite = GetNode<Sprite2D>("Sprite2D");
             sprite.Texture = _textures.GetWhiteTexture(_pieceType);
         }
@@ -194,9 +187,7 @@ public partial class Piece : BasePiece
 
     public void SetInitialTurn()
     {
-        TileMap board = GetNode<TileMap>("../..");
-        Vector2I cell = board.LocalToMap(Position);
-        BoardCells[cell.X, cell.Y] = id;
+        GameBoard.SetBoardCells(Position, id);
     }
 
     protected override void Movement()
@@ -247,9 +238,9 @@ public partial class Piece : BasePiece
                     break;
                 }
 
-                int moveCheck = CheckBoardCells(movePos);
+                int moveCheck = GameBoard.CheckBoardCells(movePos);
                 int blockedPos = moveCheck / 10;
-                int positionSituation = CheckCheckCells(movePos);
+                int positionSituation = GameBoard.CheckCheckCells(movePos);
 
                 if (!_isInCheck || positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees || blockedPos == player)
                 {
@@ -302,9 +293,9 @@ public partial class Piece : BasePiece
                 bool notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * 8 && movePos.Y < CellPixels * 8;
                 if (notOutOfBounds)
                 {
-                    int moveCheck = CheckBoardCells(movePos);
+                    int moveCheck = GameBoard.CheckBoardCells(movePos);
                     int blockedPos = moveCheck / 10;
-                    int positionSituation = CheckCheckCells(movePos);
+                    int positionSituation = GameBoard.CheckCheckCells(movePos);
                     bool canTakePiece = positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees;
 
                     if (blockedPos <= 0 && (!_isInCheck || positionSituation == SeesEnemyKing) && _knightMovement)
@@ -423,21 +414,18 @@ public partial class Piece : BasePiece
 
     public void Capture(Vector2 _capturePos, CharacterBody2D _capture)
     {
-        TileMap board = GetNode<TileMap>("../..");
-        Vector2I cell = board.LocalToMap(Position);
-
         if (_pieceType == "pawn" && _enPassant && (_capturePos == Position - new Vector2(0, CellPixels) || _capturePos == Position + new Vector2(0, CellPixels)))
         {
             Connect("tree_exited", new Callable(_capture, "Captured"));
             EmitSignal(SignalName.ClearEnPassant, player);
-            BoardCells[cell.X, cell.Y] = 0;
+            GameBoard.SetBoardCells(Position, 0);
             QueueFree();
         }
         else if (_capturePos == Position)
         {
             Connect("tree_exited", new Callable(_capture, "Captured"));
             EmitSignal(SignalName.ClearEnPassant, player);
-            BoardCells[cell.X, cell.Y] = 0;
+            GameBoard.SetBoardCells(Position, 0);
             QueueFree();
         }
     }
@@ -471,7 +459,7 @@ public partial class Piece : BasePiece
                     break;
                 }
 
-                int moveCheck = CheckBoardCells(movePos);
+                int moveCheck = GameBoard.CheckBoardCells(movePos);
                 int blockedPos = moveCheck / 10;
                 int checkId = moveCheck % 10;
 
@@ -527,7 +515,7 @@ public partial class Piece : BasePiece
 
                 List<Vector2> controlledPositions = new List<Vector2>();
                 int situation = Path;
-                int moveCheck = CheckBoardCells(movePos);
+                int moveCheck = GameBoard.CheckBoardCells(movePos);
                 int blockedPos = moveCheck / 10;
                 int checkId = moveCheck % 10;
 
@@ -557,7 +545,7 @@ public partial class Piece : BasePiece
         if (_pieceType == "king" && Turn == player)
         {
             GD.Print(player, " is checking wether he is on check");
-            int check = CheckCheckCells(Position);
+            int check = GameBoard.CheckCheckCells(Position);
 
             if (check == KingInCheck)
             {
@@ -620,9 +608,9 @@ public partial class Piece : BasePiece
                     break;
                 }
 
-                int moveCheck = CheckBoardCells(movePos);
+                int moveCheck = GameBoard.CheckBoardCells(movePos);
                 int blockedPos = moveCheck / 10;
-                int positionSituation = CheckCheckCells(movePos);
+                int positionSituation = GameBoard.CheckCheckCells(movePos);
 
                 if (!_isInCheck || positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees || blockedPos == player)
                 {
@@ -667,9 +655,9 @@ public partial class Piece : BasePiece
                 bool notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * 8 && movePos.Y < CellPixels * 8;
                 if (notOutOfBounds)
                 {
-                    int moveCheck = CheckBoardCells(movePos);
+                    int moveCheck = GameBoard.CheckBoardCells(movePos);
                     int blockedPos = moveCheck / 10;
-                    int positionSituation = CheckCheckCells(movePos);
+                    int positionSituation = GameBoard.CheckCheckCells(movePos);
                     bool canTakePiece = positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees;
 
                     if (blockedPos <= 0 && (!_isInCheck || positionSituation == SeesEnemyKing) && _knightMovement)
@@ -759,7 +747,7 @@ public partial class Piece : BasePiece
                 break;
             }
 
-            moveCheck = CheckBoardCells(movePos);
+            moveCheck = GameBoard.CheckBoardCells(movePos);
             blockedPosition = moveCheck / 10;
             checkId = moveCheck % 10;
 
@@ -786,7 +774,7 @@ public partial class Piece : BasePiece
                 break;
             }
 
-            moveCheck = CheckBoardCells(movePos);
+            moveCheck = GameBoard.CheckBoardCells(movePos);
             blockedPosition = moveCheck / 10;
             checkId = moveCheck % 10;
 
@@ -813,7 +801,7 @@ public partial class Piece : BasePiece
                 break;
             }
 
-            moveCheck = CheckBoardCells(movePos);
+            moveCheck = GameBoard.CheckBoardCells(movePos);
             blockedPosition = moveCheck / 10;
             checkId = moveCheck % 10;
 
@@ -840,7 +828,7 @@ public partial class Piece : BasePiece
                 break;
             }
 
-            moveCheck = CheckBoardCells(movePos);
+            moveCheck = GameBoard.CheckBoardCells(movePos);
             blockedPosition = moveCheck / 10;
             checkId = moveCheck % 10;
 
@@ -867,7 +855,7 @@ public partial class Piece : BasePiece
                 break;
             }
 
-            moveCheck = CheckBoardCells(movePos);
+            moveCheck = GameBoard.CheckBoardCells(movePos);
             blockedPosition = moveCheck / 10;
             checkId = moveCheck % 10;
 
@@ -894,7 +882,7 @@ public partial class Piece : BasePiece
                 break;
             }
 
-            moveCheck = CheckBoardCells(movePos);
+            moveCheck = GameBoard.CheckBoardCells(movePos);
             blockedPosition = moveCheck / 10;
             checkId = moveCheck % 10;
 
@@ -921,7 +909,7 @@ public partial class Piece : BasePiece
                 break;
             }
 
-            moveCheck = CheckBoardCells(movePos);
+            moveCheck = GameBoard.CheckBoardCells(movePos);
             blockedPosition = moveCheck / 10;
             checkId = moveCheck % 10;
 
@@ -948,7 +936,7 @@ public partial class Piece : BasePiece
                 break;
             }
 
-            moveCheck = CheckBoardCells(movePos);
+            moveCheck = GameBoard.CheckBoardCells(movePos);
             blockedPosition = moveCheck / 10;
             checkId = moveCheck % 10;
 
@@ -988,7 +976,7 @@ public partial class Piece : BasePiece
                     return;
                 }
 
-                positionSituation = CheckCheckCells(movePos);
+                positionSituation = GameBoard.CheckCheckCells(movePos);
 
                 if (positionSituation == 0)
                 {
@@ -998,7 +986,7 @@ public partial class Piece : BasePiece
                 else if (positionSituation == Protected || positionSituation == NotProtected)
                 {
                     GD.Print($"{_pieceType} {player} locked direction bottom");
-                    checkId = CheckBoardCells(movePos) % 10;
+                    checkId = GameBoard.CheckBoardCells(movePos) % 10;
 
                     if (checkId == 2 || checkId == 3)
                     {
@@ -1021,7 +1009,7 @@ public partial class Piece : BasePiece
                     break;
                 }
 
-                positionSituation = CheckCheckCells(movePos);
+                positionSituation = GameBoard.CheckCheckCells(movePos);
 
                 if (positionSituation == 0)
                 {
@@ -1031,7 +1019,7 @@ public partial class Piece : BasePiece
                 else if (positionSituation == Protected || positionSituation == NotProtected)
                 {
                     GD.Print($"{_pieceType} {player} locked direction top"); 
-                    checkId = CheckBoardCells(movePos) % 10;
+                    checkId = GameBoard.CheckBoardCells(movePos) % 10;
 
                     if (checkId == 2 || checkId == 3)
                     {
@@ -1054,7 +1042,7 @@ public partial class Piece : BasePiece
                     break;
                 }
 
-                positionSituation = CheckCheckCells(movePos);
+                positionSituation = GameBoard.CheckCheckCells(movePos);
 
                 if (positionSituation == 0)
                 {
@@ -1064,7 +1052,7 @@ public partial class Piece : BasePiece
                 else if (positionSituation == Protected || positionSituation == NotProtected)
                 {
                     GD.Print($"{_pieceType} {player} locked direction right");
-                    checkId = CheckBoardCells(movePos) % 10;
+                    checkId = GameBoard.CheckBoardCells(movePos) % 10;
 
                     if (checkId == 2 || checkId == 3)
                     {
@@ -1087,7 +1075,7 @@ public partial class Piece : BasePiece
                     break;
                 }
 
-                positionSituation = CheckCheckCells(movePos);
+                positionSituation = GameBoard.CheckCheckCells(movePos);
 
                 if (positionSituation == 0)
                 {
@@ -1097,7 +1085,7 @@ public partial class Piece : BasePiece
                 else if (positionSituation == Protected || positionSituation == NotProtected)
                 {
                     GD.Print($"{_pieceType} {player} locked direction left");
-                    checkId = CheckBoardCells(movePos) % 10;
+                    checkId = GameBoard.CheckBoardCells(movePos) % 10;
 
                     if (checkId == 2 || checkId == 3)
                     {
@@ -1120,7 +1108,7 @@ public partial class Piece : BasePiece
                     break;
                 }
 
-                positionSituation = CheckCheckCells(movePos);
+                positionSituation = GameBoard.CheckCheckCells(movePos);
 
                 if (positionSituation == 0)
                 {
@@ -1130,7 +1118,7 @@ public partial class Piece : BasePiece
                 else if (positionSituation == Protected || positionSituation == NotProtected)
                 {
                     GD.Print($"{_pieceType} {player} locked direction bottom left");
-                    checkId = CheckBoardCells(movePos) % 10;
+                    checkId = GameBoard.CheckBoardCells(movePos) % 10;
 
                     if (checkId == 2 || checkId == 4)
                     {
@@ -1153,7 +1141,7 @@ public partial class Piece : BasePiece
                     break;
                 }
 
-                positionSituation = CheckCheckCells(movePos);
+                positionSituation = GameBoard.CheckCheckCells(movePos);
 
                 if (positionSituation == 0)
                 {
@@ -1163,7 +1151,7 @@ public partial class Piece : BasePiece
                 else if (positionSituation == Protected || positionSituation == NotProtected)
                 {
                     GD.Print($"{_pieceType} {player} locked direction top right");
-                    checkId = CheckBoardCells(movePos) % 10;
+                    checkId = GameBoard.CheckBoardCells(movePos) % 10;
 
                     if (checkId == 2 || checkId == 4)
                     {
@@ -1186,7 +1174,7 @@ public partial class Piece : BasePiece
                     break;
                 }
 
-                positionSituation = CheckCheckCells(movePos);
+                positionSituation = GameBoard.CheckCheckCells(movePos);
 
                 if (positionSituation == 0)
                 {
@@ -1196,7 +1184,7 @@ public partial class Piece : BasePiece
                 else if (positionSituation == Protected || positionSituation == NotProtected)
                 {
                     GD.Print($"{_pieceType} {player} locked direction bottom right");
-                    checkId = CheckBoardCells(movePos) % 10;
+                    checkId = GameBoard.CheckBoardCells(movePos) % 10;
 
                     if (checkId == 2 || checkId == 4)
                     {
@@ -1219,7 +1207,7 @@ public partial class Piece : BasePiece
                     break;
                 }
 
-                positionSituation = CheckCheckCells(movePos);
+                positionSituation = GameBoard.CheckCheckCells(movePos);
 
                 if (positionSituation == 0)
                 {
@@ -1229,7 +1217,7 @@ public partial class Piece : BasePiece
                 else if (positionSituation == Protected || positionSituation == NotProtected)
                 {
                     GD.Print($"{_pieceType} {player} locked direction top left");
-                    checkId = CheckBoardCells(movePos) % 10;
+                    checkId = GameBoard.CheckBoardCells(movePos) % 10;
 
                     if (checkId == 2 || checkId == 4)
                     {
@@ -1241,66 +1229,52 @@ public partial class Piece : BasePiece
         }
     }
 
-    private int CheckBoardCells(Vector2 position)
-    {
-        Vector2I cell = Board.LocalToMap(position);
-        return BoardCells[cell.X, cell.Y];
-    }
-
-    private int CheckCheckCells(Vector2 position)
-    {
-        Vector2I cell = Board.LocalToMap(position);
-        return BoardCellsCheck[cell.X, cell.Y];
-    }
-
     private void UpdateCheckCells(int situation, List<Vector2> controlledPositions)
     {
-        int position = CheckCheckCells(Position);
-        Vector2I cellCoords = Board.LocalToMap(Position);
+        int position = GameBoard.CheckCheckCells(Position);
 
         if (situation == SeesEnemyKing)
         {
             if (position == Protected)
             {
-                BoardCellsCheck[cellCoords.X, cellCoords.Y] = ProtectedAndSees;
+                GameBoard.SetBoardCells(Position, ProtectedAndSees);
             }
             else
             {
-                BoardCellsCheck[cellCoords.X, cellCoords.Y] = NotProtectedAndSees;
+                GameBoard.SetBoardCells(Position, NotProtectedAndSees);
             }
         }
         else if (position != Protected && position != ProtectedAndSees)
         {
-            BoardCellsCheck[cellCoords.X, cellCoords.Y] = NotProtected;
+            GameBoard.SetBoardCells(Position, NotProtected);
         }
 
         foreach (Vector2 controlledPosition in controlledPositions)
         {
-            cellCoords = Board.LocalToMap(controlledPosition);
             if (situation == Path || (controlledPosition != controlledPositions.Last() && situation == SeesFriendlyPiece))
             {
-                BoardCellsCheck[cellCoords.X, cellCoords.Y] = Path;
+                GameBoard.SetBoardCells(controlledPosition, Path);
             }
             else if (controlledPosition != controlledPositions.Last() && situation == SeesEnemyKing)
             {
-                BoardCellsCheck[cellCoords.X, cellCoords.Y] = SeesEnemyKing;
+                GameBoard.SetBoardCells(controlledPosition, SeesEnemyKing);
             }
             else if (controlledPosition == controlledPositions.Last())
             {
                 if (situation == SeesEnemyKing)
                 {
-                    BoardCellsCheck[cellCoords.X, cellCoords.Y] = KingInCheck;
+                    GameBoard.SetBoardCells(controlledPosition, KingInCheck);
                 }
                 else if (situation == SeesFriendlyPiece)
                 {
-                    int oldSituation = CheckCheckCells(controlledPosition);
+                    int oldSituation = GameBoard.CheckCheckCells(controlledPosition);
                     if (oldSituation == NotProtected)
                     {
-                        BoardCellsCheck[cellCoords.X, cellCoords.Y] = Protected;
+                        GameBoard.SetBoardCells(controlledPosition, Protected);
                     }
                     else if (oldSituation == NotProtectedAndSees)
                     {
-                        BoardCellsCheck[cellCoords.X, cellCoords.Y] = ProtectedAndSees;
+                        GameBoard.SetBoardCells(controlledPosition, ProtectedAndSees);
                     }
                 }
             }

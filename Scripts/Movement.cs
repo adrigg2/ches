@@ -18,7 +18,7 @@ public partial class Movement : CharacterBody2D
     {
         Node2D master = GetNode<Node2D>("../../../..");
         TileMap newParent = GetNode<TileMap>("../../..");
-        Node ogParent = (Node)GetParent();
+        Node ogParent = GetParent();
 
         Connect("moveSelected", new Callable(ogParent, "MovementSelected"));
 
