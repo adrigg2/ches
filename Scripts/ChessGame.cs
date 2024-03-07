@@ -31,6 +31,11 @@ public partial class ChessGame : Node2D
         AddToGroup("to_save");
     }
 
+    public override void _Process(double delta)
+    {
+        DebugTracking();
+    }
+
     public void DisableMovement()
     {
         foreach (Node moveOption in _board.GetChildren())

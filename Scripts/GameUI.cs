@@ -35,7 +35,7 @@ public partial class GameUI : Control
         _draw.Pressed += () => EmitSignal(SignalName.DrawSelected);
         _revert.Pressed += Revert;
         _reject.Pressed += Reject;
-        _saveGame.Pressed += () => EmitSignal(SignalName.GameSaved);
+        _saveGame.Pressed += () => SaveManager.SaveGame(this);
         _revertMenu.PreviousBoardSelected += (index) => EmitSignal(SignalName.GameReverted, index);
 
 

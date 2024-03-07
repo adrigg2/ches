@@ -183,6 +183,8 @@ public partial class Piece : BasePiece
         {
             Scale = new Vector2(1, 1);
         }
+
+        SetInitialTurn();
     }
 
     public void SetInitialTurn()
@@ -1237,44 +1239,44 @@ public partial class Piece : BasePiece
         {
             if (position == Protected)
             {
-                GameBoard.SetBoardCells(Position, ProtectedAndSees);
+                GameBoard.SetCheckCells(Position, ProtectedAndSees);
             }
             else
             {
-                GameBoard.SetBoardCells(Position, NotProtectedAndSees);
+                GameBoard.SetCheckCells(Position, NotProtectedAndSees);
             }
         }
         else if (position != Protected && position != ProtectedAndSees)
         {
-            GameBoard.SetBoardCells(Position, NotProtected);
+            GameBoard.SetCheckCells(Position, NotProtected);
         }
 
         foreach (Vector2 controlledPosition in controlledPositions)
         {
             if (situation == Path || (controlledPosition != controlledPositions.Last() && situation == SeesFriendlyPiece))
             {
-                GameBoard.SetBoardCells(controlledPosition, Path);
+                GameBoard.SetCheckCells(controlledPosition, Path);
             }
             else if (controlledPosition != controlledPositions.Last() && situation == SeesEnemyKing)
             {
-                GameBoard.SetBoardCells(controlledPosition, SeesEnemyKing);
+                GameBoard.SetCheckCells(controlledPosition, SeesEnemyKing);
             }
             else if (controlledPosition == controlledPositions.Last())
             {
                 if (situation == SeesEnemyKing)
                 {
-                    GameBoard.SetBoardCells(controlledPosition, KingInCheck);
+                    GameBoard.SetCheckCells(controlledPosition, KingInCheck);
                 }
                 else if (situation == SeesFriendlyPiece)
                 {
                     int oldSituation = GameBoard.CheckCheckCells(controlledPosition);
                     if (oldSituation == NotProtected)
                     {
-                        GameBoard.SetBoardCells(controlledPosition, Protected);
+                        GameBoard.SetCheckCells(controlledPosition, Protected);
                     }
                     else if (oldSituation == NotProtectedAndSees)
                     {
-                        GameBoard.SetBoardCells(controlledPosition, ProtectedAndSees);
+                        GameBoard.SetCheckCells(controlledPosition, ProtectedAndSees);
                     }
                 }
             }
@@ -1288,5 +1290,48 @@ public partial class Piece : BasePiece
             RemoveFromGroup(group);
         }
         QueueFree();
+    }
+
+    public Godot.Collections.Dictionary<string, Variant> Save()
+    {
+        return new Godot.Collections.Dictionary<string, Variant>()
+        {
+            { "Filename", SceneFilePath },
+            { "Parent", GetParent().GetPath() },
+            { "PosX", Position.X },
+            { "PosY", Position.Y },
+            { "SeesKing", _seesKing },
+            { "LockedDirection", _lockedDirection },
+            { "FirstMovementBonus", _firstMovementBonus },
+            { "MovementDirections", _movementDirections },
+            { "CaptureDirections", _captureDirections },
+            { "PlayerDirectionX", _playerDirectionVector.X },
+            { "PlayerDirectionY", _playerDirectionVector.Y },
+            { "PieceType", _pieceType },
+            { "CheckUpdatedCheck", _checkUpdatedCheck },
+            { "Unmovable", _unmovable },
+            { "FirstMovement", _firstMovement },
+            { "EnPassant", _enPassant },
+            { "KnightMovement", _knightMovement },
+            { "KnightCapture", _knightCapture },
+        };
+    }
+
+    public void Load(Godot.Collections.Dictionary<string, Variant> data)
+    {
+        Position = new Vector2((float)data["PosX"], (float)data["PosY"]);
+        _seesKing = (int)data["SeesKing"];
+        _lockedDirection = (int[])data["LockedDirection"];
+        _firstMovementBonus = (int)data["FirstMovementBonus"];
+        _movementDirections = (int[])data["MovementDirections"];
+        _captureDirections = (int[])data["CaptureDirections"];
+        _playerDirectionVector = new Vector2((float)data["PlayerDirectionX"], (float)data["PlayerDirectionY"]);
+        _pieceType = (string)data["PieceType"];
+        _checkUpdatedCheck = (bool)data["CheckUpdatedCheck"];
+        _unmovable = (bool)data["Unmovable"];
+        _firstMovement = (bool)data["Unmovable"];
+        _enPassant = (bool)data["EnPassant"];
+        _knightMovement = (bool)data["KnightMovement"];
+        _knightCapture = (bool)data["KnightCapture"];
     }
 }

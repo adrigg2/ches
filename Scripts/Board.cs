@@ -111,12 +111,14 @@ public partial class Board : TileMap
     public void SetBoardCells(Vector2 position, int value)
     {
         Vector2I cell = LocalToMap(position);
+        GD.Print($"Setting {cell} to {value} in BoardCells");
         _cells[cell.X, cell.Y] = value;
     }
 
     public void SetCheckCells(Vector2 position, int value)
     {
         Vector2I cell = LocalToMap(position);
+        GD.Print($"Setting {cell} to {value} in CheckCells");
         _checkCells[cell.X, cell.Y] = value;
     }
 }
