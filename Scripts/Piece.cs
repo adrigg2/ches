@@ -65,7 +65,7 @@ public partial class Piece : BasePiece
     [Export] private int _seesKing;
     [Export] private int[] _lockedDirection;
     private int _firstMovementBonus;
-    private int[] _movementDirections; // 0 -> Up, 1 -> Up-Right, etc. Value indicates max number of cells
+    [Export] private int[] _movementDirections; // 0 -> Up, 1 -> Up-Right, etc. Value indicates max number of cells
     private int[] _captureDirections;
     private static int _checkCount;
 
@@ -589,12 +589,13 @@ public partial class Piece : BasePiece
 
         for (int i = 0; i < directions.Length; i++)
         {
-            if (_firstMovement && _movementDirections[i] > 0)
+            int movementAmount = _movementDirections[i];
+            if (_firstMovement && movementAmount > 0)
             {
-                _movementDirections[i] += _firstMovementBonus;
+                movementAmount += _firstMovementBonus;
             }
 
-            for (int j = 1; j <= _movementDirections[i] || j <= _captureDirections[i]; j++)
+            for (int j = 1; j <= movementAmount || j <= _captureDirections[i]; j++)
             {
                 if (!_lockedDirection.IsEmpty() && !_lockedDirection.Contains(i))
                 {
@@ -624,16 +625,11 @@ public partial class Piece : BasePiece
                     {
                         return false;
                     }
-                    else if ((!_isInCheck || positionSituation == SeesEnemyKing) && j <= _movementDirections[i])
+                    else if ((!_isInCheck || positionSituation == SeesEnemyKing) && j <= movementAmount)
                     {
                         return false;
                     }
                 }
-            }
-
-            if (_firstMovement)
-            {
-                _movementDirections[i] -= _firstMovementBonus;
             }
         }
 
@@ -1314,6 +1310,8 @@ public partial class Piece : BasePiece
             { "EnPassant", _enPassant },
             { "KnightMovement", _knightMovement },
             { "KnightCapture", _knightCapture },
+            { "Player", player },
+            { "Id", id }
         };
     }
 
@@ -1333,5 +1331,7 @@ public partial class Piece : BasePiece
         _enPassant = (bool)data["EnPassant"];
         _knightMovement = (bool)data["KnightMovement"];
         _knightCapture = (bool)data["KnightCapture"];
+        player = (int)data["Player"];
+        id = (int)data["Id"];
     }
 }

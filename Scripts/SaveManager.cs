@@ -17,7 +17,7 @@ public partial class SaveManager : Node
 
 			var nodeData = node.Call("Save");
 
-			var jsonString = Json.Stringify(nodeData, "\t");
+			var jsonString = Json.Stringify(nodeData, "    ");
 
 			saveGame.StoreLine(jsonString);
 		}
