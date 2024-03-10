@@ -84,14 +84,13 @@ public partial class Piece : BasePiece
     [Export]private string _pieceType;
 
     [Export] private bool _checkUpdatedCheck;
-    [Export] private bool _unmovable;
     [Export] private bool _firstMovement;
     [Export] private static bool _isInCheck = false;
     private bool _enPassant;
     private bool _canEnPassant;
     private bool _knightMovement;
     private bool _knightCapture;
-    public bool Unmovable { get => _unmovable; }
+
     public bool CheckUpdatedCheck { get => _checkUpdatedCheck; }
 
     public void SetFields(int player, int[] movementDirections, int[] captureDirections, string pieceType, bool knightMovement = false, bool knightCapture = false, bool canEnPassant = false, int firstMovementBonus = 0)
@@ -104,7 +103,6 @@ public partial class Piece : BasePiece
         _captureDirections = captureDirections;
         _pieceType = pieceType;
         _checkUpdatedCheck = false;
-        _unmovable = false;
         _firstMovement = true;
         _enPassant = false;
         _canEnPassant = canEnPassant;
@@ -196,7 +194,7 @@ public partial class Piece : BasePiece
 
     protected override void Movement()
     {
-        if (Turn != player || _unmovable)
+        if (Turn != player)
         {
             return;
         }
@@ -410,10 +408,6 @@ public partial class Piece : BasePiece
             _lockedDirection = NotBlocked;
             UpdateCheck();
         }
-        else
-        {
-            _unmovable = CheckUnmovable();
-        }
     }
 
     public void Capture(Vector2 _capturePos, CharacterBody2D _capture)
@@ -564,10 +558,6 @@ public partial class Piece : BasePiece
     public void SetCheck(bool inCheck)
     {
         _isInCheck = inCheck;
-        if (_isInCheck)
-        {
-            _unmovable = CheckUnmovable();
-        }
     }
 
     public bool CheckUnmovable()
@@ -1307,9 +1297,9 @@ public partial class Piece : BasePiece
             { "PlayerDirectionY", _playerDirectionVector.Y },
             { "PieceType", _pieceType },
             { "CheckUpdatedCheck", _checkUpdatedCheck },
-            { "Unmovable", _unmovable },
             { "FirstMovement", _firstMovement },
             { "EnPassant", _enPassant },
+            { "CanEnPassant", _canEnPassant },
             { "KnightMovement", _knightMovement },
             { "KnightCapture", _knightCapture },
             { "Player", player },
@@ -1328,9 +1318,9 @@ public partial class Piece : BasePiece
         _playerDirectionVector = new Vector2((float)data["PlayerDirectionX"], (float)data["PlayerDirectionY"]);
         _pieceType = (string)data["PieceType"];
         _checkUpdatedCheck = (bool)data["CheckUpdatedCheck"];
-        _unmovable = (bool)data["Unmovable"];
         _firstMovement = (bool)data["Unmovable"];
         _enPassant = (bool)data["EnPassant"];
+        _canEnPassant = (bool)data["CanEnPassant"];
         _knightMovement = (bool)data["KnightMovement"];
         _knightCapture = (bool)data["KnightCapture"];
         player = (int)data["Player"];

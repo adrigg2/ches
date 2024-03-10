@@ -176,7 +176,7 @@ public partial class Player : Node2D
         {
             if (child is Piece piece)
             {
-                if (!piece.Unmovable)
+                if (!piece.CheckUnmovable())
                 {
                     return;
                 }
