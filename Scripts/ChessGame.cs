@@ -62,7 +62,7 @@ public partial class ChessGame : Node2D
         {
             for (int j = 0; j < _board.Cells.GetLength(1); j++)
             {
-                _debugTracker.Text += (_board.Cells[j, i] / 10).ToString();
+                _debugTracker.Text += (_board.Cells[j, i] / 1000).ToString();
                 _debugTracker2.Text += Math.Abs(_board.CheckCells[j, i]).ToString();
             }
             _debugTracker.Text += "\n";

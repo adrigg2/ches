@@ -88,12 +88,15 @@ public partial class Piece : BasePiece
     [Export] private static bool _isInCheck = false;
     private bool _enPassant;
     private bool _canEnPassant;
+    private bool _isKing;
+    private bool _canCastle;
+    private bool _canBeCastled;
     private bool _knightMovement;
     private bool _knightCapture;
 
     public bool CheckUpdatedCheck { get => _checkUpdatedCheck; }
 
-    public void SetFields(int player, int[] movementDirections, int[] captureDirections, string pieceType, bool knightMovement = false, bool knightCapture = false, bool canEnPassant = false, int firstMovementBonus = 0)
+    public void SetFields(int player, int[] movementDirections, int[] captureDirections, string pieceType, bool knightMovement = false, bool knightCapture = false, bool isKing = false, bool canCastle = false, bool canBeCastled = false, bool canEnPassant = false, int firstMovementBonus = 0)
     {
         this.player = player;
         _seesKing = 0;
@@ -106,6 +109,9 @@ public partial class Piece : BasePiece
         _firstMovement = true;
         _enPassant = false;
         _canEnPassant = canEnPassant;
+        _isKing = isKing;
+        _canCastle = canCastle;
+        _canBeCastled = canBeCastled;
         _knightMovement = knightMovement;
         _knightCapture = knightCapture;
     }
@@ -128,7 +134,6 @@ public partial class Piece : BasePiece
 
         if (_pieceType == "pawn")
         {
-            id = player * 10;
             if (player == 1)
             {
                 _movementDirections = new int[] { 0, 0, 0, 0, 1, 0, 0, 0 };
@@ -141,25 +146,17 @@ public partial class Piece : BasePiece
             }
             _firstMovementBonus = 1;
         }
-        else if (_pieceType == "king")
+
+        id = player * 1000;
+
+        if (_isKing)
         {
-            id = player * 10 + 1;
+            id += 100;
         }
-        else if (_pieceType == "queen")
+
+        if (_canCastle)
         {
-            id = player * 10 + 2;
-        }
-        else if (_pieceType == "rook")
-        {
-            id = player * 10 + 3;
-        }
-        else if (_pieceType == "bishop")
-        {
-            id = player * 10 + 4;
-        }
-        else if (_pieceType == "knight")
-        {
-            id = player * 10 + 5;
+            id += 1;
         }
 
         if (player == 2)
@@ -428,7 +425,7 @@ public partial class Piece : BasePiece
         }
     }
 
-    public void UpdateCheck()
+    public virtual void UpdateCheck()
     {
         Vector2I[] directions =
         {
@@ -1300,6 +1297,9 @@ public partial class Piece : BasePiece
             { "FirstMovement", _firstMovement },
             { "EnPassant", _enPassant },
             { "CanEnPassant", _canEnPassant },
+            { "IsKing", _isKing },
+            { "CanCastle", _canCastle },
+            { "CanBeCastled", _canBeCastled },
             { "KnightMovement", _knightMovement },
             { "KnightCapture", _knightCapture },
             { "Player", player },
@@ -1321,6 +1321,9 @@ public partial class Piece : BasePiece
         _firstMovement = (bool)data["Unmovable"];
         _enPassant = (bool)data["EnPassant"];
         _canEnPassant = (bool)data["CanEnPassant"];
+        _isKing = (bool)data["IsKing"];
+        _canCastle = (bool)data["CanCastle"];
+        _canBeCastled = (bool)data["CanBeCastled"];
         _knightMovement = (bool)data["KnightMovement"];
         _knightCapture = (bool)data["KnightCapture"];
         player = (int)data["Player"];
