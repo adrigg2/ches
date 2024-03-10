@@ -85,7 +85,7 @@ public partial class Player : Node2D
             Piece pawn = (Piece)_piece.Instantiate();
             movementDirections = new int[] { };
             captureDirections = new int[] { };
-            pawn.SetFields(_playerNum, movementDirections, captureDirections, "pawn", firstMovementBonus: 1);
+            pawn.SetFields(_playerNum, movementDirections, captureDirections, "pawn", firstMovementBonus: 1, canEnPassant: true);
             GeneratePiece(pawn, new Vector2I(0, firstRow), new Vector2I(1, 0), i);
         }
 

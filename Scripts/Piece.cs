@@ -88,12 +88,13 @@ public partial class Piece : BasePiece
     [Export] private bool _firstMovement;
     [Export] private static bool _isInCheck = false;
     private bool _enPassant;
+    private bool _canEnPassant;
     private bool _knightMovement;
     private bool _knightCapture;
     public bool Unmovable { get => _unmovable; }
     public bool CheckUpdatedCheck { get => _checkUpdatedCheck; }
 
-    public void SetFields(int player, int[] movementDirections, int[] captureDirections, string pieceType, bool knightMovement = false, bool knightCapture = false, int firstMovementBonus = 0)
+    public void SetFields(int player, int[] movementDirections, int[] captureDirections, string pieceType, bool knightMovement = false, bool knightCapture = false, bool canEnPassant = false, int firstMovementBonus = 0)
     {
         this.player = player;
         _seesKing = 0;
@@ -106,6 +107,7 @@ public partial class Piece : BasePiece
         _unmovable = false;
         _firstMovement = true;
         _enPassant = false;
+        _canEnPassant = canEnPassant;
         _knightMovement = knightMovement;
         _knightCapture = knightCapture;
     }
@@ -251,7 +253,7 @@ public partial class Piece : BasePiece
                         GD.Print("Position blocked by friendly piece");
                         break;
                     }
-                    else if (((!_isInCheck && blockedPos > 0) || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees) && j <= _captureDirections[i])
+                    else if (((!_isInCheck && (blockedPos > 0 || (_canEnPassant && blockedPos < 0))) || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees) && j <= _captureDirections[i])
                     {
                         GD.Print("Capture is posible");
                         CharacterBody2D capture = (CharacterBody2D)_capture.Instantiate();
@@ -259,7 +261,7 @@ public partial class Piece : BasePiece
                         capture.Position = movePos;
                         break;
                     }
-                    else if ((!_isInCheck || positionSituation == SeesEnemyKing) && j <= _movementDirections[i])
+                    else if ((!_isInCheck || positionSituation == SeesEnemyKing) && j <= _movementDirections[i] && blockedPos <= 0)
                     {
                         GD.Print("Movement is posible");
                         CharacterBody2D movement = (CharacterBody2D)_movement.Instantiate();
@@ -284,7 +286,7 @@ public partial class Piece : BasePiece
             new Vector2I(2, -1),
             new Vector2I(2, 1),
             new Vector2I(1, 2),
-            new Vector2I(1, 2),
+            new Vector2I(-1, 2),
             new Vector2I(-2, -1),
             new Vector2I(-2, 1)
             };
