@@ -68,8 +68,10 @@ public partial class Piece : BasePiece
     [Export] private int[] _movementDirections; // 0 -> Up, 1 -> Up-Right, etc. Value indicates max number of cells
     private int[] _captureDirections;
     private static int _checkCount;
+    private static int _lastPieceID = 0;
 
     public static int Turn { get; set; } = 1;
+    public int ID { get => id % 1000; }
 
     [Export] private PieceTextures _textures;
 
@@ -147,27 +149,18 @@ public partial class Piece : BasePiece
             _firstMovementBonus = 1;
         }
 
-        id = player * 1000;
-
-        if (_isKing)
-        {
-            id += 100;
-        }
-
-        if (_canCastle)
-        {
-            id += 1;
-        }
+        id = player * 1000 + _lastPieceID;
+        _lastPieceID++;
 
         if (player == 2)
         {
-            GD.Print("SEtting texture");
+            GD.Print("Setting texture");
             Sprite2D sprite = GetNode<Sprite2D>("Sprite2D");
             sprite.Texture = _textures.GetBlackTexture(_pieceType);
         }
         else if (player == 1)
         {
-            GD.Print("SEtting texture");
+            GD.Print("Setting texture");
             Sprite2D sprite = GetNode<Sprite2D>("Sprite2D");
             sprite.Texture = _textures.GetWhiteTexture(_pieceType);
         }
@@ -241,7 +234,10 @@ public partial class Piece : BasePiece
                 int blockedPos = moveCheck / 10;
                 int positionSituation = GameBoard.CheckCheckCells(movePos);
 
-                if (!_isInCheck || positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees || blockedPos == player)
+                bool notKingConditions = (!_isInCheck || positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees || blockedPos == player) && !_isKing;
+                bool kingConditions = (positionSituation == 0 || positionSituation == NotProtectedAndSees || positionSituation == NotProtected || blockedPos == player) && _isKing;
+
+                if (notKingConditions || kingConditions)
                 {
                     if (blockedPos == player)
                     {

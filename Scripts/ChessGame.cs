@@ -20,7 +20,10 @@ public partial class ChessGame : Node2D
     [Export] private Label _debugTracker2;
     [Export] private Camera2D _camera;
 
-    public static List<BoardState> BoardHistory { get; set; } = new();
+    public static List<BoardState> BoardHistory { get; set; } = new(); //Check why static
+    private Dictionary<int, Piece> _pieces;
+
+    public Dictionary<int, Piece> Pieces { get => _pieces; }
 
     public override void _EnterTree()
 	{
@@ -138,6 +141,7 @@ public partial class ChessGame : Node2D
                         piece.PieceSelected += DisableMovement;
                         piece.PieceMoved += UpdateBoard;
                         piece.ClearEnPassant += ClearEnPassant;
+                        _pieces.Add(piece.ID, piece);
                     }
                 }
             }
