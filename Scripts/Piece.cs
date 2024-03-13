@@ -237,7 +237,7 @@ public partial class Piece : BasePiece
                 bool notKingConditions = (!_isInCheck || positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees || blockedPos == player) && !_isKing;
                 bool kingConditions = (positionSituation == 0 || positionSituation == NotProtectedAndSees || positionSituation == NotProtected || blockedPos == player) && _isKing;
 
-                if (notKingConditions || kingConditions)
+                if (notKingConditions || kingConditions) //FIXME: Remove this condition (redundant with inner checks)
                 {
                     if (blockedPos == player)
                     {
@@ -252,7 +252,7 @@ public partial class Piece : BasePiece
                         capture.Position = movePos;
                         break;
                     }
-                    else if ((!_isInCheck || positionSituation == SeesEnemyKing) && j <= _movementDirections[i] && blockedPos <= 0)
+                    else if ((!_isInCheck || (positionSituation == SeesEnemyKing && !_isKing)) && j <= _movementDirections[i] && blockedPos <= 0)
                     {
                         GD.Print("Movement is posible");
                         CharacterBody2D movement = (CharacterBody2D)_movement.Instantiate();
@@ -291,9 +291,9 @@ public partial class Piece : BasePiece
                     int moveCheck = GameBoard.CheckBoardCells(movePos);
                     int blockedPos = moveCheck / 10;
                     int positionSituation = GameBoard.CheckCheckCells(movePos);
-                    bool canTakePiece = positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees;
+                    bool canTakePiece = (!_isKing && (positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)) || (_isKing && (positionSituation == NotProtected || positionSituation == NotProtectedAndSees));
 
-                    if (blockedPos <= 0 && (!_isInCheck || positionSituation == SeesEnemyKing) && _knightMovement)
+                    if (blockedPos <= 0 && (!_isInCheck || (positionSituation == SeesEnemyKing && !_isKing) || (positionSituation 0 && _isKing)) && _knightMovement)
                     {
                         GD.Print("Movement is posible");
                         CharacterBody2D movement = (CharacterBody2D)_movement.Instantiate();
@@ -599,8 +599,10 @@ public partial class Piece : BasePiece
                 int moveCheck = GameBoard.CheckBoardCells(movePos);
                 int blockedPos = moveCheck / 10;
                 int positionSituation = GameBoard.CheckCheckCells(movePos);
+                bool notKingConditions = (!_isInCheck || positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees || blockedPos == player) && !_isKing;
+                bool kingConditions = (positionSituation == 0 || positionSituation == NotProtectedAndSees || positionSituation == NotProtected || blockedPos == player) && _isKing;
 
-                if (!_isInCheck || positionSituation == SeesEnemyKing || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees || blockedPos == player)
+                if (notKingConditions || kingConditions) //FIXME: Remove this condition (redundant with inner checks)
                 {
                     if (blockedPos == player)
                     {
@@ -610,7 +612,7 @@ public partial class Piece : BasePiece
                     {
                         return false;
                     }
-                    else if ((!_isInCheck || positionSituation == SeesEnemyKing) && j <= movementAmount)
+                    else if ((!_isInCheck || (positionSituation == SeesEnemyKing && !_isKing)) && j <= movementAmount)
                     {
                         return false;
                     }
@@ -641,9 +643,9 @@ public partial class Piece : BasePiece
                     int moveCheck = GameBoard.CheckBoardCells(movePos);
                     int blockedPos = moveCheck / 10;
                     int positionSituation = GameBoard.CheckCheckCells(movePos);
-                    bool canTakePiece = positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees;
+                    bool canTakePiece = (!_isKing && (positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)) || (_isKing && (positionSituation == NotProtected || positionSituation == NotProtectedAndSees));
 
-                    if (blockedPos <= 0 && (!_isInCheck || positionSituation == SeesEnemyKing) && _knightMovement)
+                    if (blockedPos <= 0 && (!_isInCheck || (positionSituation == SeesEnemyKing && !_isKing)) && _knightMovement)
                     {
                         return false;
                     }
@@ -719,6 +721,11 @@ public partial class Piece : BasePiece
         int blockedPosition;
         int checkId;
         bool outOfBounds;
+
+        if (_isKing)
+        {
+            return;
+        }
 
         for (int i = -1; i > -8; i--)
         {
