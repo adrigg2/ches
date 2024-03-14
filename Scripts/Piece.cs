@@ -103,6 +103,7 @@ public partial class Piece : BasePiece
     private bool _knightCapture;
 
     public bool CheckUpdatedCheck { get => _checkUpdatedCheck; }
+    public bool IsKing { get => _isKing; }
 
     public void SetFields(int player, int[] movementDirections, int[] captureDirections, string pieceType, bool knightMovement = false, bool knightCapture = false, bool isKing = false, bool canCastle = false, bool canBeCastled = false, bool canEnPassant = false, int firstMovementBonus = 0)
     {
@@ -722,230 +723,52 @@ public partial class Piece : BasePiece
 
     public void CheckKingVissibility()
     {
-        Vector2 movePos;
-        int moveCheck;
-        int blockedPosition;
-        int checkId;
-        bool outOfBounds;
-
         if (_isKing)
         {
             return;
         }
 
-        for (int i = -1; i > -8; i--)
+        Vector2I[] directions =
         {
-            movePos = Position - i * new Vector2(0, CellPixels) * _playerDirectionVector;
-            outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
+            new Vector2I(0, 1),
+            new Vector2I(1, 1),
+            new Vector2I(1, 0),
+            new Vector2I(1, -1),
+            new Vector2I(0, -1),
+            new Vector2I(-1, -1),
+            new Vector2I(-1, 0),
+            new Vector2I(-1, 1)
+        };
 
-            if (outOfBounds)
-            {
-                break;
-            }
-
-            moveCheck = GameBoard.CheckBoardCells(movePos);
-            blockedPosition = moveCheck / 10;
-            checkId = moveCheck % 10;
-
-            if (blockedPosition == player && checkId == 1)
-            {
-                GD.Print($"{_pieceType} {player} sees king top");
-                _seesKing = Top;
-                CheckBlockedDirections();
-                return;
-            }
-            else if (blockedPosition != 0)
-            {
-                break;
-            }
-        }
-
-        for (int i = 1; i < 8; i++)
+        for (int i = 0; i < 8; i++)
         {
-            movePos = Position - i * new Vector2(0, CellPixels) * _playerDirectionVector;
-            outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
-
-            if (outOfBounds)
+            for (int i = 0; i < 8; i++)
             {
-                break;
-            }
+                Vector2 movePos = Position + j * new Vector2(CellPixels, CellPixels) * directions[i];
 
-            moveCheck = GameBoard.CheckBoardCells(movePos);
-            blockedPosition = moveCheck / 10;
-            checkId = moveCheck % 10;
+                bool outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
 
-            if (blockedPosition == player && checkId == 1)
-            {
-                GD.Print($"{_pieceType} {player} sees king bottom");
-                _seesKing = Bottom;
-                CheckBlockedDirections();
-                return;
-            }
-            else if (blockedPosition != 0)
-            {
-                break;
-            }
-        }
+                if (outOfBounds)
+                {
+                    break;
+                }
 
-        for (int i = -1; i > -8; i--)
-        {
-            movePos = Position - i * new Vector2(CellPixels, 0) * _playerDirectionVector;
-            outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
+                int moveCheck = GameBoard.CheckBoardCells(movePos);
+                int blockedPos = moveCheck / 10;
 
-            if (outOfBounds)
-            {
-                break;
-            }
-
-            moveCheck = GameBoard.CheckBoardCells(movePos);
-            blockedPosition = moveCheck / 10;
-            checkId = moveCheck % 10;
-
-            if (blockedPosition == player && checkId == 1)
-            {
-                GD.Print($"{_pieceType} {player} sees king left");
-                _seesKing = Left;
-                CheckBlockedDirections();
-                return;
-            }
-            else if (blockedPosition != 0)
-            {
-                break;
-            }
-        }
-
-        for (int i = 1; i < 8; i++)
-        {
-            movePos = Position - i * new Vector2(CellPixels, 0) * _playerDirectionVector;
-            outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
-
-            if (outOfBounds)
-            {
-                break;
-            }
-
-            moveCheck = GameBoard.CheckBoardCells(movePos);
-            blockedPosition = moveCheck / 10;
-            checkId = moveCheck % 10;
-
-            if (blockedPosition == player && checkId == 1)
-            {
-                GD.Print($"{_pieceType} {player} sees king right");
-                _seesKing = Right;
-                CheckBlockedDirections();
-                return;
-            }
-            else if (blockedPosition != 0)
-            {
-                break;
-            }
-        }
-
-        for (int i = -1; i > -8; i--)
-        {
-            movePos = Position - i * new Vector2(CellPixels, CellPixels) * _playerDirectionVector;
-            outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
-
-            if (outOfBounds)
-            {
-                break;
-            }
-
-            moveCheck = GameBoard.CheckBoardCells(movePos);
-            blockedPosition = moveCheck / 10;
-            checkId = moveCheck % 10;
-
-            if (blockedPosition == player && checkId == 1)
-            {
-                GD.Print($"{_pieceType} {player} sees king top left");
-                _seesKing = TopLeft;
-                CheckBlockedDirections();
-                return;
-            }
-            else if (blockedPosition != 0)
-            {
-                break;
-            }
-        }
-
-        for (int i = 1; i < 8; i++)
-        {
-            movePos = Position - i * new Vector2(CellPixels, CellPixels) * _playerDirectionVector;
-            outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
-
-            if (outOfBounds)
-            {
-                break;
-            }
-
-            moveCheck = GameBoard.CheckBoardCells(movePos);
-            blockedPosition = moveCheck / 10;
-            checkId = moveCheck % 10;
-
-            if (blockedPosition == player && checkId == 1)
-            {
-                GD.Print($"{_pieceType} {player} sees king bottom right");
-                _seesKing = BottomRight;
-                CheckBlockedDirections();
-                return;
-            }
-            else if (blockedPosition != 0)
-            {
-                break;
-            }
-        }
-
-        for (int i = -1; i > -8; i--)
-        {
-            movePos = Position - i * new Vector2(CellPixels, -CellPixels) * _playerDirectionVector;
-            outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
-
-            if (outOfBounds)
-            {
-                break;
-            }
-
-            moveCheck = GameBoard.CheckBoardCells(movePos);
-            blockedPosition = moveCheck / 10;
-            checkId = moveCheck % 10;
-
-            if (blockedPosition == player && checkId == 1)
-            {
-                GD.Print($"{_pieceType} {player} sees king bottom left");
-                _seesKing = BottomLeft;
-                CheckBlockedDirections();
-                return;
-            }
-            else if (blockedPosition != 0)
-            {
-                break;
-            }
-        }
-
-        for (int i = 1; i < 8; i++)
-        {
-            movePos = Position - i * new Vector2(CellPixels, -CellPixels) * _playerDirectionVector;
-            outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
-
-            if (outOfBounds)
-            {
-                break;
-            }
-
-            moveCheck = GameBoard.CheckBoardCells(movePos);
-            blockedPosition = moveCheck / 10;
-            checkId = moveCheck % 10;
-
-            if (blockedPosition == player && checkId == 1)
-            {
-                GD.Print($"{_pieceType} {player} sees king top rights");
-                _seesKing = TopRight;
-                CheckBlockedDirections();
-                return;
-            }
-            else if (blockedPosition != 0)
-            {
-                break;
+                if (blockedPos == player)
+                {
+                    Piece blockingPiece = Call(_checkPiece, moveCheck);
+                    if (blockingPiece.IsKing)
+                    {                        
+                        _seesKing = i;
+                        CheckBlockedDirections();
+                    }
+                }
+                else if (blockedPos > 0)
+                {
+                    break;
+                }
             }
         }
     }
