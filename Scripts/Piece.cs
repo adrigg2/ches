@@ -238,7 +238,7 @@ public partial class Piece : BasePiece
                 }
 
                 int moveCheck = GameBoard.CheckBoardCells(movePos);
-                int blockedPos = moveCheck / 10;
+                int blockedPos = moveCheck / 1000;
                 int positionSituation = GameBoard.CheckCheckCells(movePos);
 
                 if (blockedPos == player)
@@ -302,7 +302,7 @@ public partial class Piece : BasePiece
                 if (notOutOfBounds)
                 {
                     int moveCheck = GameBoard.CheckBoardCells(movePos);
-                    int blockedPos = moveCheck / 10;
+                    int blockedPos = moveCheck / 1000;
                     int positionSituation = GameBoard.CheckCheckCells(movePos);
                     bool canTakePiece = _knightCapture && (!_isKing && (!_isInCheck || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)) || (_isKing && (positionSituation == NotProtected || positionSituation == NotProtectedAndSees));
 
@@ -464,8 +464,7 @@ public partial class Piece : BasePiece
                 }
 
                 int moveCheck = GameBoard.CheckBoardCells(movePos);
-                int blockedPos = moveCheck / 10;
-                int checkId = moveCheck % 10;
+                int blockedPos = moveCheck / 1000;
 
                 if (blockedPos == player)
                 {
@@ -473,16 +472,21 @@ public partial class Piece : BasePiece
                     situation = SeesFriendlyPiece;
                     break;
                 }
-                else if (blockedPos != player && checkId == 1)
+                else if (blockedPos != player && blockedPos != 0)
                 {
-                    controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
-                    situation = SeesEnemyKing;
-                    break;
-                }
-                else if (blockedPos != player && blockedPos != 0 && checkId != 1)
-                {
-                    controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
-                    break;
+                    Piece blockingPiece = Call(_checkPiece, moveCheck);
+
+                    if (blockingPiece.IsKing) 
+                    {
+                        controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
+                        situation = SeesEnemyKing;
+                        break;
+                    }
+                    else
+                    {
+                        controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
+                        break;
+                    }
                 }
                 else
                 {
@@ -520,7 +524,7 @@ public partial class Piece : BasePiece
                 List<Vector2> controlledPositions = new List<Vector2>();
                 int situation = Path;
                 int moveCheck = GameBoard.CheckBoardCells(movePos);
-                int blockedPos = moveCheck / 10;
+                int blockedPos = moveCheck / 1000;
                 int checkId = moveCheck % 10;
 
                 if (blockedPos == player)
@@ -528,14 +532,19 @@ public partial class Piece : BasePiece
                     controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
                     situation = SeesFriendlyPiece;
                 }
-                else if (blockedPos != player && checkId == 1)
-                {
-                    controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
-                    situation = SeesEnemyKing;
-                }
                 else if (blockedPos != player && blockedPos != 0 && checkId != 1)
                 {
-                    controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
+                    Piece blockingPiece = Call(_checkPiece, moveCheck);
+
+                    if (blockingPiece.IsKing) 
+                    {
+                        controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
+                        situation = SeesEnemyKing;
+                    }
+                    else
+                    {
+                        controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
+                    }
                 }
 
                 UpdateCheckCells(situation, controlledPositions);
@@ -610,7 +619,7 @@ public partial class Piece : BasePiece
                 }
 
                 int moveCheck = GameBoard.CheckBoardCells(movePos);
-                int blockedPos = moveCheck / 10;
+                int blockedPos = moveCheck / 1000;
                 int positionSituation = GameBoard.CheckCheckCells(movePos);
 
                 if (blockedPos == player)
@@ -661,7 +670,7 @@ public partial class Piece : BasePiece
                 if (notOutOfBounds)
                 {
                     int moveCheck = GameBoard.CheckBoardCells(movePos);
-                    int blockedPos = moveCheck / 10;
+                    int blockedPos = moveCheck / 1000;
                     int positionSituation = GameBoard.CheckCheckCells(movePos);
                     bool canTakePiece = (!_isKing && (positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)) || (_isKing && (positionSituation == NotProtected || positionSituation == NotProtectedAndSees));
 
@@ -767,7 +776,7 @@ public partial class Piece : BasePiece
                 }
 
                 int moveCheck = GameBoard.CheckBoardCells(movePos);
-                int blockedPos = moveCheck / 10;
+                int blockedPos = moveCheck / 1000;
 
                 if (blockedPos == player)
                 {
