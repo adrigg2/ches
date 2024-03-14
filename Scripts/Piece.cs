@@ -87,9 +87,9 @@ public partial class Piece : BasePiece
 
     [Export]private string _pieceType;
 
-    private MethodName _checkPiece;
+    private StringName _checkPiece;
 
-    public MethodName CheckPiece { get => _checkPiece; set => _checkPiece = value; }
+    public StringName CheckPiece { get => _checkPiece; set => _checkPiece = value; }
 
     [Export] private bool _checkUpdatedCheck;
     [Export] private bool _firstMovement;
@@ -306,7 +306,7 @@ public partial class Piece : BasePiece
                     int positionSituation = GameBoard.CheckCheckCells(movePos);
                     bool canTakePiece = _knightCapture && (!_isKing && (!_isInCheck || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees)) || (_isKing && (positionSituation == NotProtected || positionSituation == NotProtectedAndSees));
 
-                    if (blockedPos <= 0 && (!_isInCheck || (positionSituation == SeesEnemyKing && !_isKing) || (positionSituation 0 && _isKing)) && _knightMovement)
+                    if (blockedPos <= 0 && (!_isInCheck || (positionSituation == SeesEnemyKing && !_isKing) || (positionSituation == 0 && _isKing)) && _knightMovement)
                     {
                         GD.Print("Movement is posible");
                         CharacterBody2D movement = (CharacterBody2D)_movement.Instantiate();
@@ -474,7 +474,7 @@ public partial class Piece : BasePiece
                 }
                 else if (blockedPos != player && blockedPos != 0)
                 {
-                    Piece blockingPiece = Call(_checkPiece, moveCheck);
+                    Piece blockingPiece = (Piece)Call(_checkPiece, moveCheck);
 
                     if (blockingPiece.IsKing) 
                     {
@@ -534,7 +534,7 @@ public partial class Piece : BasePiece
                 }
                 else if (blockedPos != player && blockedPos != 0 && checkId != 1)
                 {
-                    Piece blockingPiece = Call(_checkPiece, moveCheck);
+                    Piece blockingPiece = (Piece)Call(_checkPiece, moveCheck);
 
                     if (blockingPiece.IsKing) 
                     {
@@ -764,7 +764,7 @@ public partial class Piece : BasePiece
 
         for (int i = 0; i < 8; i++)
         {
-            for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 8; j++)
             {
                 Vector2 movePos = Position + j * new Vector2(CellPixels, CellPixels) * directions[i];
 
@@ -780,7 +780,7 @@ public partial class Piece : BasePiece
 
                 if (blockedPos == player)
                 {
-                    Piece blockingPiece = Call(_checkPiece, moveCheck);
+                    Piece blockingPiece = (Piece)Call(_checkPiece, moveCheck);
                     if (blockingPiece.IsKing)
                     {                        
                         _seesKing = i;
@@ -827,7 +827,7 @@ public partial class Piece : BasePiece
                 else if (positionSituation == Protected || positionSituation == NotProtected)
                 {
                     GD.Print($"{_pieceType} {player} locked direction bottom");
-                    enemyPiece = Call(_checkPiece, GameBoard.CheckBoardCells(movePos));
+                    enemyPiece = (Piece)Call(_checkPiece, GameBoard.CheckBoardCells(movePos));
 
                     if (enemyPiece.CaptureDirections[4] >= i)
                     {
@@ -860,9 +860,9 @@ public partial class Piece : BasePiece
                 else if (positionSituation == Protected || positionSituation == NotProtected)
                 {
                     GD.Print($"{_pieceType} {player} locked direction top"); 
-                    enemyPiece = Call(_checkPiece, GameBoard.CheckBoardCells(movePos));
+                    enemyPiece = (Piece)Call(_checkPiece, GameBoard.CheckBoardCells(movePos));
 
-                    if (enemyPiece.CaptureDirections[0] >= Abs(i))
+                    if (enemyPiece.CaptureDirections[0] >= Math.Abs(i))
                     {
                         _lockedDirection = Vertical;
                     }
@@ -893,7 +893,7 @@ public partial class Piece : BasePiece
                 else if (positionSituation == Protected || positionSituation == NotProtected)
                 {
                     GD.Print($"{_pieceType} {player} locked direction right");
-                    enemyPiece = Call(_checkPiece, GameBoard.CheckBoardCells(movePos));
+                    enemyPiece = (Piece)Call(_checkPiece, GameBoard.CheckBoardCells(movePos));
 
                     if (enemyPiece.CaptureDirections[2] >= i)
                     {
@@ -926,9 +926,9 @@ public partial class Piece : BasePiece
                 else if (positionSituation == Protected || positionSituation == NotProtected)
                 {
                     GD.Print($"{_pieceType} {player} locked direction left");
-                    enemyPiece = Call(_checkPiece, GameBoard.CheckBoardCells(movePos));
+                    enemyPiece = (Piece)Call(_checkPiece, GameBoard.CheckBoardCells(movePos));
 
-                    if (enemyPiece.CaptureDirections[6] >= Abs(i))
+                    if (enemyPiece.CaptureDirections[6] >= Math.Abs(i))
                     {
                         _lockedDirection = Horizontal;
                     }
@@ -959,9 +959,9 @@ public partial class Piece : BasePiece
                 else if (positionSituation == Protected || positionSituation == NotProtected)
                 {
                     GD.Print($"{_pieceType} {player} locked direction bottom left");
-                    enemyPiece = Call(_checkPiece, GameBoard.CheckBoardCells(movePos));
+                    enemyPiece = (Piece)Call(_checkPiece, GameBoard.CheckBoardCells(movePos));
 
-                    if (enemyPiece.CaptureDirections[5] >= Abs(i))
+                    if (enemyPiece.CaptureDirections[5] >= Math.Abs(i))
                     {
                         _lockedDirection = SecondaryDiagonal;
                     }
@@ -992,7 +992,7 @@ public partial class Piece : BasePiece
                 else if (positionSituation == Protected || positionSituation == NotProtected)
                 {
                     GD.Print($"{_pieceType} {player} locked direction top right");
-                    enemyPiece = Call(_checkPiece, GameBoard.CheckBoardCells(movePos));
+                    enemyPiece = (Piece)Call(_checkPiece, GameBoard.CheckBoardCells(movePos));
 
                     if (enemyPiece.CaptureDirections[1] >= i)
                     {
@@ -1025,7 +1025,7 @@ public partial class Piece : BasePiece
                 else if (positionSituation == Protected || positionSituation == NotProtected)
                 {
                     GD.Print($"{_pieceType} {player} locked direction bottom right");
-                    enemyPiece = Call(_checkPiece, GameBoard.CheckBoardCells(movePos));
+                    enemyPiece = (Piece)Call(_checkPiece, GameBoard.CheckBoardCells(movePos));
 
                     if (enemyPiece.CaptureDirections[3] >= i)
                     {
@@ -1058,9 +1058,9 @@ public partial class Piece : BasePiece
                 else if (positionSituation == Protected || positionSituation == NotProtected)
                 {
                     GD.Print($"{_pieceType} {player} locked direction top left");
-                    enemyPiece = Call(_checkPiece, GameBoard.CheckBoardCells(movePos));
+                    enemyPiece = (Piece)Call(_checkPiece, GameBoard.CheckBoardCells(movePos));
 
-                    if (enemyPiece.CaptureDirections[7] >= Abs(i))
+                    if (enemyPiece.CaptureDirections[7] >= Math.Abs(i))
                     {
                         _lockedDirection = MainDiagonal;
                     }
