@@ -1,7 +1,2 @@
 # Godot 4+ specific ignores
 .godot/
-.vs/
-Chess.csproj
-Chess.csproj.old
-Chess.csproj.old.1
-Chess.sln
