@@ -23,8 +23,6 @@ public partial class ChessGame : Node2D
     public static List<BoardState> BoardHistory { get; set; } = new(); //Check why static
     private Dictionary<int, Piece> _pieces;
 
-    public Dictionary<int, Piece> Pieces { get => _pieces; }
-
     public override void _EnterTree()
 	{
         _board.BoardCellCount += SetBoardArrays;
@@ -141,6 +139,7 @@ public partial class ChessGame : Node2D
                         piece.PieceSelected += DisableMovement;
                         piece.PieceMoved += UpdateBoard;
                         piece.ClearEnPassant += ClearEnPassant;
+                        piece.CheckPiece = "CheckPiece";
                         _pieces.Add(piece.ID, piece);
                     }
                 }
@@ -301,5 +300,10 @@ public partial class ChessGame : Node2D
         BoardHistory.Add(new BoardState(boardToSave, zoneOfControlToSave, Piece.Turn, true));
         GetTree().CallGroup("pieces", "ChangeTurn");
         EmitSignal(SignalName.TurnChanged, Piece.Turn, situationCount);
-    } 
+    }
+
+    public Piece CheckPiece(int id)
+    {
+        return _pieces[id % 1000];
+    }
 }

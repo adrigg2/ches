@@ -10,7 +10,7 @@ public partial class GameSetup : Control
 
     public override void _Ready()
     {
-        //START GAME MENU
+        // START GAME MENU
         Button newGame = GetNode<Button>("LoadOrNew/NewGame");
         Button loadGame = GetNode<Button>("LoadOrNew/LoadGame");
         newGame.Pressed += NewGame;
