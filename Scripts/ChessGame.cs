@@ -29,6 +29,8 @@ public partial class ChessGame : Node2D
         _board.PlayersSet += PlayersSet;
         _board.TimersSet += (timer, player) => EmitSignal(SignalName.TimersSet, timer, player);
 
+        _pieces = new();
+
         AddToGroup("to_save");
     }
 

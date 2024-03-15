@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Ches.Chess;
 public partial class Piece : BasePiece
@@ -67,7 +68,8 @@ public partial class Piece : BasePiece
     private int _firstMovementBonus;
     [Export] private int[] _movementDirections; // 0 -> Up, 1 -> Up-Right, etc. Value indicates max number of cells
     private int[] _captureDirections;
-    private static int _checkCount;
+    private int _castlingDistance;
+    private static int _checkCount = 0;
     private static int _lastPieceID = 0;
 
     public int[] CaptureDirections { get => _captureDirections; }
@@ -106,7 +108,7 @@ public partial class Piece : BasePiece
     public bool IsKing { get => _isKing; }
     public bool CanBeCastled { get => _canBeCastled; }
 
-    public void SetFields(int player, int[] movementDirections, int[] captureDirections, string pieceType, bool knightMovement = false, bool knightCapture = false, bool isKing = false, bool canCastle = false, bool canBeCastled = false, bool canEnPassant = false, int firstMovementBonus = 0)
+    public void SetFields(int player, int[] movementDirections, int[] captureDirections, string pieceType, bool knightMovement = false, bool knightCapture = false, bool isKing = false, bool canCastle = false, bool canBeCastled = false, int castlingDistance = 0, bool canEnPassant = false, int firstMovementBonus = 0)
     {
         this.player = player;
         _seesKing = 0;
@@ -122,6 +124,7 @@ public partial class Piece : BasePiece
         _isKing = isKing;
         _canCastle = canCastle;
         _canBeCastled = canBeCastled;
+        _castlingDistance = castlingDistance;
         _knightMovement = knightMovement;
         _knightCapture = knightCapture;
     }
@@ -220,7 +223,7 @@ public partial class Piece : BasePiece
                 _movementDirections[i] += _firstMovementBonus;
             }
 
-            for (int j = 1; j <= _movementDirections[i] || j <= _captureDirections[i]; j++)
+            for (int j = 1; j <= GameBoard.Length || j <= GameBoard.Height; j++)
             {
                 if (!_lockedDirection.IsEmpty() && !_lockedDirection.Contains(i))
                 {
@@ -230,7 +233,7 @@ public partial class Piece : BasePiece
                 Vector2 movePos = Position + j * new Vector2(CellPixels, CellPixels) * directions[i];
                 GD.Print($"MovementPosition: {movePos}");
 
-                bool outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
+                bool outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * GameBoard.Length || movePos.Y > CellPixels * GameBoard.Height;
 
                 if (outOfBounds)
                 {
@@ -244,7 +247,14 @@ public partial class Piece : BasePiece
 
                 if (blockedPos == player)
                 {
-                    GD.Print("Position blocked by friendly piece");
+                    if (_canCastle)
+                    {
+                        Piece friendlyPiece = (Piece)Call(_checkPiece, moveCheck);
+                        if (friendlyPiece.CanBeCastled)
+                        {
+                            GenerateCastling(directions[i]);
+                        }
+                    }
                     break;
                 }
                 else if (j <= _captureDirections[i] && (blockedPos > 0 || blockedPos < 0 && _canEnPassant))
@@ -299,7 +309,7 @@ public partial class Piece : BasePiece
             foreach (Vector2I direction in directions)
             {
                 Vector2 movePos = Position + new Vector2(CellPixels * direction[0], CellPixels * direction[1]);
-                bool notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * 8 && movePos.Y < CellPixels * 8;
+                bool notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * GameBoard.Length && movePos.Y < CellPixels * GameBoard.Height;
                 if (notOutOfBounds)
                 {
                     int moveCheck = GameBoard.CheckBoardCells(movePos);
@@ -324,88 +334,11 @@ public partial class Piece : BasePiece
                 }
             } 
         }
-
-        if (_canCastle)
-        {
-            CheckCastling();
-        }
     }
 
-    private Vector2 CheckCastling()
+    private void GenerateCastling(Vector2I direction)
     {
-        Vector2I[] directions =
-        {
-            new Vector2I(0, 1),
-            new Vector2I(1, 1),
-            new Vector2I(1, 0),
-            new Vector2I(1, -1),
-            new Vector2I(0, -1),
-            new Vector2I(-1, -1),
-            new Vector2I(-1, 0),
-            new Vector2I(-1, 1)
-        };
-
-        foreach (Vector2I direction in directions)
-        {
-            for (int j = 1; j <= GameBoard.Length || j <= GameBoard.Height; j++)
-            {
-                if (!_lockedDirection.IsEmpty() && !_lockedDirection.Contains(i))
-                {
-                    break;
-                }
-
-                Vector2 movePos = Position + j * new Vector2(CellPixels, CellPixels) * directions[i];
-
-                bool outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * GameBoard.Length || movePos.Y > CellPixels * GameBoard.Height;
-
-                if (outOfBounds)
-                {
-                    GD.Print("OutOfBounds");
-                    break;
-                }
-
-                int moveCheck = GameBoard.CheckBoardCells(movePos);
-                int blockedPos = moveCheck / 1000;
-                int positionSituation = GameBoard.CheckCheckCells(movePos);
-
-                if (blockedPos == player)
-                {
-                    Piece friendlyPiece = Call(_checkPiece, moveCheck);
-                    if (friendlyPiece.CanBeCastled)
-                    {
-                        
-                    }
-                    break;
-                }
-                else if (j <= _captureDirections[i] && (blockedPos > 0 || blockedPos < 0 && _canEnPassant))
-                {
-                    bool kingCapture = _isKing && (positionSituation == NotProtected || positionSituation == NotProtectedAndSees);
-                    bool normalCapture = !_isKing && (!_isInCheck || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees);
-
-                    if (normalCapture || kingCapture) 
-                    {
-                        GD.Print("Capture is posible");
-                        CharacterBody2D capture = (CharacterBody2D)_capture.Instantiate();
-                        AddChild(capture);
-                        capture.Position = movePos;
-                        break;
-                    }
-                }
-                else if (j <= _movementDirections[i] && blockedPos <= 0)
-                {
-                    bool kingMovement = _isKing && positionSituation == 0;
-                    bool normalMovement = !_isKing && (!_isInCheck || positionSituation == SeesEnemyKing);
-
-                    if (kingMovement || normalMovement)
-                    {
-                        GD.Print("Movement is posible");
-                        CharacterBody2D movement = (CharacterBody2D)_movement.Instantiate();
-                        AddChild(movement);
-                        movement.Position = movePos;
-                    }
-                }
-            }
-        }
+        GD.Print("Generating castling");
     }
 
     public void MovementSelected(Vector2 newPosition)
@@ -419,8 +352,9 @@ public partial class Piece : BasePiece
         EmitSignal(SignalName.ClearDynamicTiles);
         EmitSignal(SignalName.UpdateTiles, oldPos, new Vector2I(0, 1), Name);
         EmitSignal(SignalName.UpdateTiles, newPosition, new Vector2I(1, 1), Name);
+        EmitSignal(SignalName.PieceMoved, newPosition, oldPos, id, false);
 
-        if (_firstMovement == true)
+        /*if (_firstMovement == true)
         {
             _firstMovement = false;
             if (_pieceType == "pawn" && Position == oldPos + new Vector2(0, 2 * CellPixels))
@@ -463,7 +397,7 @@ public partial class Piece : BasePiece
         else
         {
             EmitSignal(SignalName.PieceMoved, newPosition, oldPos, id, false);
-        }        
+        }*/
     }
 
     public void ChangeTurn()
@@ -539,7 +473,7 @@ public partial class Piece : BasePiece
             {
                 Vector2 movePos = Position + j * new Vector2(CellPixels, CellPixels) * directions[i];
 
-                bool outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
+                bool outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * GameBoard.Length || movePos.Y > CellPixels * GameBoard.Height;
 
                 if (outOfBounds)
                 {
@@ -597,7 +531,7 @@ public partial class Piece : BasePiece
             foreach (Vector2I direction in directions)
             {
                 Vector2 movePos = Position + new Vector2(CellPixels * direction[0], CellPixels * direction[1]);
-                bool notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * 8 && movePos.Y < CellPixels * 8;
+                bool notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * GameBoard.Length && movePos.Y < CellPixels * GameBoard.Height;
 
                 if (!notOutOfBounds)
                 {
@@ -694,7 +628,7 @@ public partial class Piece : BasePiece
 
                 Vector2 movePos = Position + j * new Vector2(CellPixels, CellPixels) * directions[i];
 
-                bool outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
+                bool outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * GameBoard.Length || movePos.Y > CellPixels * GameBoard.Height;
 
                 if (outOfBounds)
                 {
@@ -749,7 +683,7 @@ public partial class Piece : BasePiece
             foreach (Vector2I direction in directions)
             {
                 Vector2 movePos = Position + new Vector2(CellPixels * direction[0], CellPixels * direction[1]);
-                bool notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * 8 && movePos.Y < CellPixels * 8;
+                bool notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * GameBoard.Length && movePos.Y < CellPixels * GameBoard.Height;
                 if (notOutOfBounds)
                 {
                     int moveCheck = GameBoard.CheckBoardCells(movePos);
@@ -851,7 +785,7 @@ public partial class Piece : BasePiece
             {
                 Vector2 movePos = Position + j * new Vector2(CellPixels, CellPixels) * directions[i];
 
-                bool outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
+                bool outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * GameBoard.Length || movePos.Y > CellPixels * GameBoard.Height;
 
                 if (outOfBounds)
                 {
@@ -892,7 +826,7 @@ public partial class Piece : BasePiece
             for (int i = 1; i < 8; i++)
             {
                 movePos = Position - i * new Vector2(0, CellPixels) * _playerDirectionVector;
-                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
+                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * GameBoard.Length || movePos.Y > CellPixels * GameBoard.Height;
 
                 if (outOfBounds)
                 {
@@ -925,7 +859,7 @@ public partial class Piece : BasePiece
             for (int i = -1; i > -8; i--)
             {
                 movePos = Position - i * new Vector2(0, CellPixels) * _playerDirectionVector;
-                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
+                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * GameBoard.Length || movePos.Y > CellPixels * GameBoard.Height;
 
                 if (outOfBounds)
                 {
@@ -958,7 +892,7 @@ public partial class Piece : BasePiece
             for (int i = 1; i < 8; i++)
             {
                 movePos = Position - i * new Vector2(CellPixels, 0) * _playerDirectionVector;
-                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
+                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * GameBoard.Length || movePos.Y > CellPixels * GameBoard.Height;
 
                 if (outOfBounds)
                 {
@@ -991,7 +925,7 @@ public partial class Piece : BasePiece
             for (int i = -1; i > -8; i--)
             {
                 movePos = Position - i * new Vector2(CellPixels, 0) * _playerDirectionVector;
-                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
+                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * GameBoard.Length || movePos.Y > CellPixels * GameBoard.Height;
 
                 if (outOfBounds)
                 {
@@ -1024,7 +958,7 @@ public partial class Piece : BasePiece
             for (int i = -1; i > -8; i--)
             {
                 movePos = Position - i * new Vector2(CellPixels, -CellPixels) * _playerDirectionVector;
-                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
+                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * GameBoard.Length || movePos.Y > CellPixels * GameBoard.Height;
 
                 if (outOfBounds)
                 {
@@ -1057,7 +991,7 @@ public partial class Piece : BasePiece
             for (int i = 1; i < 8; i++)
             {
                 movePos = Position - i * new Vector2(CellPixels, -CellPixels) * _playerDirectionVector;
-                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
+                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * GameBoard.Length || movePos.Y > CellPixels * GameBoard.Height;
 
                 if (outOfBounds)
                 {
@@ -1090,7 +1024,7 @@ public partial class Piece : BasePiece
             for (int i = 1; i < 8; i++)
             {
                 movePos = Position - i * new Vector2(CellPixels, CellPixels) * _playerDirectionVector;
-                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
+                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * GameBoard.Length || movePos.Y > CellPixels * GameBoard.Height;
 
                 if (outOfBounds)
                 {
@@ -1123,7 +1057,7 @@ public partial class Piece : BasePiece
             for (int i = -1; i > -8; i--)
             {
                 movePos = Position - i * new Vector2(CellPixels, CellPixels) * _playerDirectionVector;
-                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * 8 || movePos.Y > CellPixels * 8;
+                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * GameBoard.Length || movePos.Y > CellPixels * GameBoard.Height;
 
                 if (outOfBounds)
                 {
@@ -1237,6 +1171,7 @@ public partial class Piece : BasePiece
             { "IsKing", _isKing },
             { "CanCastle", _canCastle },
             { "CanBeCastled", _canBeCastled },
+            { "CastlingDistance", _castlingDistance },
             { "KnightMovement", _knightMovement },
             { "KnightCapture", _knightCapture },
             { "Player", player },
@@ -1252,6 +1187,7 @@ public partial class Piece : BasePiece
         _firstMovementBonus = (int)data["FirstMovementBonus"];
         _movementDirections = (int[])data["MovementDirections"];
         _captureDirections = (int[])data["CaptureDirections"];
+        _castlingDistance = (int)data["CastlingDistance"];
         _playerDirectionVector = new Vector2((float)data["PlayerDirectionX"], (float)data["PlayerDirectionY"]);
         _pieceType = (string)data["PieceType"];
         _checkUpdatedCheck = (bool)data["CheckUpdatedCheck"];

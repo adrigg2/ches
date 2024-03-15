@@ -119,7 +119,7 @@ public partial class Player : Node2D
         Piece king = (Piece)_piece.Instantiate();
         movementDirections = new int[] { 1, 1, 1, 1, 1, 1, 1, 1 };
         captureDirections = new int[] { 1, 1, 1, 1, 1, 1, 1, 1 };
-        king.SetFields(_playerNum, movementDirections, captureDirections, "king", isKing: true, canCastle: true);
+        king.SetFields(_playerNum, movementDirections, captureDirections, "king", isKing: true, canCastle: true, castlingDistance: 2);
         GeneratePiece(king, new Vector2I(4, secondRow), new Vector2I(0, 0));
 
         Piece queen = (Piece)_piece.Instantiate();
