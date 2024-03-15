@@ -104,6 +104,7 @@ public partial class Piece : BasePiece
 
     public bool CheckUpdatedCheck { get => _checkUpdatedCheck; }
     public bool IsKing { get => _isKing; }
+    public bool CanBeCastled { get => _canBeCastled; }
 
     public void SetFields(int player, int[] movementDirections, int[] captureDirections, string pieceType, bool knightMovement = false, bool knightCapture = false, bool isKing = false, bool canCastle = false, bool canBeCastled = false, bool canEnPassant = false, int firstMovementBonus = 0)
     {
@@ -322,6 +323,88 @@ public partial class Piece : BasePiece
                     }
                 }
             } 
+        }
+
+        if (_canCastle)
+        {
+            CheckCastling();
+        }
+    }
+
+    private Vector2 CheckCastling()
+    {
+        Vector2I[] directions =
+        {
+            new Vector2I(0, 1),
+            new Vector2I(1, 1),
+            new Vector2I(1, 0),
+            new Vector2I(1, -1),
+            new Vector2I(0, -1),
+            new Vector2I(-1, -1),
+            new Vector2I(-1, 0),
+            new Vector2I(-1, 1)
+        };
+
+        foreach (Vector2I direction in directions)
+        {
+            for (int j = 1; j <= GameBoard.Length || j <= GameBoard.Height; j++)
+            {
+                if (!_lockedDirection.IsEmpty() && !_lockedDirection.Contains(i))
+                {
+                    break;
+                }
+
+                Vector2 movePos = Position + j * new Vector2(CellPixels, CellPixels) * directions[i];
+
+                bool outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * GameBoard.Length || movePos.Y > CellPixels * GameBoard.Height;
+
+                if (outOfBounds)
+                {
+                    GD.Print("OutOfBounds");
+                    break;
+                }
+
+                int moveCheck = GameBoard.CheckBoardCells(movePos);
+                int blockedPos = moveCheck / 1000;
+                int positionSituation = GameBoard.CheckCheckCells(movePos);
+
+                if (blockedPos == player)
+                {
+                    Piece friendlyPiece = Call(_checkPiece, moveCheck);
+                    if (friendlyPiece.CanBeCastled)
+                    {
+                        
+                    }
+                    break;
+                }
+                else if (j <= _captureDirections[i] && (blockedPos > 0 || blockedPos < 0 && _canEnPassant))
+                {
+                    bool kingCapture = _isKing && (positionSituation == NotProtected || positionSituation == NotProtectedAndSees);
+                    bool normalCapture = !_isKing && (!_isInCheck || positionSituation == ProtectedAndSees || positionSituation == NotProtectedAndSees);
+
+                    if (normalCapture || kingCapture) 
+                    {
+                        GD.Print("Capture is posible");
+                        CharacterBody2D capture = (CharacterBody2D)_capture.Instantiate();
+                        AddChild(capture);
+                        capture.Position = movePos;
+                        break;
+                    }
+                }
+                else if (j <= _movementDirections[i] && blockedPos <= 0)
+                {
+                    bool kingMovement = _isKing && positionSituation == 0;
+                    bool normalMovement = !_isKing && (!_isInCheck || positionSituation == SeesEnemyKing);
+
+                    if (kingMovement || normalMovement)
+                    {
+                        GD.Print("Movement is posible");
+                        CharacterBody2D movement = (CharacterBody2D)_movement.Instantiate();
+                        AddChild(movement);
+                        movement.Position = movePos;
+                    }
+                }
+            }
         }
     }
 

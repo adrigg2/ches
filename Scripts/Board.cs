@@ -12,16 +12,22 @@ public partial class Board : TileMap
     [Signal]
     public delegate void TimersSetEventHandler(Timer timer, int player);
 
-    private Player _player;
-    private Vector2 _selectedPosition = new Vector2(-1, -1);
+    private Vector2 _selectedPosition;
     private int[,] _cells;
     private int[,] _checkCells;
+    private int _length;
+    private int _height;
+
     public int[,] Cells { get => _cells; set => _cells = value; }
     public int[,] CheckCells { get => _checkCells; set => _checkCells = value; }
+    public int Length { get => _length; }
+    public int Height { get => _height; }
 
     public override void _Ready()
 	{
-        AddToGroup("to_save");
+        _selectedPosition = new Vector2(-1, -1);
+        _length = 8;
+        _height = 8;
 
         Piece.GameBoard = this;
 
@@ -29,10 +35,10 @@ public partial class Board : TileMap
 
         for (int i = 1; i < 3; i++)
         {
-            _player = new Player();
-            _player.SetMeta("player", i);
-            _player.TimersSet += (timer, player) => EmitSignal(SignalName.TimersSet, timer, player);
-            AddChild(_player);
+            Player player = new Player();
+            player.SetMeta("player", i);
+            player.TimersSet += (timer, player) => EmitSignal(SignalName.TimersSet, timer, player);
+            AddChild(player);
         }
         EmitSignal(SignalName.PlayersSet);
 
