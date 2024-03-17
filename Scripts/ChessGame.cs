@@ -53,7 +53,7 @@ public partial class ChessGame : Node2D
     public void SetBoardArrays(int rows, int columns)
     {
         _board.Cells = new int[rows, columns];
-        _board.CheckCells = new int[rows, columns];
+        _board.CheckCells = new CellSituation[rows, columns];
         DebugTracking(); //DEBUG
     }
 
@@ -66,7 +66,7 @@ public partial class ChessGame : Node2D
             for (int j = 0; j < _board.Cells.GetLength(1); j++)
             {
                 _debugTracker.Text += (_board.Cells[j, i] / 1000).ToString();
-                _debugTracker2.Text += Math.Abs(_board.CheckCells[j, i]).ToString();
+                _debugTracker2.Text += Math.Abs((int)_board.CheckCells[j, i]).ToString();
             }
             _debugTracker.Text += "\n";
             _debugTracker2.Text += "\n";
@@ -85,7 +85,7 @@ public partial class ChessGame : Node2D
         _board.Cells[oldArrPos.X, oldArrPos.Y] = 0;
 
         int[,] boardToSave = (int[,])_board.Cells.Clone();
-        int[,] zoneOfControlToSave = (int[,])_board.CheckCells.Clone();
+        CellSituation[,] zoneOfControlToSave = (CellSituation[,])_board.CheckCells.Clone();
 
         int situationCount = BoardHistory.Count(b => _board.Cells.Cast<int>().SequenceEqual(b.Board.Cast<int>()));
             
@@ -153,7 +153,7 @@ public partial class ChessGame : Node2D
         GetTree().CallGroup("black_pieces", "UpdateCheck");
 
         int[,] boardToSave = new int[_board.Cells.GetLength(0), _board.Cells.GetLength(1)];
-        int[,] zoneOfControlToSave = new int[_board.CheckCells.GetLength(0), _board.CheckCells.GetLength(1)];
+        CellSituation[,] zoneOfControlToSave = new CellSituation[_board.CheckCells.GetLength(0), _board.CheckCells.GetLength(1)];
 
         for (int i = 0; i < _board.Cells.GetLength(0); i++)
         {
@@ -176,11 +176,11 @@ public partial class ChessGame : Node2D
 
     public void CheckReset()
     {
-        _board.CheckCells = new int[_board.Cells.GetLength(0), _board.Cells.GetLength(1)];
+        _board.CheckCells = new CellSituation[_board.Cells.GetLength(0), _board.Cells.GetLength(1)];
         DebugTracking(); //DEBUG
     }
 
-    public int CheckCheck(Vector2 posCheck)
+    public CellSituation CheckCheck(Vector2 posCheck) //FIXME: this and CheckArrayCheck are the same
     {
         Vector2I arrPos;
         arrPos = _board.LocalToMap(posCheck);
@@ -192,7 +192,7 @@ public partial class ChessGame : Node2D
         GetTree().CallGroup("pieces", "CheckCheckState");
     }
 
-    public int CheckArrayCheck(Vector2 posCheck) //REWRITE
+    public CellSituation CheckArrayCheck(Vector2 posCheck) //FIXME: this and CheckCheck are the same
     {
         Vector2I arrPos;
         arrPos = _board.LocalToMap(posCheck);
@@ -211,7 +211,7 @@ public partial class ChessGame : Node2D
         BoardHistory.Clear();
 
         _board.Cells = new int[_board.Cells.GetLength(0), _board.Cells.GetLength(1)];
-        _board.CheckCells = new int[_board.Cells.GetLength(0), _board.Cells.GetLength(1)];
+        _board.CheckCells = new CellSituation[_board.Cells.GetLength(0), _board.Cells.GetLength(1)];
 
         _board.Reset();
 
@@ -286,7 +286,7 @@ public partial class ChessGame : Node2D
         piece.ClearEnPassant += ClearEnPassant;
 
         int[,] boardToSave = (int[,])_board.Cells.Clone();
-        int[,] zoneOfControlToSave = (int[,])_board.CheckCells.Clone();
+        CellSituation[,] zoneOfControlToSave = (CellSituation[,])_board.CheckCells.Clone();
 
         int situationCount = BoardHistory.Count(b => _board.Cells.Cast<int>().SequenceEqual(b.Board.Cast<int>()));
 

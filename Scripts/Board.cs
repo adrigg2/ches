@@ -14,12 +14,12 @@ public partial class Board : TileMap
 
     private Vector2 _selectedPosition;
     private int[,] _cells;
-    private int[,] _checkCells;
+    private CellSituation[,] _checkCells;
     private int _length;
     private int _height;
 
     public int[,] Cells { get => _cells; set => _cells = value; }
-    public int[,] CheckCells { get => _checkCells; set => _checkCells = value; }
+    public CellSituation[,] CheckCells { get => _checkCells; set => _checkCells = value; }
     public int Length { get => _length; }
     public int Height { get => _height; }
 
@@ -108,7 +108,7 @@ public partial class Board : TileMap
         return _cells[cell.X, cell.Y];
     }
 
-    public int CheckCheckCells(Vector2 position)
+    public CellSituation CheckCheckCells(Vector2 position)
     {
         Vector2I cell = LocalToMap(position);
         return _checkCells[cell.X, cell.Y];
@@ -121,7 +121,7 @@ public partial class Board : TileMap
         _cells[cell.X, cell.Y] = value;
     }
 
-    public void SetCheckCells(Vector2 position, int value)
+    public void SetCheckCells(Vector2 position, CellSituation value)
     {
         Vector2I cell = LocalToMap(position);
         GD.Print($"Setting {cell} to {value} in CheckCells");
