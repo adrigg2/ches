@@ -7,6 +7,19 @@ using System.Runtime.CompilerServices;
 namespace Ches.Chess;
 public partial class Piece : BasePiece
 {
+    private enum Direction
+    {
+        None,
+        Top,
+        TopRight,
+        Right,
+        BottomRight,
+        Bottom,
+        BottomLeft,
+        Left,
+        TopLeft
+    }
+
     [Signal]
     public delegate void PieceSelectedEventHandler();
 
@@ -41,21 +54,12 @@ public partial class Piece : BasePiece
     public delegate void ClearEnPassantEventHandler(int player);
 
     const int CellPixels = 32;
-    const int Top = 0;
-    const int TopRight = 1;
-    const int Right = 2;
-    const int BottomRight = 3;
-    const int Bottom = 4;
-    const int BottomLeft = 5;
-    const int Left = 6;
-    const int TopLeft = 7;
     readonly int[] NotBlocked = Array.Empty<int>();
     readonly int[] Vertical = { 0, 4 };
     readonly int[] Horizontal = { 2, 6 };
     readonly int[] MainDiagonal = { 1, 5 };
     readonly int[] SecondaryDiagonal = { 3, 7 };
 
-    [Export] private int _seesKing;
     [Export] private int[] _lockedDirection;
     private int _firstMovementBonus;
     [Export] private int[] _movementDirections; // 0 -> Up, 1 -> Up-Right, etc. Value indicates max number of cells
@@ -69,6 +73,8 @@ public partial class Piece : BasePiece
     public static int Turn { get; set; } = 1;
     public int ID { get => id % 1000; }
 
+    [Export] private Direction _seesKing;
+    
     [Export] private PieceTextures _textures;
 
     [Export] private PackedScene _movement;
@@ -103,7 +109,7 @@ public partial class Piece : BasePiece
     public void SetFields(int player, int[] movementDirections, int[] captureDirections, string pieceType, bool knightMovement = false, bool knightCapture = false, bool isKing = false, bool canCastle = false, bool canBeCastled = false, int castlingDistance = 0, bool canEnPassant = false, int firstMovementBonus = 0)
     {
         this.player = player;
-        _seesKing = 0;
+        _seesKing = Direction.None;
         _lockedDirection = NotBlocked;
         _firstMovementBonus = firstMovementBonus;
         _movementDirections = movementDirections;
@@ -419,7 +425,7 @@ public partial class Piece : BasePiece
 
         if (player != Turn)
         {
-            _seesKing = 0;
+            _seesKing = Direction.None;
             _lockedDirection = NotBlocked;
             UpdateCheck();
         }
@@ -792,7 +798,7 @@ public partial class Piece : BasePiece
                     Piece blockingPiece = (Piece)Call(_checkPiece, moveCheck);
                     if (blockingPiece.IsKing)
                     {                        
-                        _seesKing = i;
+                        _seesKing = (Direction)(i + 1);
                         CheckBlockedDirections();
                     }
                 }
@@ -813,7 +819,7 @@ public partial class Piece : BasePiece
 
         GD.Print($"{_pieceType} {player} checking locked direction");
 
-        if (_seesKing == Top)
+        if (_seesKing == Direction.Top)
         {
             for (int i = 1; i < 8; i++)
             {
@@ -846,7 +852,7 @@ public partial class Piece : BasePiece
                 }
             }
         }
-        else if (_seesKing == Bottom)
+        else if (_seesKing == Direction.Bottom)
         {
             for (int i = -1; i > -8; i--)
             {
@@ -879,7 +885,7 @@ public partial class Piece : BasePiece
                 }
             }
         }
-        else if (_seesKing == Left)
+        else if (_seesKing == Direction.Left)
         {
             for (int i = 1; i < 8; i++)
             {
@@ -912,7 +918,7 @@ public partial class Piece : BasePiece
                 }
             }
         }
-        else if (_seesKing == Right)
+        else if (_seesKing == Direction.Right)
         {
             for (int i = -1; i > -8; i--)
             {
@@ -945,7 +951,7 @@ public partial class Piece : BasePiece
                 }
             }
         }
-        else if (_seesKing == TopRight)
+        else if (_seesKing == Direction.TopRight)
         {
             for (int i = -1; i > -8; i--)
             {
@@ -978,7 +984,7 @@ public partial class Piece : BasePiece
                 }
             }
         }
-        else if (_seesKing == BottomLeft)
+        else if (_seesKing == Direction.BottomLeft)
         {
             for (int i = 1; i < 8; i++)
             {
@@ -1011,7 +1017,7 @@ public partial class Piece : BasePiece
                 }
             }
         }
-        else if (_seesKing == TopLeft)
+        else if (_seesKing == Direction.TopLeft)
         {
             for (int i = 1; i < 8; i++)
             {
@@ -1044,7 +1050,7 @@ public partial class Piece : BasePiece
                 }
             }
         }
-        else if (_seesKing == BottomRight)
+        else if (_seesKing == Direction.BottomRight)
         {
             for (int i = -1; i > -8; i--)
             {
@@ -1174,7 +1180,7 @@ public partial class Piece : BasePiece
     public void Load(Godot.Collections.Dictionary<string, Variant> data)
     {
         Position = new Vector2((float)data["PosX"], (float)data["PosY"]);
-        _seesKing = (int)data["SeesKing"];
+        _seesKing = (Direction)data["SeesKing"];
         _lockedDirection = (int[])data["LockedDirection"];
         _firstMovementBonus = (int)data["FirstMovementBonus"];
         _movementDirections = (int[])data["MovementDirections"];
