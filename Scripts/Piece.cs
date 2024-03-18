@@ -1154,7 +1154,7 @@ public partial class Piece : BasePiece
             { "Parent", GetParent().GetPath() },
             { "PosX", Position.X },
             { "PosY", Position.Y },
-            { "SeesKing", _seesKing },
+            { "SeesKing", (int)_seesKing },
             { "LockedDirection", _lockedDirection },
             { "FirstMovementBonus", _firstMovementBonus },
             { "MovementDirections", _movementDirections },
@@ -1180,7 +1180,7 @@ public partial class Piece : BasePiece
     public void Load(Godot.Collections.Dictionary<string, Variant> data)
     {
         Position = new Vector2((float)data["PosX"], (float)data["PosY"]);
-        _seesKing = (Direction)data["SeesKing"];
+        _seesKing = (Direction)(int)data["SeesKing"];
         _lockedDirection = (int[])data["LockedDirection"];
         _firstMovementBonus = (int)data["FirstMovementBonus"];
         _movementDirections = (int[])data["MovementDirections"];
