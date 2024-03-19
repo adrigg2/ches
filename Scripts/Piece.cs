@@ -61,10 +61,10 @@ public partial class Piece : BasePiece
     readonly int[] SecondaryDiagonal = { 3, 7 };
 
     [Export] private int[] _lockedDirection;
-    private int _firstMovementBonus;
+    [Export] private int _firstMovementBonus;
     [Export] private int[] _movementDirections; // 0 -> Up, 1 -> Up-Right, etc. Value indicates max number of cells
-    private int[] _captureDirections;
-    private int _castlingDistance;
+    [Export] private int[] _captureDirections;
+    [Export] private int _castlingDistance;
     private static int _checkCount = 0;
     private static int _lastPieceID = 0;
 
@@ -85,22 +85,22 @@ public partial class Piece : BasePiece
 
     private Vector2 _playerDirectionVector;
 
-    [Export]private string _pieceType;
+    [Export] private string _pieceType;
 
     private StringName _checkPiece;
 
     public StringName CheckPiece { get => _checkPiece; set => _checkPiece = value; }
 
     [Export] private bool _checkUpdatedCheck;
-    [Export] private bool _firstMovement;
+    private bool _firstMovement;
     [Export] private static bool _isInCheck = false;
     private bool _enPassant;
-    private bool _canEnPassant;
-    private bool _isKing;
-    private bool _canCastle;
-    private bool _canBeCastled;
-    private bool _knightMovement;
-    private bool _knightCapture;
+    [Export] private bool _canEnPassant;
+    [Export] private bool _isKing;
+    [Export] private bool _canCastle;
+    [Export] private bool _canBeCastled;
+    [Export] private bool _knightMovement;
+    [Export] private bool _knightCapture;
 
     public bool CheckUpdatedCheck { get => _checkUpdatedCheck; }
     public bool IsKing { get => _isKing; }
@@ -141,21 +141,6 @@ public partial class Piece : BasePiece
         {
             _playerDirectionVector = new Vector2(1, 1);
             AddToGroup("black_pieces");
-        }
-
-        if (_pieceType == "pawn")
-        {
-            if (player == 1)
-            {
-                _movementDirections = new int[] { 0, 0, 0, 0, 1, 0, 0, 0 };
-                _captureDirections = new int[] { 0, 0, 0, 1, 0, 1, 0, 0 };
-            }
-            else
-            {
-                _movementDirections = new int[] { 1, 0, 0, 0, 0, 0, 0, 0 };
-                _captureDirections = new int[] { 0, 1, 0, 0, 0, 0, 0, 1 };
-            }
-            _firstMovementBonus = 1;
         }
 
         id = player * 1000 + _lastPieceID;
@@ -228,7 +213,7 @@ public partial class Piece : BasePiece
                     break;
                 }
 
-                Vector2 movePos = Position + j * new Vector2(CellPixels, CellPixels) * directions[i];
+                Vector2 movePos = Position + j * new Vector2(CellPixels, CellPixels) * directions[i] * _playerDirectionVector;
                 GD.Print($"MovementPosition: {movePos}");
 
                 bool outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * GameBoard.Length || movePos.Y > CellPixels * GameBoard.Height;

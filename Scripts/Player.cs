@@ -77,55 +77,40 @@ public partial class Player : Node2D
 
     public void PlayerSet(int firstRow, int secondRow)
     {
-        int[] movementDirections;
-        int[] captureDirections;
-
         for (int i = 0; i < 8; i++)
         {
-            Piece pawn = (Piece)_piece.Instantiate();
-            movementDirections = new int[] { };
-            captureDirections = new int[] { };
-            pawn.SetFields(_playerNum, movementDirections, captureDirections, "pawn", firstMovementBonus: 1, canEnPassant: true);
+            PackedScene pawnPreset = (PackedScene)ResourceLoader.Load("res://scenes/pieces/pawn.tscn");
+            Piece pawn = (Piece)pawnPreset.Instantiate();
             GeneratePiece(pawn, new Vector2I(0, firstRow), new Vector2I(1, 0), i);
         }
 
         for (int i = 0; i < 2; i++)
         {
-            Piece rook = (Piece)_piece.Instantiate();
-            movementDirections = new int[] { 8, 0, 8, 0, 8, 0, 8, 0 };
-            captureDirections = new int[] { 8, 0, 8, 0, 8, 0, 8, 0 };
-            rook.SetFields(_playerNum, movementDirections, captureDirections, "rook", canBeCastled: true);
+            PackedScene rookPreset = (PackedScene)ResourceLoader.Load("res://scenes/pieces/rook.tscn");
+            Piece rook = (Piece)rookPreset.Instantiate();
             GeneratePiece(rook, new Vector2I(0, secondRow), new Vector2I(7, 0), i);
         }
 
         for (int i = 0; i < 2; i++)
         {
-            Piece knight = (Piece)_piece.Instantiate();
-            movementDirections = new int[] { 0, 0, 0, 0, 0, 0, 0, 0 };
-            captureDirections = new int[] { 0, 0, 0, 0, 0, 0, 0, 0 };
-            knight.SetFields(_playerNum, movementDirections, captureDirections, "knight", knightMovement: true, knightCapture: true);
+            PackedScene knightPreset = (PackedScene)ResourceLoader.Load("res://scenes/pieces/knight.tscn");
+            Piece knight = (Piece)knightPreset.Instantiate();
             GeneratePiece(knight, new Vector2I(1, secondRow), new Vector2I(5, 0), i);
         }
 
         for (int i = 0; i < 2; i++)
         {
-            Piece bishop = (Piece)_piece.Instantiate();
-            movementDirections = new int[] { 0, 8, 0, 8, 0, 8, 0, 8 };
-            captureDirections = new int[] { 0, 8, 0, 8, 0, 8, 0, 8 };
-            bishop.SetFields(_playerNum, movementDirections, captureDirections, "bishop");
+            PackedScene bishopPreset = (PackedScene)ResourceLoader.Load("res://scenes/pieces/bishop.tscn");
+            Piece bishop = (Piece)bishopPreset.Instantiate();
             GeneratePiece(bishop, new Vector2I(2, secondRow), new Vector2I(3, 0), i);
         }
 
-        Piece king = (Piece)_piece.Instantiate();
-        movementDirections = new int[] { 1, 1, 1, 1, 1, 1, 1, 1 };
-        captureDirections = new int[] { 1, 1, 1, 1, 1, 1, 1, 1 };
-        king.SetFields(_playerNum, movementDirections, captureDirections, "king", isKing: true, canCastle: true, castlingDistance: 2);
+        PackedScene kingPreset = (PackedScene)ResourceLoader.Load("res://scenes/pieces/king.tscn");
+        Piece king = (Piece)kingPreset.Instantiate();
         GeneratePiece(king, new Vector2I(4, secondRow), new Vector2I(0, 0));
 
-        Piece queen = (Piece)_piece.Instantiate();
-        movementDirections = new int[] { 8, 8, 8, 8, 8, 8, 8, 8 };
-        captureDirections = new int[] { 8, 8, 8, 8, 8, 8, 8, 8 };
-        queen.SetFields(_playerNum, movementDirections, captureDirections, "queen");
+        PackedScene queenPreset = (PackedScene)ResourceLoader.Load("res://scenes/pieces/queen.tscn");
+        Piece queen = (Piece)queenPreset.Instantiate();
         GeneratePiece(queen, new Vector2I(3, secondRow), new Vector2I(0, 0));
     }
 

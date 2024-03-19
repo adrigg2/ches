@@ -1,0 +1,28 @@
+[gd_scene load_steps=7 format=3 uid="uid://p2pjgd7nmlm"]
+
+[ext_resource type="Script" path="res://scripts/Piece.cs" id="1_83wa5"]
+[ext_resource type="Resource" uid="uid://cbcxncsgm4y3" path="res://assets/resources/piece_textures.tres" id="2_pg6na"]
+[ext_resource type="PackedScene" uid="uid://34he5epnjvfu" path="res://scenes/movement.tscn" id="3_aag2v"]
+[ext_resource type="PackedScene" uid="uid://udrochcokmvr" path="res://scenes/capture.tscn" id="4_b5h0y"]
+[ext_resource type="PackedScene" uid="uid://dvgrvy1lc6671" path="res://scenes/promotion_selection.tscn" id="5_6ikuk"]
+[ext_resource type="Shape2D" uid="uid://dg5lhu0e8vi5l" path="res://assets/resources/piece_shape.tres" id="6_wbgjx"]
+
+[node name="Pawn" type="StaticBody2D"]
+input_pickable = true
+script = ExtResource("1_83wa5")
+_firstMovementBonus = 1
+_movementDirections = PackedInt32Array(1, 0, 0, 0, 0, 0, 0, 0)
+_captureDirections = PackedInt32Array(0, 1, 0, 0, 0, 0, 0, 1)
+_textures = ExtResource("2_pg6na")
+_movement = ExtResource("3_aag2v")
+_capture = ExtResource("4_b5h0y")
+_promotion = ExtResource("5_6ikuk")
+_pieceType = "pawn"
+_canEnPassant = true
+metadata/Piece_Type = "pawn"
+metadata/Player = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = ExtResource("6_wbgjx")

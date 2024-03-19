@@ -1,0 +1,28 @@
+[gd_scene load_steps=7 format=3 uid="uid://mnmckgdbxcsn"]
+
+[ext_resource type="Script" path="res://scripts/Piece.cs" id="1_2t2dk"]
+[ext_resource type="Resource" uid="uid://cbcxncsgm4y3" path="res://assets/resources/piece_textures.tres" id="2_0mjmi"]
+[ext_resource type="PackedScene" uid="uid://34he5epnjvfu" path="res://scenes/movement.tscn" id="3_532v4"]
+[ext_resource type="PackedScene" uid="uid://udrochcokmvr" path="res://scenes/capture.tscn" id="4_ntf0h"]
+[ext_resource type="PackedScene" uid="uid://dvgrvy1lc6671" path="res://scenes/promotion_selection.tscn" id="5_eadbj"]
+[ext_resource type="Shape2D" uid="uid://dg5lhu0e8vi5l" path="res://assets/resources/piece_shape.tres" id="6_v67ae"]
+
+[node name="Knight" type="StaticBody2D"]
+input_pickable = true
+script = ExtResource("1_2t2dk")
+_movementDirections = PackedInt32Array(0, 0, 0, 0, 0, 0, 0, 0)
+_captureDirections = PackedInt32Array(0, 0, 0, 0, 0, 0, 0, 0)
+_textures = ExtResource("2_0mjmi")
+_movement = ExtResource("3_532v4")
+_capture = ExtResource("4_ntf0h")
+_promotion = ExtResource("5_eadbj")
+_pieceType = "knight"
+_knightMovement = true
+_knightCapture = true
+metadata/Piece_Type = "pawn"
+metadata/Player = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = ExtResource("6_v67ae")
