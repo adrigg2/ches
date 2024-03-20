@@ -81,6 +81,7 @@ public partial class Player : Node2D
         {
             PackedScene pawnPreset = (PackedScene)ResourceLoader.Load("res://scenes/pieces/pawn.tscn");
             Piece pawn = (Piece)pawnPreset.Instantiate();
+            pawn.SetFields(_playerNum);
             GeneratePiece(pawn, new Vector2I(0, firstRow), new Vector2I(1, 0), i);
         }
 
@@ -88,6 +89,7 @@ public partial class Player : Node2D
         {
             PackedScene rookPreset = (PackedScene)ResourceLoader.Load("res://scenes/pieces/rook.tscn");
             Piece rook = (Piece)rookPreset.Instantiate();
+            rook.SetFields(_playerNum);
             GeneratePiece(rook, new Vector2I(0, secondRow), new Vector2I(7, 0), i);
         }
 
@@ -95,6 +97,7 @@ public partial class Player : Node2D
         {
             PackedScene knightPreset = (PackedScene)ResourceLoader.Load("res://scenes/pieces/knight.tscn");
             Piece knight = (Piece)knightPreset.Instantiate();
+            knight.SetFields(_playerNum);
             GeneratePiece(knight, new Vector2I(1, secondRow), new Vector2I(5, 0), i);
         }
 
@@ -102,15 +105,18 @@ public partial class Player : Node2D
         {
             PackedScene bishopPreset = (PackedScene)ResourceLoader.Load("res://scenes/pieces/bishop.tscn");
             Piece bishop = (Piece)bishopPreset.Instantiate();
+            bishop.SetFields(_playerNum);
             GeneratePiece(bishop, new Vector2I(2, secondRow), new Vector2I(3, 0), i);
         }
 
         PackedScene kingPreset = (PackedScene)ResourceLoader.Load("res://scenes/pieces/king.tscn");
         Piece king = (Piece)kingPreset.Instantiate();
+        king.SetFields(_playerNum);
         GeneratePiece(king, new Vector2I(4, secondRow), new Vector2I(0, 0));
 
         PackedScene queenPreset = (PackedScene)ResourceLoader.Load("res://scenes/pieces/queen.tscn");
         Piece queen = (Piece)queenPreset.Instantiate();
+        queen.SetFields(_playerNum);
         GeneratePiece(queen, new Vector2I(3, secondRow), new Vector2I(0, 0));
     }
 
@@ -128,7 +134,6 @@ public partial class Player : Node2D
         piece.AllowCastling += AllowCastling;
         piece.MoveRook += Castle;
 
-        int id = (int)piece.Get("_id");
         cell = icell + index * cells;
         ipos = SetPos(cell);
         piece.Position = ipos;

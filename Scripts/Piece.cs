@@ -106,25 +106,12 @@ public partial class Piece : BasePiece
     public bool IsKing { get => _isKing; }
     public bool CanBeCastled { get => _canBeCastled; }
 
-    public void SetFields(int player, int[] movementDirections, int[] captureDirections, string pieceType, bool knightMovement = false, bool knightCapture = false, bool isKing = false, bool canCastle = false, bool canBeCastled = false, int castlingDistance = 0, bool canEnPassant = false, int firstMovementBonus = 0)
+    public void SetFields(int player)
     {
         this.player = player;
-        _seesKing = Direction.None;
-        _lockedDirection = NotBlocked;
-        _firstMovementBonus = firstMovementBonus;
-        _movementDirections = movementDirections;
-        _captureDirections = captureDirections;
-        _pieceType = pieceType;
         _checkUpdatedCheck = false;
         _firstMovement = true;
         _enPassant = false;
-        _canEnPassant = canEnPassant;
-        _isKing = isKing;
-        _canCastle = canCastle;
-        _canBeCastled = canBeCastled;
-        _castlingDistance = castlingDistance;
-        _knightMovement = knightMovement;
-        _knightCapture = knightCapture;
     }
 
     public override void _Ready()
