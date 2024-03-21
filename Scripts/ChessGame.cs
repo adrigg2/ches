@@ -127,6 +127,8 @@ public partial class ChessGame : Node2D
 
     public void PlayersSet()
     {
+        Callable checkPiece = new Callable(this, "CheckPiece");
+
         foreach (Node child in _board.GetChildren())
         {
             if (child is Player player)
@@ -141,7 +143,7 @@ public partial class ChessGame : Node2D
                         piece.PieceSelected += DisableMovement;
                         piece.PieceMoved += UpdateBoard;
                         piece.ClearEnPassant += ClearEnPassant;
-                        piece.CheckPiece = "CheckPiece";
+                        piece.CheckPiece = checkPiece;
                         _pieces.Add(piece.ID, piece);
                     }
                 }

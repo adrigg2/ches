@@ -1,6 +1,6 @@
 using Godot;
 
-namespace Ches;
+namespace Ches.Chess;
 public partial class Movement : CharacterBody2D
 {
     [Signal]
@@ -13,6 +13,11 @@ public partial class Movement : CharacterBody2D
     public delegate void captureEventHandler();
 
     private bool _isCapture;
+    private bool _isCastling;
+
+    private Piece _castlingTarget;
+
+    private Vector2 _castlingPosition;
 
     public override void _Ready()
     {
@@ -35,7 +40,7 @@ public partial class Movement : CharacterBody2D
     {
         if (@event.IsActionPressed("piece_interaction"))
         {
-            if (_isCapture == true)
+            if (_isCapture)
             {
                 GD.Print("---------CAPTURE UPDATE TILES---------");
                 EmitSignal(SignalName.capture, Position, this);
@@ -44,6 +49,11 @@ public partial class Movement : CharacterBody2D
             {
                 EmitSignal(SignalName.moveSelected, Position);
                 EmitSignal(SignalName.pieceSelected);
+
+                if (_isCastling)
+                {
+                    _castlingTarget.Castle(_castlingPosition);
+                }
             }
             GD.Print("Move selected, update tiles");
         }
@@ -53,5 +63,12 @@ public partial class Movement : CharacterBody2D
     {
         EmitSignal(SignalName.moveSelected, Position);
         EmitSignal(SignalName.pieceSelected);
+    }
+
+    public void SetCastling(Piece target, Vector2 targetPostion)
+    {
+        _isCastling = true;
+        _castlingTarget = target;
+        _castlingPosition = targetPostion;
     }
 }
