@@ -318,6 +318,7 @@ public partial class Piece : BasePiece
         Position = newPosition;
 
         _checkCount = 0;
+        _firstMovement = false;
 
         EmitSignal(SignalName.ClearDynamicTiles);
         EmitSignal(SignalName.UpdateTiles, oldPos, new Vector2I(0, 1), Name);

@@ -73,7 +73,7 @@ public partial class ChessGame : Node2D
         }
     }
 
-    public void UpdateBoard(Vector2 piecePos, Vector2 oldPos, int player, bool promotion)
+    public void UpdateBoard(Vector2 piecePos, Vector2 oldPos, int id, bool promotion)
     {
         Vector2I arrPos;
         Vector2I oldArrPos;
@@ -81,7 +81,7 @@ public partial class ChessGame : Node2D
         arrPos = _board.LocalToMap(piecePos);
         oldArrPos = _board.LocalToMap(oldPos);
 
-        _board.Cells[arrPos.X, arrPos.Y] = player;
+        _board.Cells[arrPos.X, arrPos.Y] = id;
         _board.Cells[oldArrPos.X, oldArrPos.Y] = 0;
 
         int[,] boardToSave = (int[,])_board.Cells.Clone();
@@ -94,11 +94,11 @@ public partial class ChessGame : Node2D
         CheckReset();
         if (!promotion)
         {
-            if (player / 10 == 1)
+            if (id / 1000 == 1)
             {
                 Piece.Turn = 2;
             } 
-            else if (player / 10 == 2)
+            else if (id / 1000 == 2)
             {
                 Piece.Turn = 1;
             }
