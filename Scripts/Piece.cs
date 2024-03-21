@@ -2,7 +2,6 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace Ches.Chess;
 public partial class Piece : BasePiece
@@ -193,6 +192,8 @@ public partial class Piece : BasePiece
                 _movementDirections[i] += _firstMovementBonus;
             }
 
+            List<Vector2> occupiedPositions = new();
+
             for (int j = 1; j <= GameBoard.Length || j <= GameBoard.Height; j++)
             {
                 if (!_lockedDirection.IsEmpty() && !_lockedDirection.Contains(i))
@@ -222,7 +223,7 @@ public partial class Piece : BasePiece
                         Piece friendlyPiece = (Piece)Call(_checkPiece, moveCheck);
                         if (friendlyPiece.CanBeCastled)
                         {
-                            GenerateCastling(directions[i]);
+                            GenerateCastling(directions[i], occupiedPositions);
                         }
                     }
                     break;
@@ -252,6 +253,7 @@ public partial class Piece : BasePiece
                         CharacterBody2D movement = (CharacterBody2D)_movement.Instantiate();
                         AddChild(movement);
                         movement.Position = movePos;
+                        occupiedPositions.Add(movePos);
                     }
                 }
             }
@@ -262,7 +264,7 @@ public partial class Piece : BasePiece
             }
         }
 
-        if (_knightMovement || _knightCapture)
+        if ((_knightMovement || _knightCapture) && !_lockedDirection.IsEmpty())
         {
             directions = new Vector2I[]
             {
@@ -306,9 +308,23 @@ public partial class Piece : BasePiece
         }
     }
 
-    private void GenerateCastling(Vector2I direction)
+    private void GenerateCastling(Vector2I direction, Vector2[] occupiedPositions)
     {
-        GD.Print("Generating castling");
+        for (int i = 0, i < _castlingDistance, i++)
+        {
+            Vector2 movePos = Position + j * new Vector2(CellPixels, CellPixels) * direction * _playerDirectionVector;
+
+            if (occupiedPositions.Contains(movePos))
+            {
+                continue;
+            }
+            else
+            {
+                CharacterBody2D movement = (CharacterBody2D)_movement.Instantiate();
+                AddChild(movement);
+                movement.Position = movePos;
+            }
+        }
     }
 
     public void MovementSelected(Vector2 newPosition)
