@@ -6,9 +6,14 @@ public partial class PromotionSelection : Control
     [Signal]
     public delegate void PawnPromotionEventHandler();
 
-    private CharacterBody2D _pawn;
+    [Signal]
+    public delegate void PiecePromotedEventHandler();
+
+    private Piece _pieceToPromote;
 
     private PackedScene _piece;
+
+    public Piece PieceToPromote { get => _pieceToPromote; set => _pieceToPromote = value; }
 
     public override void _Ready()
 	{
@@ -25,7 +30,7 @@ public partial class PromotionSelection : Control
 
         Node2D newParent = GetNode<Node2D>("../..");
         Node2D master = GetNode<Node2D>("../../../..");
-        _pawn = (CharacterBody2D)GetParent();
+        _pieceToPromote = (Piece)GetParent();
 
         GetParent().RemoveChild(this);
         newParent.AddChild(this);
@@ -33,7 +38,7 @@ public partial class PromotionSelection : Control
         Connect("PawnPromotion", new Callable(master, "PromotionComplete"));
         Connect("PawnPromotion", new Callable(newParent, "ConnectToPromotedPiece"));
 
-        int player = (int)_pawn.Get("_player");
+        int player = (int)_pieceToPromote.Get("_player");
 
         if (player == 2)
         {
@@ -46,76 +51,56 @@ public partial class PromotionSelection : Control
 
     private void QueenPromotion()
     {
-        Vector2 position = _pawn.Position;
-        int player = (int)_pawn.Get("_player");
-        Node2D playerController = GetNode<Node2D>("..");
+        int[] movementDirections = new int[8] { 8, 8, 8, 8, 8, 8, 8, 8 };
+        int[] captureDirections = new int[8] { 8, 8, 8, 8, 8, 8, 8, 8 };
+        string pieceType = "queen";
 
-        _pawn.QueueFree();
+        _pieceToPromote.PromotePiece(movementDirections, captureDirections, pieceType);
+        _pieceToPromote.UpdateTexture();
 
-        Piece queen = (Piece)_piece.Instantiate();
-        queen.SetMeta("Player", player);
-        queen.SetMeta("Piece_Type", "queen");
-        playerController.AddChild(queen);
-        queen.Position = position;
-
-        EmitSignal(SignalName.PawnPromotion, queen, player);
+        EmitSignal(SignalName.PiecePromoted);
 
         QueueFree();
     }
 
     private void RookPromotion()
     {
-        Vector2 position = _pawn.Position;
-        int player = (int)_pawn.Get("_player");
-        Node2D playerController = GetNode<Node2D>("..");
+        int[] movementDirections = new int[8] { 8, 0, 8, 0, 8, 0, 8, 0 };
+        int[] captureDirections = new int[8] { 8, 0, 8, 0, 8, 0, 8, 0 };
+        string pieceType = "rook";
 
-        _pawn.QueueFree();
+        _pieceToPromote.PromotePiece(movementDirections, captureDirections, pieceType);
+        _pieceToPromote.UpdateTexture();
 
-        Piece rook = (Piece)_piece.Instantiate();
-        rook.SetMeta("Player", player);
-        rook.SetMeta("Piece_Type", "rook");
-        playerController.AddChild(rook);
-        rook.Position = position;
-
-        EmitSignal(SignalName.PawnPromotion, rook, player);
+        EmitSignal(SignalName.PiecePromoted);
 
         QueueFree();
     }
 
     private void BishopPromotion()
     {
-        Vector2 position = _pawn.Position;
-        int player = (int)_pawn.Get("_player");
-        Node2D playerController = GetNode<Node2D>("..");
+        int[] movementDirections = new int[8] { 0, 8, 0, 8, 0, 8, 0, 8 };
+        int[] captureDirections = new int[8] { 0, 8, 0, 8, 0, 8, 0, 8 };
+        string pieceType = "bishop";
 
-        _pawn.QueueFree();
+        _pieceToPromote.PromotePiece(movementDirections, captureDirections, pieceType);
+        _pieceToPromote.UpdateTexture();
 
-        Piece bishop = (Piece)_piece.Instantiate();
-        bishop.SetMeta("Player", player);
-        bishop.SetMeta("Piece_Type", "bishop");
-        playerController.AddChild(bishop);
-        bishop.Position = position;
-
-        EmitSignal(SignalName.PawnPromotion, bishop, player);
+        EmitSignal(SignalName.PiecePromoted);
 
         QueueFree();
     }
 
     private void KnightPromotion()
     {
-        Vector2 position = _pawn.Position;
-        int player = (int)_pawn.Get("_player");
-        Node2D playerController = GetNode<Node2D>("..");
+        int[] movementDirections = new int[8] { 0, 0, 0, 0, 0, 0, 0, 0 };
+        int[] captureDirections = new int[8] { 0, 0, 0, 0, 0, 0, 0, 0 };
+        string pieceType = "knight";
 
-        _pawn.QueueFree();
+        _pieceToPromote.PromotePiece(movementDirections, captureDirections, pieceType, knightMovement: true, knightCapture: true);
+        _pieceToPromote.UpdateTexture();
 
-        Piece knight = (Piece)_piece.Instantiate();
-        knight.SetMeta("Player", player);
-        knight.SetMeta("Piece_Type", "knight");
-        playerController.AddChild(knight);
-        knight.Position = position;
-
-        EmitSignal(SignalName.PawnPromotion, knight, player);
+        EmitSignal(SignalName.PiecePromoted);
 
         QueueFree();
     }

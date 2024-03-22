@@ -19,6 +19,7 @@ _capture = ExtResource("4_b5h0y")
 _promotion = ExtResource("5_6ikuk")
 _pieceType = "pawn"
 _canEnPassant = true
+_canBePromoted = true
 metadata/Piece_Type = "pawn"
 metadata/Player = 0
 

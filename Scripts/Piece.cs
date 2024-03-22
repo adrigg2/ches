@@ -95,6 +95,7 @@ public partial class Piece : BasePiece
     [Export] private static bool _isInCheck = false;
     private bool _enPassant;
     [Export] private bool _canEnPassant;
+    [Export] private bool _canBePromoted;
     [Export] private bool _isKing;
     [Export] private bool _canCastle;
     [Export] private bool _canBeCastled;
@@ -111,6 +112,18 @@ public partial class Piece : BasePiece
         _checkUpdatedCheck = false;
         _firstMovement = true;
         _enPassant = false;
+    }
+
+    public void PromotePiece(int[] movementDirections, int[] captureDirections, string pieceType,
+        bool knightMovement = false, bool knightCapture = false, bool canEnPassant = false)
+    {
+        _canBePromoted = false;
+        _movementDirections = movementDirections;
+        _captureDirections = captureDirections;
+        _pieceType = pieceType;
+        _canEnPassant = canEnPassant;
+        _knightMovement = knightMovement;
+        _knightCapture = knightCapture;
     }
 
     public override void _Ready()
@@ -132,18 +145,7 @@ public partial class Piece : BasePiece
         id = player * 1000 + _lastPieceID;
         _lastPieceID++;
 
-        if (player == 2)
-        {
-            GD.Print("Setting texture");
-            Sprite2D sprite = GetNode<Sprite2D>("Sprite2D");
-            sprite.Texture = _textures.GetBlackTexture(_pieceType);
-        }
-        else if (player == 1)
-        {
-            GD.Print("Setting texture");
-            Sprite2D sprite = GetNode<Sprite2D>("Sprite2D");
-            sprite.Texture = _textures.GetWhiteTexture(_pieceType);
-        }
+        UpdateTexture();
 
         if (Turn == 2)
         {
@@ -322,7 +324,7 @@ public partial class Piece : BasePiece
         }
     }
 
-    public void MovementSelected(Vector2 newPosition)
+    public async void MovementSelected(Vector2 newPosition)
     {
         Vector2 oldPos;
         oldPos = Position;
@@ -330,6 +332,25 @@ public partial class Piece : BasePiece
 
         _checkCount = 0;
         _firstMovement = false;
+
+        if (_canBePromoted && (newPosition.Y < CellPixels || newPosition.Y > CellPixels * 7))
+        {
+            PromotionSelection promotionSelection = (PromotionSelection)_promotion.Instantiate();
+            promotionSelection.PieceToPromote = this;
+            AddChild(promotionSelection);
+
+            if (player == 2)
+            {
+                promotionSelection.Scale = new Vector2(-1, -1);
+                promotionSelection.Position = Position - new Vector2(CellPixels, 0);
+            }
+            else
+            {
+                promotionSelection.Position = Position + new Vector2(CellPixels, 0);
+            }
+
+            await ToSignal(promotionSelection, PromotionSelection.SignalName.PiecePromoted);
+        }
 
         EmitSignal(SignalName.ClearDynamicTiles);
         EmitSignal(SignalName.UpdateTiles, oldPos, new Vector2I(0, 1), Name);
@@ -1103,6 +1124,7 @@ public partial class Piece : BasePiece
             { "FirstMovement", _firstMovement },
             { "EnPassant", _enPassant },
             { "CanEnPassant", _canEnPassant },
+            { "CanBePromoted", _canBePromoted },
             { "IsKing", _isKing },
             { "CanCastle", _canCastle },
             { "CanBeCastled", _canBeCastled },
@@ -1129,6 +1151,7 @@ public partial class Piece : BasePiece
         _firstMovement = (bool)data["Unmovable"];
         _enPassant = (bool)data["EnPassant"];
         _canEnPassant = (bool)data["CanEnPassant"];
+        _canBePromoted = (bool)data["CanBePromoted"];
         _isKing = (bool)data["IsKing"];
         _canCastle = (bool)data["CanCastle"];
         _canBeCastled = (bool)data["CanBeCastled"];
@@ -1136,5 +1159,21 @@ public partial class Piece : BasePiece
         _knightCapture = (bool)data["KnightCapture"];
         player = (int)data["Player"];
         id = (int)data["Id"];
+    }
+
+    public void UpdateTexture()
+    {
+        if (player == 2)
+        {
+            GD.Print("Setting texture");
+            Sprite2D sprite = GetNode<Sprite2D>("Sprite2D");
+            sprite.Texture = _textures.GetBlackTexture(_pieceType);
+        }
+        else if (player == 1)
+        {
+            GD.Print("Setting texture");
+            Sprite2D sprite = GetNode<Sprite2D>("Sprite2D");
+            sprite.Texture = _textures.GetWhiteTexture(_pieceType);
+        }
     }
 }
