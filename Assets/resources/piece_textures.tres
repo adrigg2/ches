@@ -1,34 +1,12 @@
-[gd_resource type="Resource" script_class="PieceTextures" load_steps=14 format=3 uid="uid://cbcxncsgm4y3"]
+[gd_resource type="Resource" script_class="PieceTextures" load_steps=4 format=3 uid="uid://cbcxncsgm4y3"]
 
 [ext_resource type="Script" path="res://scripts/custom_resources/PieceTextures.cs" id="1_5gpyo"]
 [ext_resource type="Texture2D" uid="uid://bdkg843gprh4y" path="res://assets/sprites/pawn_b.png" id="1_52fgd"]
-[ext_resource type="Texture2D" uid="uid://cwucewicglrsn" path="res://assets/sprites/rook_b.png" id="2_5npnn"]
-[ext_resource type="Texture2D" uid="uid://bi2fmdbq1i1nw" path="res://assets/sprites/bishop_b.png" id="3_lapnu"]
-[ext_resource type="Texture2D" uid="uid://753wm1giqxs3" path="res://assets/sprites/knight_b.png" id="4_prxxh"]
-[ext_resource type="Texture2D" uid="uid://d2g7amdadoa6a" path="res://assets/sprites/queen_b.png" id="5_yadxs"]
 [ext_resource type="Texture2D" uid="uid://7i04xp1bppgp" path="res://assets/sprites/pawn_w.png" id="6_ltjb5"]
-[ext_resource type="Texture2D" uid="uid://dnaeylujgc1sd" path="res://assets/sprites/king_b.png" id="6_qft8n"]
-[ext_resource type="Texture2D" uid="uid://b6kegkgmui144" path="res://assets/sprites/rook_w.png" id="7_otxwr"]
-[ext_resource type="Texture2D" uid="uid://ckl1hkr6nxs8s" path="res://assets/sprites/bishop_w.png" id="8_8ga3o"]
-[ext_resource type="Texture2D" uid="uid://dyaby14uethli" path="res://assets/sprites/knight_w.png" id="9_dxxmj"]
-[ext_resource type="Texture2D" uid="uid://bsb4hneh7mvba" path="res://assets/sprites/queen_w.png" id="10_pqiqh"]
-[ext_resource type="Texture2D" uid="uid://cisctabys23u1" path="res://assets/sprites/king_w.png" id="11_krx4c"]
 
 [resource]
 script = ExtResource("1_5gpyo")
-_whiteTextures = {
-"bishop": ExtResource("8_8ga3o"),
-"king": ExtResource("11_krx4c"),
-"knight": ExtResource("9_dxxmj"),
-"pawn": ExtResource("6_ltjb5"),
-"queen": ExtResource("10_pqiqh"),
-"rook": ExtResource("7_otxwr")
-}
-_blackTextures = {
-"bishop": ExtResource("3_lapnu"),
-"king": ExtResource("6_qft8n"),
-"knight": ExtResource("4_prxxh"),
-"pawn": ExtResource("1_52fgd"),
-"queen": ExtResource("5_yadxs"),
-"rook": ExtResource("2_5npnn")
+_textures = {
+[1, "pawn"]: ExtResource("6_ltjb5"),
+[2, "pawn"]: ExtResource("1_52fgd")
 }

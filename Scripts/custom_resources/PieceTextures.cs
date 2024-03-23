@@ -5,26 +5,22 @@ namespace Ches;
 public partial class PieceTextures : Resource
 {
     [Export]
-    private Godot.Collections.Dictionary<string, Texture2D> _whiteTextures = new();
-    
-    [Export]
-    private Godot.Collections.Dictionary<string, Texture2D> _blackTextures = new();
+    private Godot.Collections.Dictionary<Godot.Collections.Array, Texture2D> _textures;
 
-    public PieceTextures() : this(null, null) { }
+    public PieceTextures() : this(null) { }
 
-    public PieceTextures(Godot.Collections.Dictionary<string, Texture2D> whiteTextures, Godot.Collections.Dictionary<string, Texture2D> blackTextures)
+    public PieceTextures(Godot.Collections.Dictionary<Godot.Collections.Array, Texture2D> textures)
     {
-        _whiteTextures = whiteTextures;
-        _blackTextures = blackTextures;
+        _textures = textures;
     }
 
-    public Texture2D GetWhiteTexture(string key)
+    public Texture2D GetTexture(Godot.Collections.Array key)
     {
-        return _whiteTextures[key];
+        return _textures[key];
     }
 
-    public Texture2D GetBlackTexture(string key)
+    public void AddTexture(Godot.Collections.Array key, Texture2D texture)
     {
-        return _blackTextures[key];
+        _textures.Add(key, texture);
     }
 }

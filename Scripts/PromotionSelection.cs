@@ -4,9 +4,6 @@ namespace Ches.Chess;
 public partial class PromotionSelection : Control
 {
     [Signal]
-    public delegate void PawnPromotionEventHandler();
-
-    [Signal]
     public delegate void PiecePromotedEventHandler();
 
     private Piece _pieceToPromote;
@@ -56,7 +53,7 @@ public partial class PromotionSelection : Control
         string pieceType = "queen";
 
         _pieceToPromote.PromotePiece(movementDirections, captureDirections, pieceType);
-        _pieceToPromote.UpdateTexture();
+        _pieceToPromote.UpdateSprite();
 
         EmitSignal(SignalName.PiecePromoted);
 
@@ -70,7 +67,7 @@ public partial class PromotionSelection : Control
         string pieceType = "rook";
 
         _pieceToPromote.PromotePiece(movementDirections, captureDirections, pieceType);
-        _pieceToPromote.UpdateTexture();
+        _pieceToPromote.UpdateSprite();
 
         EmitSignal(SignalName.PiecePromoted);
 
@@ -84,7 +81,7 @@ public partial class PromotionSelection : Control
         string pieceType = "bishop";
 
         _pieceToPromote.PromotePiece(movementDirections, captureDirections, pieceType);
-        _pieceToPromote.UpdateTexture();
+        _pieceToPromote.UpdateSprite();
 
         EmitSignal(SignalName.PiecePromoted);
 
@@ -98,7 +95,7 @@ public partial class PromotionSelection : Control
         string pieceType = "knight";
 
         _pieceToPromote.PromotePiece(movementDirections, captureDirections, pieceType, knightMovement: true, knightCapture: true);
-        _pieceToPromote.UpdateTexture();
+        _pieceToPromote.UpdateSprite();
 
         EmitSignal(SignalName.PiecePromoted);
 
