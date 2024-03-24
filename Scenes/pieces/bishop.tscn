@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://u3bj3tgbhenq"]
+[gd_scene load_steps=8 format=3 uid="uid://u3bj3tgbhenq"]
 
 [ext_resource type="Script" path="res://scripts/Piece.cs" id="1_ar6yk"]
-[ext_resource type="Resource" uid="uid://cbcxncsgm4y3" path="res://assets/resources/piece_textures.tres" id="2_6hqcv"]
+[ext_resource type="Texture2D" uid="uid://ckl1hkr6nxs8s" path="res://assets/sprites/bishop_w.png" id="2_ynnwp"]
 [ext_resource type="PackedScene" uid="uid://34he5epnjvfu" path="res://scenes/movement.tscn" id="3_tifnu"]
+[ext_resource type="Texture2D" uid="uid://bi2fmdbq1i1nw" path="res://assets/sprites/bishop_b.png" id="3_yyqkw"]
 [ext_resource type="PackedScene" uid="uid://udrochcokmvr" path="res://scenes/capture.tscn" id="4_sq172"]
 [ext_resource type="PackedScene" uid="uid://dvgrvy1lc6671" path="res://scenes/promotion_selection.tscn" id="5_al3mj"]
 [ext_resource type="Shape2D" uid="uid://dg5lhu0e8vi5l" path="res://assets/resources/piece_shape.tres" id="6_3bp5t"]
@@ -12,11 +13,13 @@ input_pickable = true
 script = ExtResource("1_ar6yk")
 _movementDirections = PackedInt32Array(0, 8, 0, 8, 0, 8, 0, 8)
 _captureDirections = PackedInt32Array(0, 8, 0, 8, 0, 8, 0, 8)
-_textures = ExtResource("2_6hqcv")
+_textures = {
+1: ExtResource("2_ynnwp"),
+2: ExtResource("3_yyqkw")
+}
 _movement = ExtResource("3_tifnu")
 _capture = ExtResource("4_sq172")
 _promotion = ExtResource("5_al3mj")
-_pieceType = "bishop"
 metadata/Piece_Type = "pawn"
 metadata/Player = 0
 

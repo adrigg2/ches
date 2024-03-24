@@ -74,7 +74,7 @@ public partial class Piece : BasePiece
 
     [Export] private Direction _seesKing;
 
-    [Export] private PieceTextures _textures;
+    [Export] private Godot.Collections.Dictionary<int, Texture2D> _textures;
 
     [Export] private PackedScene _movement;
     [Export] private PackedScene _capture;
@@ -83,8 +83,6 @@ public partial class Piece : BasePiece
     public static Board GameBoard { get; set; }
 
     private Vector2 _playerDirectionVector;
-
-    [Export] private string _texture;
 
     private Callable _checkPiece;
 
@@ -114,13 +112,13 @@ public partial class Piece : BasePiece
         _enPassant = false;
     }
 
-    public void PromotePiece(int[] movementDirections, int[] captureDirections, string pieceType,
+    public void PromotePiece(int[] movementDirections, int[] captureDirections, Godot.Collections.Dictionary<int, Texture2D> textures,
         bool knightMovement = false, bool knightCapture = false, bool canEnPassant = false)
     {
         _canBePromoted = false;
         _movementDirections = movementDirections;
         _captureDirections = captureDirections;
-        _texture = pieceType;
+        _textures = textures;
         _canEnPassant = canEnPassant;
         _knightMovement = knightMovement;
         _knightCapture = knightCapture;
@@ -407,7 +405,7 @@ public partial class Piece : BasePiece
     {
         _checkUpdatedCheck = false;
 
-        if (_isInCheck && _texture == "king")
+        if (_isInCheck && _isKing)
         {
             _isInCheck = false;
             EmitSignal(SignalName.PlayerInCheck, false);
@@ -422,7 +420,7 @@ public partial class Piece : BasePiece
             Scale = new Vector2(1, 1);
         }
 
-        if (Turn == player && _texture == "pawn" && _enPassant)
+        if (Turn == player && _enPassant)
         {
             EmitSignal(SignalName.ClearEnPassant, player);
             _enPassant = false;
@@ -438,7 +436,7 @@ public partial class Piece : BasePiece
 
     public void Capture(Vector2 _capturePos, CharacterBody2D _capture)
     {
-        if (_texture == "pawn" && _enPassant && (_capturePos == Position - new Vector2(0, CellPixels) || _capturePos == Position + new Vector2(0, CellPixels)))
+        if (_enPassant && (_capturePos == Position - new Vector2(0, CellPixels) || _capturePos == Position + new Vector2(0, CellPixels)))
         {
             Connect("tree_exited", new Callable(_capture, "Captured"));
             EmitSignal(SignalName.ClearEnPassant, player);
@@ -575,7 +573,7 @@ public partial class Piece : BasePiece
     public void CheckCheckState()
     {
         GD.Print($"Check check state {player} {Turn}");
-        if (_texture == "king" && Turn == player)
+        if (_isKing && Turn == player)
         {
             GD.Print(player, " is checking wether he is on check");
             CellSituation check = GameBoard.CheckCheckCells(Position);
@@ -775,8 +773,6 @@ public partial class Piece : BasePiece
         CellSituation positionSituation;
         bool outOfBounds;
 
-        GD.Print($"{_texture} {player} checking locked direction");
-
         if (_seesKing == Direction.Top)
         {
             for (int i = 1; i < 8; i++)
@@ -786,7 +782,6 @@ public partial class Piece : BasePiece
 
                 if (outOfBounds)
                 {
-                    GD.Print($"{_texture} {player} locked direction out of bounds bottom");
                     return;
                 }
 
@@ -794,12 +789,10 @@ public partial class Piece : BasePiece
 
                 if (positionSituation == CellSituation.Free)
                 {
-                    GD.Print($"{_texture} {player} not locked direction bottom");
                     return;
                 }
                 else if (positionSituation == CellSituation.Protected || positionSituation == CellSituation.NotProtected)
                 {
-                    GD.Print($"{_texture} {player} locked direction bottom");
                     enemyPiece = (Piece)_checkPiece.Call(GameBoard.CheckBoardCells(movePos));
 
                     if (enemyPiece.CaptureDirections[4] >= i)
@@ -819,7 +812,6 @@ public partial class Piece : BasePiece
 
                 if (outOfBounds)
                 {
-                    GD.Print($"{_texture} {player} locked direction out of bounds top");
                     break;
                 }
 
@@ -827,12 +819,10 @@ public partial class Piece : BasePiece
 
                 if (positionSituation == CellSituation.Free)
                 {
-                    GD.Print($"{_texture} {player} not locked direction top");
                     return;
                 }
                 else if (positionSituation == CellSituation.Protected || positionSituation == CellSituation.NotProtected)
                 {
-                    GD.Print($"{_texture} {player} locked direction top"); 
                     enemyPiece = (Piece)_checkPiece.Call(GameBoard.CheckBoardCells(movePos));
 
                     if (enemyPiece.CaptureDirections[0] >= Math.Abs(i))
@@ -852,7 +842,6 @@ public partial class Piece : BasePiece
 
                 if (outOfBounds)
                 {
-                    GD.Print($"{_texture} {player} locked direction out of bounds right");
                     break;
                 }
 
@@ -860,12 +849,10 @@ public partial class Piece : BasePiece
 
                 if (positionSituation == CellSituation.Free)
                 {
-                    GD.Print($"{_texture} {player} not locked direction right");
                     return;
                 }
                 else if (positionSituation == CellSituation.Protected || positionSituation == CellSituation.NotProtected)
                 {
-                    GD.Print($"{_texture} {player} locked direction right");
                     enemyPiece = (Piece)_checkPiece.Call(GameBoard.CheckBoardCells(movePos));
 
                     if (enemyPiece.CaptureDirections[2] >= i)
@@ -885,7 +872,6 @@ public partial class Piece : BasePiece
 
                 if (outOfBounds)
                 {
-                    GD.Print($"{_texture} {player} locked direction out of bounds left");
                     break;
                 }
 
@@ -893,12 +879,10 @@ public partial class Piece : BasePiece
 
                 if (positionSituation == CellSituation.Free)
                 {
-                    GD.Print($"{_texture} {player} not locked direction left");
                     return;
                 }
                 else if (positionSituation == CellSituation.Protected || positionSituation == CellSituation.NotProtected)
                 {
-                    GD.Print($"{_texture} {player} locked direction left");
                     enemyPiece = (Piece)_checkPiece.Call(GameBoard.CheckBoardCells(movePos));
 
                     if (enemyPiece.CaptureDirections[6] >= Math.Abs(i))
@@ -918,7 +902,6 @@ public partial class Piece : BasePiece
 
                 if (outOfBounds)
                 {
-                    GD.Print($"{_texture} {player} locked direction out of bounds bottom left");
                     break;
                 }
 
@@ -926,12 +909,10 @@ public partial class Piece : BasePiece
 
                 if (positionSituation == CellSituation.Free)
                 {
-                    GD.Print($"{_texture} {player} not locked direction bottom left");
                     return;
                 }
                 else if (positionSituation == CellSituation.Protected || positionSituation == CellSituation.NotProtected)
                 {
-                    GD.Print($"{_texture} {player} locked direction bottom left");
                     enemyPiece = (Piece)_checkPiece.Call(GameBoard.CheckBoardCells(movePos));
 
                     if (enemyPiece.CaptureDirections[5] >= Math.Abs(i))
@@ -951,7 +932,6 @@ public partial class Piece : BasePiece
 
                 if (outOfBounds)
                 {
-                    GD.Print($"{_texture} {player} locked direction out of bounds top right");
                     break;
                 }
 
@@ -959,12 +939,10 @@ public partial class Piece : BasePiece
 
                 if (positionSituation == CellSituation.Free)
                 {
-                    GD.Print($"{_texture} {player} not locked direction top right");
                     return;
                 }
                 else if (positionSituation == CellSituation.Protected || positionSituation == CellSituation.NotProtected)
                 {
-                    GD.Print($"{_texture} {player} locked direction top right");
                     enemyPiece = (Piece)_checkPiece.Call(GameBoard.CheckBoardCells(movePos));
 
                     if (enemyPiece.CaptureDirections[1] >= i)
@@ -984,7 +962,6 @@ public partial class Piece : BasePiece
 
                 if (outOfBounds)
                 {
-                    GD.Print($"{_texture} {player} locked direction out of bounds bottom right");
                     break;
                 }
 
@@ -992,12 +969,10 @@ public partial class Piece : BasePiece
 
                 if (positionSituation == CellSituation.Free)
                 {
-                    GD.Print($"{_texture} {player} not locked direction bottom right");
                     return;
                 }
                 else if (positionSituation == CellSituation.Protected || positionSituation == CellSituation.NotProtected)
                 {
-                    GD.Print($"{_texture} {player} locked direction bottom right");
                     enemyPiece = (Piece)_checkPiece.Call(GameBoard.CheckBoardCells(movePos));
 
                     if (enemyPiece.CaptureDirections[3] >= i)
@@ -1017,7 +992,6 @@ public partial class Piece : BasePiece
 
                 if (outOfBounds)
                 {
-                    GD.Print($"{_texture} {player} locked direction out of bounds top left");
                     break;
                 }
 
@@ -1025,12 +999,10 @@ public partial class Piece : BasePiece
 
                 if (positionSituation == CellSituation.Free)
                 {
-                    GD.Print($"{_texture} {player} not locked direction top left");
                     return;
                 }
                 else if (positionSituation == CellSituation.Protected || positionSituation == CellSituation.NotProtected)
                 {
-                    GD.Print($"{_texture} {player} locked direction top left");
                     enemyPiece = (Piece)_checkPiece.Call(GameBoard.CheckBoardCells(movePos));
 
                     if (enemyPiece.CaptureDirections[7] >= Math.Abs(i))
@@ -1119,7 +1091,6 @@ public partial class Piece : BasePiece
             { "CaptureDirections", _captureDirections },
             { "PlayerDirectionX", _playerDirectionVector.X },
             { "PlayerDirectionY", _playerDirectionVector.Y },
-            { "Texture", _texture },
             { "CheckUpdatedCheck", _checkUpdatedCheck },
             { "FirstMovement", _firstMovement },
             { "EnPassant", _enPassant },
@@ -1146,7 +1117,6 @@ public partial class Piece : BasePiece
         _captureDirections = (int[])data["CaptureDirections"];
         _castlingDistance = (int)data["CastlingDistance"];
         _playerDirectionVector = new Vector2((float)data["PlayerDirectionX"], (float)data["PlayerDirectionY"]);
-        _texture = (string)data["Texture"];
         _checkUpdatedCheck = (bool)data["CheckUpdatedCheck"];
         _firstMovement = (bool)data["Unmovable"];
         _enPassant = (bool)data["EnPassant"];
@@ -1165,6 +1135,6 @@ public partial class Piece : BasePiece
     {
         GD.Print("Setting texture");
         Sprite2D sprite = GetNode<Sprite2D>("Sprite2D");
-        sprite.Texture = _textures.GetTexture(new Godot.Collections.Array { player, _texture });
+        sprite.Texture = _textures[player];
     }
 }

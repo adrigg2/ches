@@ -26,14 +26,10 @@ public partial class PromotionSelection : Control
         _piece = (PackedScene)ResourceLoader.Load("res://scenes/piece.tscn");
 
         Node2D newParent = GetNode<Node2D>("../..");
-        Node2D master = GetNode<Node2D>("../../../..");
         _pieceToPromote = (Piece)GetParent();
 
         GetParent().RemoveChild(this);
         newParent.AddChild(this);
-
-        Connect("PawnPromotion", new Callable(master, "PromotionComplete"));
-        Connect("PawnPromotion", new Callable(newParent, "ConnectToPromotedPiece"));
 
         int player = (int)_pieceToPromote.Get("_player");
 
@@ -50,9 +46,13 @@ public partial class PromotionSelection : Control
     {
         int[] movementDirections = new int[8] { 8, 8, 8, 8, 8, 8, 8, 8 };
         int[] captureDirections = new int[8] { 8, 8, 8, 8, 8, 8, 8, 8 };
-        string pieceType = "queen";
+        Godot.Collections.Dictionary<int, Texture2D> textures = new()
+        {
+            { 1, (Texture2D)ResourceLoader.Load("res://assets/sprites/queen_w.png") },
+            { 2, (Texture2D)ResourceLoader.Load("res://assets/sprites/queen_b.png") }
+        };
 
-        _pieceToPromote.PromotePiece(movementDirections, captureDirections, pieceType);
+        _pieceToPromote.PromotePiece(movementDirections, captureDirections, textures);
         _pieceToPromote.UpdateSprite();
 
         EmitSignal(SignalName.PiecePromoted);
@@ -64,9 +64,13 @@ public partial class PromotionSelection : Control
     {
         int[] movementDirections = new int[8] { 8, 0, 8, 0, 8, 0, 8, 0 };
         int[] captureDirections = new int[8] { 8, 0, 8, 0, 8, 0, 8, 0 };
-        string pieceType = "rook";
+        Godot.Collections.Dictionary<int, Texture2D> textures = new()
+        {
+            { 1, (Texture2D)ResourceLoader.Load("res://assets/sprites/rook_w.png") },
+            { 2, (Texture2D)ResourceLoader.Load("res://assets/sprites/rook_b.png") }
+        };
 
-        _pieceToPromote.PromotePiece(movementDirections, captureDirections, pieceType);
+        _pieceToPromote.PromotePiece(movementDirections, captureDirections, textures);
         _pieceToPromote.UpdateSprite();
 
         EmitSignal(SignalName.PiecePromoted);
@@ -78,9 +82,13 @@ public partial class PromotionSelection : Control
     {
         int[] movementDirections = new int[8] { 0, 8, 0, 8, 0, 8, 0, 8 };
         int[] captureDirections = new int[8] { 0, 8, 0, 8, 0, 8, 0, 8 };
-        string pieceType = "bishop";
+        Godot.Collections.Dictionary<int, Texture2D> textures = new()
+        {
+            { 1, (Texture2D)ResourceLoader.Load("res://assets/sprites/bishop_w.png") },
+            { 2, (Texture2D)ResourceLoader.Load("res://assets/sprites/bishop_b.png") }
+        };
 
-        _pieceToPromote.PromotePiece(movementDirections, captureDirections, pieceType);
+        _pieceToPromote.PromotePiece(movementDirections, captureDirections, textures);
         _pieceToPromote.UpdateSprite();
 
         EmitSignal(SignalName.PiecePromoted);
@@ -92,9 +100,13 @@ public partial class PromotionSelection : Control
     {
         int[] movementDirections = new int[8] { 0, 0, 0, 0, 0, 0, 0, 0 };
         int[] captureDirections = new int[8] { 0, 0, 0, 0, 0, 0, 0, 0 };
-        string pieceType = "knight";
+        Godot.Collections.Dictionary<int, Texture2D> textures = new()
+        {
+            { 1, (Texture2D)ResourceLoader.Load("res://assets/sprites/knight_w.png") },
+            { 2, (Texture2D)ResourceLoader.Load("res://assets/sprites/knight_b.png") }
+        };
 
-        _pieceToPromote.PromotePiece(movementDirections, captureDirections, pieceType, knightMovement: true, knightCapture: true);
+        _pieceToPromote.PromotePiece(movementDirections, captureDirections, textures, knightMovement: true, knightCapture: true);
         _pieceToPromote.UpdateSprite();
 
         EmitSignal(SignalName.PiecePromoted);

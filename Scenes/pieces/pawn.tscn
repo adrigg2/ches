@@ -1,7 +1,8 @@
-[gd_scene load_steps=7 format=3 uid="uid://p2pjgd7nmlm"]
+[gd_scene load_steps=8 format=3 uid="uid://p2pjgd7nmlm"]
 
 [ext_resource type="Script" path="res://scripts/Piece.cs" id="1_83wa5"]
-[ext_resource type="Resource" uid="uid://cbcxncsgm4y3" path="res://assets/resources/piece_textures.tres" id="2_pg6na"]
+[ext_resource type="Texture2D" uid="uid://7i04xp1bppgp" path="res://assets/sprites/pawn_w.png" id="2_laeit"]
+[ext_resource type="Texture2D" uid="uid://bdkg843gprh4y" path="res://assets/sprites/pawn_b.png" id="3_1koyg"]
 [ext_resource type="PackedScene" uid="uid://34he5epnjvfu" path="res://scenes/movement.tscn" id="3_aag2v"]
 [ext_resource type="PackedScene" uid="uid://udrochcokmvr" path="res://scenes/capture.tscn" id="4_b5h0y"]
 [ext_resource type="PackedScene" uid="uid://dvgrvy1lc6671" path="res://scenes/promotion_selection.tscn" id="5_6ikuk"]
@@ -13,11 +14,13 @@ script = ExtResource("1_83wa5")
 _firstMovementBonus = 1
 _movementDirections = PackedInt32Array(1, 0, 0, 0, 0, 0, 0, 0)
 _captureDirections = PackedInt32Array(0, 1, 0, 0, 0, 0, 0, 1)
-_textures = ExtResource("2_pg6na")
+_textures = {
+1: ExtResource("2_laeit"),
+2: ExtResource("3_1koyg")
+}
 _movement = ExtResource("3_aag2v")
 _capture = ExtResource("4_b5h0y")
 _promotion = ExtResource("5_6ikuk")
-_pieceType = "pawn"
 _canEnPassant = true
 _canBePromoted = true
 metadata/Piece_Type = "pawn"

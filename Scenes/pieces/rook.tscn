@@ -1,7 +1,8 @@
-[gd_scene load_steps=7 format=3 uid="uid://y2h3sbw8bu07"]
+[gd_scene load_steps=8 format=3 uid="uid://y2h3sbw8bu07"]
 
 [ext_resource type="Script" path="res://scripts/Piece.cs" id="1_rhbnx"]
-[ext_resource type="Resource" uid="uid://cbcxncsgm4y3" path="res://assets/resources/piece_textures.tres" id="2_kbv21"]
+[ext_resource type="Texture2D" uid="uid://b6kegkgmui144" path="res://assets/sprites/rook_w.png" id="2_6j2eo"]
+[ext_resource type="Texture2D" uid="uid://cwucewicglrsn" path="res://assets/sprites/rook_b.png" id="3_hrvig"]
 [ext_resource type="PackedScene" uid="uid://34he5epnjvfu" path="res://scenes/movement.tscn" id="3_jqifj"]
 [ext_resource type="PackedScene" uid="uid://udrochcokmvr" path="res://scenes/capture.tscn" id="4_0jkdk"]
 [ext_resource type="PackedScene" uid="uid://dvgrvy1lc6671" path="res://scenes/promotion_selection.tscn" id="5_tlnin"]
@@ -12,11 +13,13 @@ input_pickable = true
 script = ExtResource("1_rhbnx")
 _movementDirections = PackedInt32Array(8, 0, 8, 0, 8, 0, 8, 0)
 _captureDirections = PackedInt32Array(8, 0, 8, 0, 8, 0, 8, 0)
-_textures = ExtResource("2_kbv21")
+_textures = {
+1: ExtResource("2_6j2eo"),
+2: ExtResource("3_hrvig")
+}
 _movement = ExtResource("3_jqifj")
 _capture = ExtResource("4_0jkdk")
 _promotion = ExtResource("5_tlnin")
-_pieceType = "rook"
 _canBeCastled = true
 metadata/Piece_Type = "pawn"
 metadata/Player = 0
