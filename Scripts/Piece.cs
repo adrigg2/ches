@@ -23,7 +23,10 @@ public partial class Piece : BasePiece
     public delegate void PieceSelectedEventHandler();
 
     [Signal]
-    public delegate void PieceMovedEventHandler(Vector2 position, Vector2 oldPosition, int player, bool promotion);
+    public delegate void PieceMovedEventHandler(Vector2 position, Vector2 oldPosition, int player);
+
+    [Signal]
+    public delegate void TurnFinishedEventHandler(int turn);
 
     [Signal]
     public delegate void CheckUpdatedEventHandler();
@@ -41,15 +44,6 @@ public partial class Piece : BasePiece
     public delegate void ClearDynamicTilesEventHandler();
 
     [Signal]
-    public delegate void CastlingSetupEventHandler(Vector2 position);
-
-    [Signal]
-    public delegate void AllowCastlingEventHandler(bool castlingAllowed, Vector2 position);
-
-    [Signal]
-    public delegate void MoveRookEventHandler(Vector2 position);
-
-    [Signal]
     public delegate void ClearEnPassantEventHandler(int player);
 
     const int CellPixels = 32;
@@ -64,12 +58,11 @@ public partial class Piece : BasePiece
     [Export] private int[] _movementDirections; // 0 -> Up, 1 -> Up-Right, etc. Value indicates max number of cells
     [Export] private int[] _captureDirections;
     [Export] private int _castlingDistance;
+    private int _turn;
     private static int _checkCount = 0;
     private static int _lastPieceID = 0;
 
-    public int[] CaptureDirections { get => _captureDirections; }
-
-    public static int Turn { get; set; } = 1;
+    public int[] CaptureDirections { get => (int[])_captureDirections.Clone(); }
     public int ID { get => id % 1000; }
 
     [Export] private Direction _seesKing;
@@ -145,11 +138,11 @@ public partial class Piece : BasePiece
 
         UpdateSprite();
 
-        if (Turn == 2)
+        if (_turn == 2)
         {
             Scale = new Vector2(-1, -1);
         }
-        else if (Turn == 1)
+        else if (_turn == 1)
         {
             Scale = new Vector2(1, 1);
         }
@@ -164,7 +157,7 @@ public partial class Piece : BasePiece
 
     protected override void Movement()
     {
-        if (Turn != player)
+        if (_turn != player)
         {
             return;
         }
@@ -354,6 +347,7 @@ public partial class Piece : BasePiece
         EmitSignal(SignalName.UpdateTiles, oldPos, new Vector2I(0, 1), Name);
         EmitSignal(SignalName.UpdateTiles, newPosition, new Vector2I(1, 1), Name);
         EmitSignal(SignalName.PieceMoved, newPosition, oldPos, id, false);
+        EmitSignal(SignalName.TurnFinished, _turn);
 
         /*if (_firstMovement == true)
         {
@@ -401,8 +395,9 @@ public partial class Piece : BasePiece
         }*/
     }
 
-    public void ChangeTurn()
+    public void ChangeTurn(int turn)
     {
+        _turn = turn;
         _checkUpdatedCheck = false;
 
         if (_isInCheck && _isKing)
@@ -411,22 +406,22 @@ public partial class Piece : BasePiece
             EmitSignal(SignalName.PlayerInCheck, false);
         }
 
-        if (Turn == 2)
+        if (_turn == 2)
         {
             Scale = new Vector2(-1, -1);
         }
-        else if (Turn == 1)
+        else if (_turn == 1)
         {
             Scale = new Vector2(1, 1);
         }
 
-        if (Turn == player && _enPassant)
+        if (_turn == player && _enPassant)
         {
             EmitSignal(SignalName.ClearEnPassant, player);
             _enPassant = false;
         }
 
-        if (player != Turn)
+        if (player != _turn)
         {
             _seesKing = Direction.None;
             _lockedDirection = NotBlocked;
@@ -572,8 +567,8 @@ public partial class Piece : BasePiece
 
     public void CheckCheckState()
     {
-        GD.Print($"Check check state {player} {Turn}");
-        if (_isKing && Turn == player)
+        GD.Print($"Check check state {player} {_turn}");
+        if (_isKing && _turn == player)
         {
             GD.Print(player, " is checking wether he is on check");
             CellSituation check = GameBoard.CheckCheckCells(Position);

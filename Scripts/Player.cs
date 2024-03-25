@@ -16,12 +16,20 @@ public partial class Player : Node2D
     private int _playerNum;
     private PackedScene _piece;
     private StringName _playerGroup;
-    private Timer _timer;
+    private Timer _timer; // Nullable (?)
+    private ChessGame _game;
     [Export] private double _timeLeft;
 
     private bool _check = false;
 
     private Dictionary<int, string> _pieceDict = new();
+
+    public void SetFields(int playerNum, ChessGame game)
+    {
+        _playerNum = playerNum;
+        _game = game;
+        _piece = (PackedScene)ResourceLoader.Load("res://scenes/piece.tscn");
+    }
 
     public override void _Ready()
 	{
@@ -31,8 +39,6 @@ public partial class Player : Node2D
         _playerNum = (int)GetMeta("player");
 
         GD.Print(_playerNum, "player");
-
-        _piece = (PackedScene)ResourceLoader.Load("res://scenes/piece.tscn");
 
         if (_playerNum == 1)
         {
@@ -60,7 +66,7 @@ public partial class Player : Node2D
             _timeLeft = Main.Settings.Minutes * 60;
             EmitSignal(SignalName.TimersSet, _timer, _playerNum);
             GD.Print("Player timer");
-            if (Piece.Turn == _playerNum)
+            if (_game.Turn == _playerNum)
             {
                 _timer.Start(_timeLeft);
             }
@@ -130,9 +136,6 @@ public partial class Player : Node2D
         piece.CheckUpdated += CheckUpdate;
         piece.PlayerInCheck += PlayerInCheck;
         piece.CheckmateCheck += CheckmateCheck;
-        piece.CastlingSetup += CastlingSetup;
-        piece.AllowCastling += AllowCastling;
-        piece.MoveRook += Castle;
 
         cell = icell + index * cells;
         ipos = SetPos(cell);
@@ -183,36 +186,6 @@ public partial class Player : Node2D
         }
     }
 
-    public void CastlingSetup(Vector2 position)
-    {
-        GetTree().CallGroup(_playerGroup, "FirstMovementCheck", position);
-    }
-
-    public void AllowCastling(bool castlingAllowed, Vector2 position)
-    {
-        GetTree().CallGroup(_playerGroup, "Castling", castlingAllowed, position);
-    }
-
-    public void Castle(Vector2 position)
-    {
-        GD.Print("Finish castling 1");
-        TileMap board = GetNode<TileMap>("..");
-        Vector2I cell;
-        cell = board.LocalToMap(position);
-        if (cell.X == 2)
-        {
-            Vector2 rookPosition = board.MapToLocal(new Vector2I(0, cell.Y));
-            Vector2 newPosition = board.MapToLocal(new Vector2I(3, cell.Y));
-            GetTree().CallGroup(_playerGroup, "Castle", rookPosition, newPosition);
-        }
-        else if (cell.X == 6)
-        {
-            Vector2 rookPosition = board.MapToLocal(new Vector2I(7, cell.Y));
-            Vector2 newPosition = board.MapToLocal(new Vector2I(5, cell.Y));
-            GetTree().CallGroup(_playerGroup, "Castle", rookPosition, newPosition);
-        }
-    }
-
     // FIXME: use SetFields when respawning old pieces
     public void RevertPieces(int[,] newSituation)
     {
@@ -242,16 +215,6 @@ public partial class Player : Node2D
                 }
             }
         }
-    }
-
-    public void ConnectToPromotedPiece(Piece piece, int player)
-    {
-        piece.CheckUpdated += CheckUpdate;
-        piece.PlayerInCheck += PlayerInCheck;
-        piece.CheckmateCheck += CheckmateCheck;
-        piece.CastlingSetup += CastlingSetup;
-        piece.AllowCastling += AllowCastling;
-        piece.MoveRook += Castle;
     }
 
     private void Timeout()

@@ -37,7 +37,7 @@ public partial class RevertMenu : Panel
 		_pieceDict.Add(4, "bishop");
 		_pieceDict.Add(5, "knight");
 
-		Turn = Piece.Turn;
+		Turn = Piece._turn;
 	}
 
 	public void SetUp()

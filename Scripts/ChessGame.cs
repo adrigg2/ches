@@ -23,6 +23,10 @@ public partial class ChessGame : Node2D
     public static List<BoardState> BoardHistory { get; set; } = new(); //Check why static
     private Dictionary<int, Piece> _pieces;
 
+    [Export] private int _turn;
+
+    public int Turn { get => _turn; }
+
     public override void _EnterTree()
 	{
         _board.BoardCellCount += SetBoardArrays;
@@ -73,7 +77,7 @@ public partial class ChessGame : Node2D
         }
     }
 
-    public void UpdateBoard(Vector2 piecePos, Vector2 oldPos, int id, bool promotion)
+    public void UpdateBoard(Vector2 piecePos, Vector2 oldPos, int id)
     {
         Vector2I arrPos;
         Vector2I oldArrPos;
@@ -83,39 +87,38 @@ public partial class ChessGame : Node2D
 
         _board.Cells[arrPos.X, arrPos.Y] = id;
         _board.Cells[oldArrPos.X, oldArrPos.Y] = 0;
+    }
 
+    private void ChangeTurn(int turn)
+    {
         int[,] boardToSave = (int[,])_board.Cells.Clone();
         CellSituation[,] zoneOfControlToSave = (CellSituation[,])_board.CheckCells.Clone();
 
         int situationCount = BoardHistory.Count(b => _board.Cells.Cast<int>().SequenceEqual(b.Board.Cast<int>()));
-            
+
         GD.Print($"This situation has been repeated {situationCount} times");
 
         CheckReset();
-        if (!promotion)
+        if (turn == 1)
         {
-            if (id / 1000 == 1)
-            {
-                Piece.Turn = 2;
-            } 
-            else if (id / 1000 == 2)
-            {
-                Piece.Turn = 1;
-            }
-            _camera.Zoom *= new Vector2(-1, -1);
-            BoardHistory.Add(new BoardState(boardToSave, zoneOfControlToSave, Piece.Turn, true));
-            GetTree().CallGroup("pieces", "ChangeTurn");
-            EmitSignal(SignalName.TurnChanged, Piece.Turn, situationCount);
+            _turn = 2;
         }
-        
+        else if (turn == 2)
+        {
+            _turn = 1;
+        }
+        _camera.Zoom *= new Vector2(-1, -1);
+        BoardHistory.Add(new BoardState(boardToSave, zoneOfControlToSave, _turn, true));
+        GetTree().CallGroup("pieces", "ChangeTurn");
+        EmitSignal(SignalName.TurnChanged, _turn, situationCount);
+
         if (situationCount == 5)
         {
             Checkmate(0);
         }
 
-        GetTree().CallGroup("players", "ChangeTurn", Piece.Turn);
-
-        DebugTracking(); //DEBUG
+        GetTree().CallGroup("players", "ChangeTurn", _turn);
+        GetTree().CallGroup("pieces", "ChangeTurn", _turn);
     }
 
     public int MovementCheck(Vector2 posCheck)
@@ -143,6 +146,7 @@ public partial class ChessGame : Node2D
                         piece.PieceSelected += DisableMovement;
                         piece.PieceMoved += UpdateBoard;
                         piece.ClearEnPassant += ClearEnPassant;
+                        piece.TurnFinished += ChangeTurn;
                         piece.CheckPiece = checkPiece;
                         _pieces.Add(piece.ID, piece);
                     }
@@ -166,7 +170,7 @@ public partial class ChessGame : Node2D
             }
         }
 
-        BoardHistory.Add(new BoardState(boardToSave, zoneOfControlToSave, Piece.Turn, true));
+        BoardHistory.Add(new BoardState(boardToSave, zoneOfControlToSave, _turn, true));
 
         _camera.Zoom = new Vector2(1, 1);
     }
@@ -218,7 +222,7 @@ public partial class ChessGame : Node2D
         _board.Reset();
 
         GetTree().CallGroup("pieces", "ChangeTurn");
-        GetTree().CallGroup("players", "ChangeTurn", Piece.Turn);
+        GetTree().CallGroup("players", "ChangeTurn", _turn);
 
         _debugTracker.Visible = true; //DEBUG
         _debugTracker2.Visible = true; //DEBUG
@@ -267,13 +271,13 @@ public partial class ChessGame : Node2D
         _board.ClearDynamicTiles();
         _board.Cells = BoardHistory[boardIndex].Board;
         _board.CheckCells = BoardHistory[boardIndex].ZoneOfControl;
-        Piece.Turn = BoardHistory[boardIndex].Turn;
+        _turn = BoardHistory[boardIndex].Turn;
 
-        if (Piece.Turn == 1)
+        if (_turn == 1)
         {
             _camera.Zoom = new Vector2(1, 1);
         }
-        else if (Piece.Turn == 2)
+        else if (_turn == 2)
         {
             _camera.Zoom = new Vector2(-1, -1);
         }
@@ -294,16 +298,16 @@ public partial class ChessGame : Node2D
 
         if (player == 1)
         {
-            Piece.Turn = 2;
+            _turn = 2;
         }
         else if (player == 2)
         {
-            Piece.Turn = 1;
+            _turn = 1;
         }
         _camera.Zoom *= new Vector2(-1, -1);
-        BoardHistory.Add(new BoardState(boardToSave, zoneOfControlToSave, Piece.Turn, true));
+        BoardHistory.Add(new BoardState(boardToSave, zoneOfControlToSave, _turn, true));
         GetTree().CallGroup("pieces", "ChangeTurn");
-        EmitSignal(SignalName.TurnChanged, Piece.Turn, situationCount);
+        EmitSignal(SignalName.TurnChanged, _turn, situationCount);
     }
 
     public Piece CheckPiece(int id)
