@@ -79,6 +79,7 @@ icon = ExtResource("2_ayai8")
 metadata/_edit_use_anchors_ = true
 
 [node name="Revert" type="Button" parent="."]
+visible = false
 layout_mode = 0
 offset_left = 20.0
 offset_top = 147.0

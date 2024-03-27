@@ -346,7 +346,7 @@ public partial class Piece : BasePiece
         EmitSignal(SignalName.ClearDynamicTiles);
         EmitSignal(SignalName.UpdateTiles, oldPos, new Vector2I(0, 1), Name);
         EmitSignal(SignalName.UpdateTiles, newPosition, new Vector2I(1, 1), Name);
-        EmitSignal(SignalName.PieceMoved, newPosition, oldPos, id, false);
+        EmitSignal(SignalName.PieceMoved, newPosition, oldPos, id);
         EmitSignal(SignalName.TurnFinished, _turn);
 
         /*if (_firstMovement == true)
@@ -399,6 +399,8 @@ public partial class Piece : BasePiece
     {
         _turn = turn;
         _checkUpdatedCheck = false;
+
+        CheckKingVissibility();
 
         if (_isInCheck && _isKing)
         {
@@ -706,11 +708,13 @@ public partial class Piece : BasePiece
     {
         Vector2 oldPos = Position;
         Position = newPosition;
-        EmitSignal(SignalName.PieceMoved, newPosition, oldPos, id, false);
+        EmitSignal(SignalName.PieceMoved, newPosition, oldPos, id);
     }
 
     public void CheckKingVissibility()
     {
+        GD.Print($"Piece {Name} is checking king vissibility");
+
         if (_isKing)
         {
             return;
@@ -748,10 +752,12 @@ public partial class Piece : BasePiece
                 {
                     Piece blockingPiece = (Piece)_checkPiece.Call(moveCheck);
                     if (blockingPiece.IsKing)
-                    {                        
+                    {
+                        GD.Print($"Piece {Name} sees king at {(Direction)(i + 1)}");
                         _seesKing = (Direction)(i + 1);
                         CheckBlockedDirections();
                     }
+                    break;
                 }
                 else if (blockedPos > 0)
                 {

@@ -33,29 +33,29 @@ public partial class Board : TileMap
 
         EmitSignal(SignalName.BoardCellCount, 8, 8);
 
-        //for (int i = 1; i < 3; i++)
-        //{
-        //    Player player = new Player();
-        //    player.SetMeta("player", i);
-        //    player.TimersSet += (timer, player) => EmitSignal(SignalName.TimersSet, timer, player);
-        //    AddChild(player);
-        //}
-        //EmitSignal(SignalName.PlayersSet);
+        for (int i = 1; i < 3; i++)
+        {
+            Player player = new();
+            player.SetFields(i, (ChessGame)GetParent());
+            player.TimersSet += (timer, player) => EmitSignal(SignalName.TimersSet, timer, player);
+            AddChild(player);
+        }
+        EmitSignal(SignalName.PlayersSet);
 
-        //foreach (Node player in GetChildren())
-        //{
-        //    if (player is Player)
-        //    {
-        //        foreach (Node piece in player.GetChildren())
-        //        {
-        //            if (piece is Piece piece1)
-        //            {
-        //                piece1.UpdateTiles += UpdateTiles;
-        //                piece1.ClearDynamicTiles += ClearDynamicTiles;
-        //            }
-        //        }
-        //    }
-        //}
+        foreach (Node player in GetChildren())
+        {
+            if (player is Player)
+            {
+                foreach (Node piece in player.GetChildren())
+                {
+                    if (piece is Piece piece1)
+                    {
+                        piece1.UpdateTiles += UpdateTiles;
+                        piece1.ClearDynamicTiles += ClearDynamicTiles;
+                    }
+                }
+            }
+        }
     }
 
     public void UpdateTiles(Vector2 position, Vector2I cellAtlas, string piece)

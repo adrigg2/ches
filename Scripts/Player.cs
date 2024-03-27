@@ -36,8 +36,6 @@ public partial class Player : Node2D
         AddToGroup("to_save");
         AddToGroup("players");
 
-        _playerNum = (int)GetMeta("player");
-
         GD.Print(_playerNum, "player");
 
         if (_playerNum == 1)
