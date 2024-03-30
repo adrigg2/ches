@@ -734,7 +734,7 @@ public partial class Piece : BasePiece
 
         for (int i = 0; i < 8; i++)
         {
-            for (int j = 0; j < 8; j++)
+            for (int j = 1; j < 8; j++)
             {
                 Vector2 movePos = Position + j * new Vector2(CellPixels, CellPixels) * directions[i];
 
@@ -742,6 +742,7 @@ public partial class Piece : BasePiece
 
                 if (outOfBounds)
                 {
+                    GD.Print($"Piece {Name} sees out of bounds at {(Direction)(i + 1)} (Position = {Position}; i = {i}; j = {j}; Direction = {directions[i]}; movePos = {movePos})");
                     break;
                 }
 
@@ -750,10 +751,11 @@ public partial class Piece : BasePiece
 
                 if (blockedPos == player)
                 {
+                    GD.Print($"Piece {Name} sees friendly piece at {(Direction)(i + 1)} (Position = {Position}; i = {i}; j = {j}; Direction = {directions[i]}; movePos = {movePos})");
                     Piece blockingPiece = (Piece)_checkPiece.Call(moveCheck);
                     if (blockingPiece.IsKing)
                     {
-                        GD.Print($"Piece {Name} sees king at {(Direction)(i + 1)}");
+                        GD.Print($"Piece {Name} sees king at {(Direction)(i + 1)} (Position = {Position}; i = {i}; j = {j}; Direction = {directions[i]}; movePos = {movePos})");
                         _seesKing = (Direction)(i + 1);
                         CheckBlockedDirections();
                     }
@@ -761,6 +763,7 @@ public partial class Piece : BasePiece
                 }
                 else if (blockedPos > 0)
                 {
+                    GD.Print($"Piece {Name} sees enemy piece at {(Direction)(i + 1)} (Position = {Position}; i = {i}; j = {j}; Direction = {directions[i]}; movePos = {movePos})");
                     break;
                 }
             }
