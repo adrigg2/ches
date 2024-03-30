@@ -8,7 +8,7 @@ public partial class Piece : BasePiece
 {
     private enum Direction
     {
-        None,
+        None = -1,
         Top,
         TopRight,
         Right,
@@ -742,7 +742,6 @@ public partial class Piece : BasePiece
 
                 if (outOfBounds)
                 {
-                    GD.Print($"Piece {Name} sees out of bounds at {(Direction)(i + 1)} (Position = {Position}; i = {i}; j = {j}; Direction = {directions[i]}; movePos = {movePos})");
                     break;
                 }
 
@@ -751,19 +750,17 @@ public partial class Piece : BasePiece
 
                 if (blockedPos == player)
                 {
-                    GD.Print($"Piece {Name} sees friendly piece at {(Direction)(i + 1)} (Position = {Position}; i = {i}; j = {j}; Direction = {directions[i]}; movePos = {movePos})");
                     Piece blockingPiece = (Piece)_checkPiece.Call(moveCheck);
                     if (blockingPiece.IsKing)
                     {
                         GD.Print($"Piece {Name} sees king at {(Direction)(i + 1)} (Position = {Position}; i = {i}; j = {j}; Direction = {directions[i]}; movePos = {movePos})");
-                        _seesKing = (Direction)(i + 1);
+                        _seesKing = (Direction)i;
                         CheckBlockedDirections();
                     }
                     break;
                 }
                 else if (blockedPos > 0)
                 {
-                    GD.Print($"Piece {Name} sees enemy piece at {(Direction)(i + 1)} (Position = {Position}; i = {i}; j = {j}; Direction = {directions[i]}; movePos = {movePos})");
                     break;
                 }
             }
@@ -772,248 +769,52 @@ public partial class Piece : BasePiece
 
     public void CheckBlockedDirections()
     {
-        Piece enemyPiece;
-        Vector2 movePos;
-        CellSituation positionSituation;
-        bool outOfBounds;
-
-        if (_seesKing == Direction.Top)
+        Vector2I[] directions =
         {
-            for (int i = 1; i < 8; i++)
+            new Vector2I(0, 1),
+            new Vector2I(1, 1),
+            new Vector2I(1, 0),
+            new Vector2I(1, -1),
+            new Vector2I(0, -1),
+            new Vector2I(-1, -1),
+            new Vector2I(-1, 0),
+            new Vector2I(-1, 1)
+        };
+
+        for (int i = 0; i < 8; i++)
+        {
+            if (!(_seesKing == (Direction)i ||  _seesKing == (Direction)((i + 4) % 8)))
             {
-                movePos = Position - i * new Vector2(0, CellPixels) * _playerDirectionVector;
-                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * GameBoard.Length || movePos.Y > CellPixels * GameBoard.Height;
-
-                if (outOfBounds)
-                {
-                    return;
-                }
-
-                positionSituation = GameBoard.CheckCheckCells(movePos);
-
-                if (positionSituation == CellSituation.Free)
-                {
-                    return;
-                }
-                else if (positionSituation == CellSituation.Protected || positionSituation == CellSituation.NotProtected)
-                {
-                    enemyPiece = (Piece)_checkPiece.Call(GameBoard.CheckBoardCells(movePos));
-
-                    if (enemyPiece.CaptureDirections[4] >= i)
-                    {
-                        _lockedDirection = Vertical;
-                    }
-                    return;
-                }
+                continue;
             }
-        }
-        else if (_seesKing == Direction.Bottom)
-        {
-            for (int i = -1; i > -8; i--)
+
+            for (int j = 1; j < 8; j++)
             {
-                movePos = Position - i * new Vector2(0, CellPixels) * _playerDirectionVector;
-                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * GameBoard.Length || movePos.Y > CellPixels * GameBoard.Height;
+                Vector2 movePos = Position + j * new Vector2(CellPixels, CellPixels) * directions[i];
+
+                bool outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * GameBoard.Length || movePos.Y > CellPixels * GameBoard.Height;
 
                 if (outOfBounds)
                 {
                     break;
                 }
 
-                positionSituation = GameBoard.CheckCheckCells(movePos);
+                int moveCheck = GameBoard.CheckBoardCells(movePos);
+                int blockedPos = moveCheck / 1000;
 
-                if (positionSituation == CellSituation.Free)
+                if (blockedPos != player && blockedPos > 0)
                 {
-                    return;
-                }
-                else if (positionSituation == CellSituation.Protected || positionSituation == CellSituation.NotProtected)
-                {
-                    enemyPiece = (Piece)_checkPiece.Call(GameBoard.CheckBoardCells(movePos));
-
-                    if (enemyPiece.CaptureDirections[0] >= Math.Abs(i))
+                    Piece blockingPiece = (Piece)_checkPiece.Call(moveCheck);
+                    if (blockingPiece.CaptureDirections[i] >= j)
                     {
-                        _lockedDirection = Vertical;
+                        GD.Print($"Piece {Name} is locked at {(Direction)i}");
+                        _lockedDirection = new int[] { i, (i + 4) % 8 };
                     }
-                    return;
-                }
-            }
-        }
-        else if (_seesKing == Direction.Left)
-        {
-            for (int i = 1; i < 8; i++)
-            {
-                movePos = Position - i * new Vector2(CellPixels, 0) * _playerDirectionVector;
-                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * GameBoard.Length || movePos.Y > CellPixels * GameBoard.Height;
-
-                if (outOfBounds)
-                {
                     break;
                 }
-
-                positionSituation = GameBoard.CheckCheckCells(movePos);
-
-                if (positionSituation == CellSituation.Free)
-                {
-                    return;
-                }
-                else if (positionSituation == CellSituation.Protected || positionSituation == CellSituation.NotProtected)
-                {
-                    enemyPiece = (Piece)_checkPiece.Call(GameBoard.CheckBoardCells(movePos));
-
-                    if (enemyPiece.CaptureDirections[2] >= i)
-                    {
-                        _lockedDirection = Horizontal;
-                    }
-                    return;
-                }
-            }
-        }
-        else if (_seesKing == Direction.Right)
-        {
-            for (int i = -1; i > -8; i--)
-            {
-                movePos = Position - i * new Vector2(CellPixels, 0) * _playerDirectionVector;
-                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * GameBoard.Length || movePos.Y > CellPixels * GameBoard.Height;
-
-                if (outOfBounds)
+                else if (blockedPos > 0)
                 {
                     break;
-                }
-
-                positionSituation = GameBoard.CheckCheckCells(movePos);
-
-                if (positionSituation == CellSituation.Free)
-                {
-                    return;
-                }
-                else if (positionSituation == CellSituation.Protected || positionSituation == CellSituation.NotProtected)
-                {
-                    enemyPiece = (Piece)_checkPiece.Call(GameBoard.CheckBoardCells(movePos));
-
-                    if (enemyPiece.CaptureDirections[6] >= Math.Abs(i))
-                    {
-                        _lockedDirection = Horizontal;
-                    }
-                    return;
-                }
-            }
-        }
-        else if (_seesKing == Direction.TopRight)
-        {
-            for (int i = -1; i > -8; i--)
-            {
-                movePos = Position - i * new Vector2(CellPixels, -CellPixels) * _playerDirectionVector;
-                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * GameBoard.Length || movePos.Y > CellPixels * GameBoard.Height;
-
-                if (outOfBounds)
-                {
-                    break;
-                }
-
-                positionSituation = GameBoard.CheckCheckCells(movePos);
-
-                if (positionSituation == CellSituation.Free)
-                {
-                    return;
-                }
-                else if (positionSituation == CellSituation.Protected || positionSituation == CellSituation.NotProtected)
-                {
-                    enemyPiece = (Piece)_checkPiece.Call(GameBoard.CheckBoardCells(movePos));
-
-                    if (enemyPiece.CaptureDirections[5] >= Math.Abs(i))
-                    {
-                        _lockedDirection = SecondaryDiagonal;
-                    }
-                    return;
-                }
-            }
-        }
-        else if (_seesKing == Direction.BottomLeft)
-        {
-            for (int i = 1; i < 8; i++)
-            {
-                movePos = Position - i * new Vector2(CellPixels, -CellPixels) * _playerDirectionVector;
-                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * GameBoard.Length || movePos.Y > CellPixels * GameBoard.Height;
-
-                if (outOfBounds)
-                {
-                    break;
-                }
-
-                positionSituation = GameBoard.CheckCheckCells(movePos);
-
-                if (positionSituation == CellSituation.Free)
-                {
-                    return;
-                }
-                else if (positionSituation == CellSituation.Protected || positionSituation == CellSituation.NotProtected)
-                {
-                    enemyPiece = (Piece)_checkPiece.Call(GameBoard.CheckBoardCells(movePos));
-
-                    if (enemyPiece.CaptureDirections[1] >= i)
-                    {
-                        _lockedDirection = SecondaryDiagonal;
-                    }
-                    return;
-                }
-            }
-        }
-        else if (_seesKing == Direction.TopLeft)
-        {
-            for (int i = 1; i < 8; i++)
-            {
-                movePos = Position - i * new Vector2(CellPixels, CellPixels) * _playerDirectionVector;
-                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * GameBoard.Length || movePos.Y > CellPixels * GameBoard.Height;
-
-                if (outOfBounds)
-                {
-                    break;
-                }
-
-                positionSituation = GameBoard.CheckCheckCells(movePos);
-
-                if (positionSituation == CellSituation.Free)
-                {
-                    return;
-                }
-                else if (positionSituation == CellSituation.Protected || positionSituation == CellSituation.NotProtected)
-                {
-                    enemyPiece = (Piece)_checkPiece.Call(GameBoard.CheckBoardCells(movePos));
-
-                    if (enemyPiece.CaptureDirections[3] >= i)
-                    {
-                        _lockedDirection = MainDiagonal;
-                    }
-                    return;
-                }
-            }
-        }
-        else if (_seesKing == Direction.BottomRight)
-        {
-            for (int i = -1; i > -8; i--)
-            {
-                movePos = Position - i * new Vector2(CellPixels, CellPixels) * _playerDirectionVector;
-                outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * GameBoard.Length || movePos.Y > CellPixels * GameBoard.Height;
-
-                if (outOfBounds)
-                {
-                    break;
-                }
-
-                positionSituation = GameBoard.CheckCheckCells(movePos);
-
-                if (positionSituation == CellSituation.Free)
-                {
-                    return;
-                }
-                else if (positionSituation == CellSituation.Protected || positionSituation == CellSituation.NotProtected)
-                {
-                    enemyPiece = (Piece)_checkPiece.Call(GameBoard.CheckBoardCells(movePos));
-
-                    if (enemyPiece.CaptureDirections[7] >= Math.Abs(i))
-                    {
-                        _lockedDirection = MainDiagonal;
-                    }
-                    return;
                 }
             }
         }
