@@ -407,6 +407,10 @@ public partial class Piece : BasePiece
             _isInCheck = false;
             EmitSignal(SignalName.PlayerInCheck, false);
         }
+        else
+        {
+            CheckCheckState();
+        }
 
         if (_turn == 2)
         {
@@ -569,19 +573,16 @@ public partial class Piece : BasePiece
 
     public void CheckCheckState()
     {
-        GD.Print($"Check check state {player} {_turn}");
-        if (_isKing && _turn == player)
-        {
-            GD.Print(player, " is checking wether he is on check");
-            CellSituation check = GameBoard.CheckCheckCells(Position);
+        CellSituation check = GameBoard.CheckCheckCells(Position);
 
-            if (check == CellSituation.KingInCheck)
-            {
-                _isInCheck = true;
-                GD.Print(player, " is in check");
-                EmitSignal(SignalName.UpdateTiles, Position, new Vector2I(1, 2), Name);
-                EmitSignal(SignalName.PlayerInCheck, true);
-            }
+        GD.Print($"{player} is checking check");
+
+        if (check == CellSituation.KingInCheck)
+        {
+            GD.Print($"{player} is in check");
+            _isInCheck = true;
+            EmitSignal(SignalName.UpdateTiles, Position, new Vector2I(1, 2), Name);
+            EmitSignal(SignalName.PlayerInCheck, true);
         }
     }
 
@@ -835,7 +836,7 @@ public partial class Piece : BasePiece
                 GameBoard.SetCheckCells(Position, CellSituation.NotProtectedAndSees);
             }
         }
-        else if (position != CellSituation.Protected && position != CellSituation.ProtectedAndSees)
+        else if (position != CellSituation.Protected && position != CellSituation.ProtectedAndSees && position != CellSituation.NotProtectedAndSees)
         {
             GameBoard.SetCheckCells(Position, CellSituation.NotProtected);
         }
