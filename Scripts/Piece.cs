@@ -317,9 +317,15 @@ public partial class Piece : BasePiece
 
     public async void MovementSelected(Vector2 newPosition)
     {
+        Tween tween = CreateTween();
+
         Vector2 oldPos;
         oldPos = Position;
-        Position = newPosition;
+
+        tween.TweenProperty(this, "position", newPosition, .33f);
+        await ToSignal(tween, Tween.SignalName.Finished);
+        //Position = newPosition;
+
 
         _checkCount = 0;
         _firstMovement = false;
