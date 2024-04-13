@@ -24,7 +24,7 @@ public partial class Board : TileMap
     public int Height { get => _height; }
 
     public override void _Ready()
-	{
+    {
         _selectedPosition = new Vector2(-1, -1);
         _length = 8;
         _height = 8;

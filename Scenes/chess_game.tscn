@@ -26,8 +26,9 @@ layer_1/tile_data = PackedInt32Array()
 script = ExtResource("3_lbu5b")
 
 [node name="Window" type="Window" parent="."]
-initial_position = 1
+initial_position = 3
 size = Vector2i(768, 384)
+current_screen = 1
 
 [node name="DebugTracker" type="Label" parent="Window"]
 offset_left = 512.0

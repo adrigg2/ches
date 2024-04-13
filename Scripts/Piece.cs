@@ -508,7 +508,6 @@ public partial class Piece : BasePiece
                     }
                     else
                     {
-                        controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
                         break;
                     }
                 }
@@ -564,10 +563,6 @@ public partial class Piece : BasePiece
                     {
                         controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
                         situation = CellSituation.SeesEnemyKing;
-                    }
-                    else
-                    {
-                        controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
                     }
                 }
 
@@ -717,7 +712,7 @@ public partial class Piece : BasePiece
         EmitSignal(SignalName.PieceMoved, newPosition, oldPos, id);
     }
 
-    public void CheckKingVissibility()
+    private void CheckKingVissibility()
     {
         GD.Print($"Piece {Name} is checking king vissibility");
 
@@ -773,7 +768,7 @@ public partial class Piece : BasePiece
         }
     }
 
-    public void CheckBlockedDirections()
+    private void CheckBlockedDirections()
     {
         Vector2I[] directions =
         {

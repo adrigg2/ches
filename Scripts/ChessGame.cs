@@ -28,7 +28,7 @@ public partial class ChessGame : Node2D
     public int Turn { get => _turn; }
 
     public override void _EnterTree()
-	{
+    {
         _board.BoardCellCount += SetBoardArrays;
         _board.PlayersSet += PlayersSet;
         _board.TimersSet += (timer, player) => EmitSignal(SignalName.TimersSet, timer, player);
@@ -41,6 +41,7 @@ public partial class ChessGame : Node2D
 
     public override void _Ready()
     {
+        GetTree().CallGroup("pieces", "UpdateCheck");
         GetTree().CallGroup("players", "ChangeTurn", _turn);
         GetTree().CallGroup("pieces", "ChangeTurn", _turn);
     }
