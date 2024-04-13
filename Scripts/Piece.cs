@@ -47,11 +47,6 @@ public partial class Piece : BasePiece
     public delegate void ClearEnPassantEventHandler(int player);
 
     const int CellPixels = 32;
-    readonly int[] NotBlocked = Array.Empty<int>();
-    readonly int[] Vertical = { (int)Direction.Top, (int)Direction.Bottom };
-    readonly int[] Horizontal = { (int)Direction.Right, (int)Direction.Left };
-    readonly int[] MainDiagonal = { (int)Direction.TopRight, (int)Direction.BottomLeft };
-    readonly int[] SecondaryDiagonal = { (int)Direction.BottomRight, (int)Direction.TopLeft };
 
     [Export] private int[] _lockedDirection;
     [Export] private int _firstMovementBonus;
@@ -324,7 +319,7 @@ public partial class Piece : BasePiece
 
         tween.TweenProperty(this, "position", newPosition, .33f);
         await ToSignal(tween, Tween.SignalName.Finished);
-        //Position = newPosition;
+        tween.Kill();
 
 
         _checkCount = 0;
@@ -436,7 +431,7 @@ public partial class Piece : BasePiece
         if (player != _turn)
         {
             _seesKing = Direction.None;
-            _lockedDirection = NotBlocked;
+            _lockedDirection = Array.Empty<int>();
             UpdateCheck();
         }
     }

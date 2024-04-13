@@ -16,6 +16,7 @@ metadata/Piece_Type = "pawn"
 metadata/Player = 0
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+region_rect = Rect2(0, 0, 64, 128)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = ExtResource("3_fmg7x")

@@ -114,6 +114,7 @@ public partial class ChessGame : Node2D
         {
             _turn = 1;
         }
+
         _camera.Zoom *= new Vector2(-1, -1);
         BoardHistory.Add(new BoardState(boardToSave, zoneOfControlToSave, _turn, true));
         EmitSignal(SignalName.TurnChanged, _turn, situationCount);
