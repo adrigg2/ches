@@ -124,6 +124,7 @@ public partial class ChessGame : Node2D
             Checkmate(0);
         }
 
+        GetTree().CallGroup("pieces", "UpdateCheck");
         GetTree().CallGroup("players", "ChangeTurn", _turn);
         GetTree().CallGroup("pieces", "ChangeTurn", _turn);
     }

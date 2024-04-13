@@ -403,7 +403,7 @@ public partial class Piece : BasePiece
 
         CheckKingVissibility();
 
-        if (_isInCheck && _isKing)
+        if (_isInCheck && _isKing && player == _turn)
         {
             _isInCheck = false;
             EmitSignal(SignalName.PlayerInCheck, false);
@@ -432,7 +432,6 @@ public partial class Piece : BasePiece
         {
             _seesKing = Direction.None;
             _lockedDirection = Array.Empty<int>();
-            UpdateCheck();
         }
     }
 
@@ -456,6 +455,11 @@ public partial class Piece : BasePiece
 
     public virtual void UpdateCheck()
     {
+        if (player != _turn)
+        {
+            return;
+        }
+
         Vector2I[] directions =
         {
             new Vector2I(0, 1),
