@@ -68,9 +68,12 @@ public partial class Piece : BasePiece
     [Export] private PackedScene _capture;
     [Export] private PackedScene _promotion;
 
+    private Tween _scaleTween;
+
     public static Board GameBoard { get; set; }
 
     private Vector2 _playerDirectionVector;
+    private Vector2 _originalScale;
 
     private Callable _checkPiece;
 
@@ -141,12 +144,48 @@ public partial class Piece : BasePiece
         {
             Scale = new Vector2(1, 1);
         }
+
+        _originalScale = Scale;
     }
 
     public void SetInitialTurn(int turn)
     {
         GameBoard.SetBoardCells(Position, id);
         _turn = turn;
+    }
+
+    public override void _MouseEnter()
+    {
+        if (player != _turn)
+        {
+            return;
+        }
+
+        Scale = _originalScale;
+
+        if (_scaleTween != null)
+        {
+            _scaleTween.Kill();
+        }
+        _scaleTween = CreateTween();
+
+        _scaleTween.TweenProperty(this, "scale", Scale * new Vector2(1.25f, 1.25f), .33f);
+    }
+
+    public override void _MouseExit()
+    {
+        if (player != _turn)
+        {
+            return;
+        }
+
+        if (_scaleTween != null)
+        {
+            _scaleTween.Kill();
+        }
+        _scaleTween = CreateTween();
+
+        _scaleTween.TweenProperty(this, "scale", _originalScale, .33f);
     }
 
     protected override void Movement()
@@ -415,10 +454,12 @@ public partial class Piece : BasePiece
         if (_turn == 2)
         {
             Scale = new Vector2(-1, -1);
+            _originalScale = Scale;
         }
         else if (_turn == 1)
         {
             Scale = new Vector2(1, 1);
+            _originalScale = Scale;
         }
 
         if (_turn == player && _enPassant)
