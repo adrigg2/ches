@@ -119,10 +119,10 @@ public partial class Board : TileMap
         _cells[cell.X, cell.Y] = value;
     }
 
-    public void SetCheckCells(Vector2 position, CellSituation value)
+    public void SetCheckCells(Vector2 position, CellSituation value, string caller) // Remove caller parameter
     {
         Vector2I cell = LocalToMap(position);
-        GD.Print($"Setting {cell} to {value} in CheckCells");
+        GD.Print($"{caller} is setting {cell} to {value} in CheckCells");
         _checkCells[cell.X, cell.Y] = value;
     }
 }

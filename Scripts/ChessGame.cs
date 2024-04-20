@@ -33,7 +33,7 @@ public partial class ChessGame : Node2D
         _board.PlayersSet += PlayersSet;
         _board.TimersSet += (timer, player) => EmitSignal(SignalName.TimersSet, timer, player);
 
-        _turn = 1;
+        _turn = 2;
         _pieces = new();
 
         AddToGroup("to_save");
@@ -41,9 +41,9 @@ public partial class ChessGame : Node2D
 
     public override void _Ready()
     {
+        GetTree().CallGroup("pieces", "SetInitialTurn", _turn);
         GetTree().CallGroup("pieces", "UpdateCheck");
-        GetTree().CallGroup("players", "ChangeTurn", _turn);
-        GetTree().CallGroup("pieces", "ChangeTurn", _turn);
+        ChangeTurn(_turn);
     }
 
     public override void _Process(double delta)
@@ -110,13 +110,14 @@ public partial class ChessGame : Node2D
         if (turn == 1)
         {
             _turn = 2;
+            _camera.Zoom = new Vector2(-1, -1);
         }
         else if (turn == 2)
         {
             _turn = 1;
+            _camera.Zoom = new Vector2(1, 1);
         }
 
-        _camera.Zoom *= new Vector2(-1, -1);
         BoardHistory.Add(new BoardState(boardToSave, zoneOfControlToSave, _turn, true));
         EmitSignal(SignalName.TurnChanged, _turn, situationCount);
 
