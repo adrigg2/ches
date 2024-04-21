@@ -7,8 +7,8 @@
 [node name="ChessGame" type="Node2D" node_paths=PackedStringArray("_board", "_debugTracker", "_debugTracker2", "_camera")]
 script = ExtResource("1_whhq8")
 _board = NodePath("Board")
-_debugTracker = NodePath("Window/DebugTracker")
-_debugTracker2 = NodePath("Window/DebugTracker2")
+_debugTracker = NodePath("DebugWindow/DebugTracker")
+_debugTracker2 = NodePath("DebugWindow/DebugTracker2")
 _camera = NodePath("Camera2D")
 
 [node name="Camera2D" type="Camera2D" parent="."]
@@ -25,12 +25,12 @@ layer_1/name = "Dynamic Tiles"
 layer_1/tile_data = PackedInt32Array()
 script = ExtResource("3_lbu5b")
 
-[node name="Window" type="Window" parent="."]
+[node name="DebugWindow" type="Window" parent="."]
 initial_position = 3
 size = Vector2i(768, 384)
 current_screen = 1
 
-[node name="DebugTracker" type="Label" parent="Window"]
+[node name="DebugTracker" type="Label" parent="DebugWindow"]
 offset_left = 512.0
 offset_right = 552.0
 offset_bottom = 24.0
@@ -39,7 +39,7 @@ theme_override_font_sizes/font_size = 17
 autowrap_mode = 2
 metadata/_edit_use_anchors_ = true
 
-[node name="DebugTracker2" type="Label" parent="Window"]
+[node name="DebugTracker2" type="Label" parent="DebugWindow"]
 offset_right = 40.0
 offset_bottom = 34.0
 scale = Vector2(3.20036, 1.04143)

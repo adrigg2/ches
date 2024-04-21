@@ -29,6 +29,10 @@ public partial class ChessGame : Node2D
 
     public override void _EnterTree()
     {
+#if !TOOLS
+        GetNode<Window>("DebugWindow").Free();
+#endif
+
         _board.BoardCellCount += SetBoardArrays;
         _board.PlayersSet += PlayersSet;
         _board.TimersSet += (timer, player) => EmitSignal(SignalName.TimersSet, timer, player);
@@ -46,10 +50,12 @@ public partial class ChessGame : Node2D
         ChangeTurn(_turn);
     }
 
+#if TOOLS
     public override void _Process(double delta)
     {
         DebugTracking();
     }
+#endif
 
     public void DisableMovement()
     {
