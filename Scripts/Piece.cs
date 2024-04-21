@@ -436,6 +436,11 @@ public partial class Piece : BasePiece
 
     public void ChangeTurn(int turn)
     {
+        if (_scaleTween != null)
+        {
+            _scaleTween.Kill();
+        }
+
         _turn = turn;
         _checkUpdatedCheck = false;
 
