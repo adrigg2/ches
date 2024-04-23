@@ -523,7 +523,7 @@ public partial class Piece : BasePiece
             CellSituation situation = CellSituation.Path;
             for (int j = 1; j <= _captureDirections[i]; j++)
             {
-                Vector2 movePos = Position + j * new Vector2(CellPixels, CellPixels) * directions[i];
+                Vector2 movePos = Position + j * new Vector2(CellPixels, CellPixels) * directions[i] * _playerDirectionVector;
 
                 bool outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * GameBoard.Length || movePos.Y > CellPixels * GameBoard.Height;
 
@@ -537,7 +537,7 @@ public partial class Piece : BasePiece
 
                 if (blockedPos == player)
                 {
-                    GD.Print($"{Name} is setting {new Vector2I((int)(movePos.X / 8), (int)(movePos.Y / 8))}");
+                    GD.Print($"{Name} is setting {new Vector2I((int)(movePos.X / 32), (int)(movePos.Y / 32))} 540");
                     controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
                     situation = CellSituation.SeesFriendlyPiece;
                     break;
@@ -598,6 +598,7 @@ public partial class Piece : BasePiece
 
                 if (blockedPos == player)
                 {
+                    GD.Print($"{Name} is setting {new Vector2I((int)(movePos.X / 32), (int)(movePos.Y / 32))} 601");
                     controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
                     situation = CellSituation.SeesFriendlyPiece;
                 }
@@ -869,6 +870,8 @@ public partial class Piece : BasePiece
 
     private void UpdateCheckCells(CellSituation situation, List<Vector2> controlledPositions)
     {
+        GD.Print($"{Name} is setting {situation} 873");
+
         CellSituation position = GameBoard.CheckCheckCells(Position);
 
         if (situation == CellSituation.SeesEnemyKing)
@@ -889,6 +892,7 @@ public partial class Piece : BasePiece
 
         foreach (Vector2 controlledPosition in controlledPositions)
         {
+            GD.Print($"{Name} is setting {controlledPosition} with {situation} 895");
             if (situation == CellSituation.Path || (controlledPosition != controlledPositions.Last() && situation == CellSituation.SeesFriendlyPiece))
             {
                 GameBoard.SetCheckCells(controlledPosition, CellSituation.Path, Name);
@@ -897,7 +901,7 @@ public partial class Piece : BasePiece
             {
                 GameBoard.SetCheckCells(controlledPosition, CellSituation.SeesEnemyKing, Name);
             }
-            else if (controlledPosition == controlledPositions.Last())
+            else
             {
                 if (situation == CellSituation.SeesEnemyKing)
                 {
@@ -906,7 +910,7 @@ public partial class Piece : BasePiece
                 else if (situation == CellSituation.SeesFriendlyPiece)
                 {
                     CellSituation oldSituation = GameBoard.CheckCheckCells(controlledPosition);
-                    if (oldSituation == CellSituation.NotProtected)
+                    if (oldSituation == CellSituation.NotProtected || oldSituation == CellSituation.Free)
                     {
                         GameBoard.SetCheckCells(controlledPosition, CellSituation.Protected, Name);
                     }
