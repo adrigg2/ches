@@ -262,9 +262,10 @@ public partial class Piece : BasePiece
                     if (normalCapture || kingCapture) 
                     {
                         GD.Print("Capture is posible");
-                        CharacterBody2D capture = (CharacterBody2D)_capture.Instantiate();
+                        Movement capture = (Movement)_capture.Instantiate();
                         AddChild(capture);
                         capture.Position = movePos;
+                        capture.MoveSelected += MovementSelected;
                         break;
                     }
                 }
@@ -279,6 +280,15 @@ public partial class Piece : BasePiece
                         Movement movement = (Movement)_movement.Instantiate();
                         AddChild(movement);
                         movement.Position = movePos;
+                        movement.MoveSelected += MovementSelected;
+
+                        if (_canEnPassant)
+                        {
+                            List<Vector2> enPassantPos = new List<Vector2>(occupiedPositions.Keys);
+                            movement.SetEnPassant(enPassantPos, player);
+                            movement.EnPassantGenerated += SetEnPassant;
+                        }
+
                         occupiedPositions.Add(movePos, movement);
                     }
                 }
@@ -318,16 +328,18 @@ public partial class Piece : BasePiece
                     if (blockedPos <= 0 && (!_isInCheck || (positionSituation == CellSituation.SeesEnemyKing && !_isKing) || (positionSituation == CellSituation.Free && _isKing)) && _knightMovement)
                     {
                         GD.Print("Movement is posible");
-                        CharacterBody2D movement = (CharacterBody2D)_movement.Instantiate();
+                        Movement movement = (Movement)_movement.Instantiate();
                         AddChild(movement);
                         movement.Position = movePos;
+                        movement.MoveSelected += MovementSelected;
                     }
                     else if (blockedPos > 0 && blockedPos != player && canTakePiece)
                     {
                         GD.Print("Capture is posible");
-                        CharacterBody2D capture = (CharacterBody2D)_capture.Instantiate();
+                        Movement capture = (Movement)_capture.Instantiate();
                         AddChild(capture);
                         capture.Position = movePos;
+                        capture.MoveSelected += MovementSelected;
                     }
                 }
             } 
@@ -340,9 +352,10 @@ public partial class Piece : BasePiece
         Movement movement = (Movement)_movement.Instantiate();
         AddChild(movement);
         movement.Position = movePos;
+        movement.MoveSelected += MovementSelected;
         movement.SetCastling(target, movePos - new Vector2(CellPixels, CellPixels) * direction * _playerDirectionVector);
 
-        if (occupiedPositions.Keys.Contains(movement.Position))
+        if (occupiedPositions.ContainsKey(movement.Position))
         {
             occupiedPositions[movePos].QueueFree();
         }
@@ -403,14 +416,6 @@ public partial class Piece : BasePiece
             }
         }
 
-        if (_pieceType == "king")
-        {
-            if (oldPos == Position + new Vector2(-2 * CellPixels, 0) || oldPos == Position + new Vector2(2 * CellPixels, 0))
-            {
-                EmitSignal(SignalName.MoveRook, newPosition);
-            }
-        }
-
         if (_pieceType == "pawn" && (newPosition.Y < CellPixels || newPosition.Y > CellPixels * 7))
         {
             Control promotionSelection = (Control)_promotion.Instantiate();
@@ -432,6 +437,12 @@ public partial class Piece : BasePiece
         {
             EmitSignal(SignalName.PieceMoved, newPosition, oldPos, id, false);
         }*/
+    }
+
+    public void SetEnPassant(Vector2 pos)
+    {
+        _enPassant = true;
+        EmitSignal(SignalName.PieceMoved, pos, new Vector2(-1, -1), -id);
     }
 
     public void ChangeTurn(int turn)
@@ -542,7 +553,7 @@ public partial class Piece : BasePiece
                     situation = CellSituation.SeesFriendlyPiece;
                     break;
                 }
-                else if (blockedPos != player && blockedPos != 0)
+                else if (blockedPos != player && blockedPos >= 0)
                 {
                     Piece blockingPiece = (Piece)_checkPiece.Call(moveCheck);
 
@@ -602,7 +613,7 @@ public partial class Piece : BasePiece
                     controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
                     situation = CellSituation.SeesFriendlyPiece;
                 }
-                else if (blockedPos != player && blockedPos != 0 && checkId != 1)
+                else if (blockedPos != player && blockedPos >= 0 && checkId != 1)
                 {
                     Piece blockingPiece = (Piece)_checkPiece.Call(moveCheck);
 

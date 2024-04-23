@@ -29,10 +29,6 @@ public partial class ChessGame : Node2D
 
     public override void _EnterTree()
     {
-#if !TOOLS
-        GetNode<Window>("DebugWindow").Free();
-#endif
-
         _board.BoardCellCount += SetBoardArrays;
         _board.PlayersSet += PlayersSet;
         _board.TimersSet += (timer, player) => EmitSignal(SignalName.TimersSet, timer, player);
@@ -50,12 +46,10 @@ public partial class ChessGame : Node2D
         ChangeTurn(_turn);
     }
 
-#if TOOLS
     public override void _Process(double delta)
     {
         DebugTracking();
     }
-#endif
 
     public void DisableMovement()
     {
@@ -72,7 +66,6 @@ public partial class ChessGame : Node2D
     {
         _board.Cells = new int[rows, columns];
         _board.CheckCells = new CellSituation[rows, columns];
-        DebugTracking(); //DEBUG
     }
 
     public void DebugTracking() //DEBUG
@@ -97,10 +90,13 @@ public partial class ChessGame : Node2D
         Vector2I oldArrPos;
 
         arrPos = _board.LocalToMap(piecePos);
-        oldArrPos = _board.LocalToMap(oldPos);
-
         _board.Cells[arrPos.X, arrPos.Y] = id;
-        _board.Cells[oldArrPos.X, oldArrPos.Y] = 0;
+
+        if (oldPos != new Vector2(-1, -1))
+        {
+            oldArrPos = _board.LocalToMap(oldPos);
+            _board.Cells[oldArrPos.X, oldArrPos.Y] = 0;
+        }
     }
 
     private void ChangeTurn(int turn)
@@ -199,7 +195,6 @@ public partial class ChessGame : Node2D
     public void CheckReset()
     {
         _board.CheckCells = new CellSituation[_board.Cells.GetLength(0), _board.Cells.GetLength(1)];
-        DebugTracking(); //DEBUG
     }
 
     public CellSituation CheckCheck(Vector2 posCheck) //FIXME: this and CheckArrayCheck are the same
@@ -250,7 +245,7 @@ public partial class ChessGame : Node2D
         {
             for (int j = 0; j < _board.Cells.GetLength(1); j++)
             {
-                if (_board.Cells[i, j] / 10 == -player)
+                if (_board.Cells[i, j] / 1000 == -player)
                 {
                     GD.Print("Cleared En Passant");
                     _board.Cells[i, j] = 0;
