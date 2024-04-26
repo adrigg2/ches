@@ -2,6 +2,7 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Transactions;
 
 namespace Ches.Chess;
 public partial class Piece : BasePiece
@@ -53,7 +54,6 @@ public partial class Piece : BasePiece
     [Export] private int[] _movementDirections; // 0 -> Up, 1 -> Up-Right, etc. Value indicates max number of cells
     [Export] private int[] _captureDirections;
     [Export] private int _castlingDistance;
-    private int _turn;
     private static int _checkCount = 0;
     private static int _lastPieceID = 0;
 
@@ -68,12 +68,9 @@ public partial class Piece : BasePiece
     [Export] private PackedScene _capture;
     [Export] private PackedScene _promotion;
 
-    private Tween _scaleTween;
-
     public static Board GameBoard { get; set; }
 
     private Vector2 _playerDirectionVector;
-    private Vector2 _originalScale;
 
     private Callable _checkPiece;
 
@@ -136,61 +133,27 @@ public partial class Piece : BasePiece
 
         UpdateSprite();
 
-        if (_turn == 2)
+        if (turn == 2)
         {
             Scale = new Vector2(-1, -1);
         }
-        else if (_turn == 1)
+        else if (turn == 1)
         {
             Scale = new Vector2(1, 1);
         }
 
-        _originalScale = Scale;
+        OriginalScale = Scale;
     }
 
     public void SetInitialTurn(int turn)
     {
         GameBoard.SetBoardCells(Position, id);
-        _turn = turn;
-    }
-
-    public override void _MouseEnter()
-    {
-        if (player != _turn)
-        {
-            return;
-        }
-
-        Scale = _originalScale;
-
-        if (_scaleTween != null)
-        {
-            _scaleTween.Kill();
-        }
-        _scaleTween = CreateTween();
-
-        _scaleTween.TweenProperty(this, "scale", Scale * new Vector2(1.25f, 1.25f), .33f);
-    }
-
-    public override void _MouseExit()
-    {
-        if (player != _turn)
-        {
-            return;
-        }
-
-        if (_scaleTween != null)
-        {
-            _scaleTween.Kill();
-        }
-        _scaleTween = CreateTween();
-
-        _scaleTween.TweenProperty(this, "scale", _originalScale, .33f);
+        this.turn = turn;
     }
 
     protected override void Movement()
     {
-        if (_turn != player)
+        if (turn != player)
         {
             return;
         }
@@ -399,44 +362,7 @@ public partial class Piece : BasePiece
         EmitSignal(SignalName.UpdateTiles, oldPos, new Vector2I(0, 1), Name);
         EmitSignal(SignalName.UpdateTiles, newPosition, new Vector2I(1, 1), Name);
         EmitSignal(SignalName.PieceMoved, newPosition, oldPos, id);
-        EmitSignal(SignalName.TurnFinished, _turn);
-
-        /*if (_firstMovement == true)
-        {
-            _firstMovement = false;
-            if (_pieceType == "pawn" && Position == oldPos + new Vector2(0, 2 * CellPixels))
-            {
-                EmitSignal(SignalName.PieceMoved, newPosition - new Vector2(0, CellPixels), oldPos, -id, false);
-                _enPassant = true;
-            }
-            else if (_pieceType == "pawn" && Position == oldPos + new Vector2(0, -2 * CellPixels))
-            {
-                EmitSignal(SignalName.PieceMoved, newPosition + new Vector2(0, CellPixels), oldPos, -id, false);
-                _enPassant = true;
-            }
-        }
-
-        if (_pieceType == "pawn" && (newPosition.Y < CellPixels || newPosition.Y > CellPixels * 7))
-        {
-            Control promotionSelection = (Control)_promotion.Instantiate();
-            AddChild(promotionSelection);
-
-            if (player == 2)
-            {
-                promotionSelection.Scale = new Vector2(-1, -1);
-                promotionSelection.Position = Position - new Vector2(CellPixels, 0);
-            }
-            else
-            {
-                promotionSelection.Position = Position + new Vector2(CellPixels, 0);
-            }
-
-            EmitSignal(SignalName.PieceMoved, newPosition, oldPos, id, true);
-        }
-        else
-        {
-            EmitSignal(SignalName.PieceMoved, newPosition, oldPos, id, false);
-        }*/
+        EmitSignal(SignalName.TurnFinished, turn);
     }
 
     public void SetEnPassant(Vector2 pos)
@@ -445,19 +371,16 @@ public partial class Piece : BasePiece
         EmitSignal(SignalName.PieceMoved, pos, new Vector2(-1, -1), -id);
     }
 
-    public void ChangeTurn(int turn)
+    public override void ChangeTurn(int turn)
     {
-        if (_scaleTween != null)
-        {
-            _scaleTween.Kill();
-        }
+        base.ChangeTurn(turn);
 
-        _turn = turn;
+        this.turn = turn;
         _checkUpdatedCheck = false;
 
         CheckKingVissibility();
 
-        if (_isInCheck && _isKing && player == _turn)
+        if (_isInCheck && _isKing && player == this.turn)
         {
             _isInCheck = false;
             EmitSignal(SignalName.PlayerInCheck, false);
@@ -467,24 +390,24 @@ public partial class Piece : BasePiece
             CheckCheckState();
         }
 
-        if (_turn == 2)
+        if (this.turn == 2)
         {
             Scale = new Vector2(-1, -1);
-            _originalScale = Scale;
+            OriginalScale = Scale;
         }
-        else if (_turn == 1)
+        else if (this.turn == 1)
         {
             Scale = new Vector2(1, 1);
-            _originalScale = Scale;
+            OriginalScale = Scale;
         }
 
-        if (_turn == player && _enPassant)
+        if (this.turn == player && _enPassant)
         {
             EmitSignal(SignalName.ClearEnPassant, player);
             _enPassant = false;
         }
 
-        if (player != _turn)
+        if (player != this.turn)
         {
             _seesKing = Direction.None;
             _lockedDirection = Array.Empty<int>();
@@ -511,7 +434,7 @@ public partial class Piece : BasePiece
 
     public void UpdateCheck()
     {
-        if (player != _turn)
+        if (player != turn)
         {
             return;
         }
@@ -763,10 +686,17 @@ public partial class Piece : BasePiece
         return true;
     }
 
-    public void Castle(Vector2 newPosition)
+    public async void Castle(Vector2 newPosition)
     {
-        Vector2 oldPos = Position;
-        Position = newPosition;
+        Tween tween = CreateTween();
+
+        Vector2 oldPos;
+        oldPos = Position;
+
+        tween.TweenProperty(this, "position", newPosition, .33f);
+        await ToSignal(tween, Tween.SignalName.Finished);
+        tween.Kill();
+
         EmitSignal(SignalName.PieceMoved, newPosition, oldPos, id);
     }
 

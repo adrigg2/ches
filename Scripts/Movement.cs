@@ -28,6 +28,10 @@ public partial class Movement : CharacterBody2D
 
     private List<Vector2> _enPassantPositions;
 
+    private Tween _scaleTween;
+
+    private Vector2 _originalScale;
+
     public override void _Ready()
     {
         Node2D master = GetNode<Node2D>("../../../..");
@@ -40,6 +44,8 @@ public partial class Movement : CharacterBody2D
 
         Connect("PieceSelected", new Callable(master, "DisableMovement"));
         Connect("Capture", new Callable(master, "Capture"));
+
+        _originalScale = Scale;
     }
 
     public override void _InputEvent(Viewport viewport, InputEvent @event, int shapeIdx)
@@ -90,5 +96,23 @@ public partial class Movement : CharacterBody2D
         _enPassant = true;
         _enPassantPositions = enPassant;
         _enPassantPlayer = player;
+    }
+
+    public override void _MouseEnter()
+    {
+        Scale = _originalScale;
+
+        _scaleTween?.Kill();
+        _scaleTween = CreateTween();
+
+        _scaleTween.TweenProperty(this, "scale", Scale * new Vector2(1.25f, 1.25f), .33f);
+    }
+
+    public override void _MouseExit()
+    {
+        _scaleTween?.Kill();
+        _scaleTween = CreateTween();
+
+        _scaleTween.TweenProperty(this, "scale", _originalScale, .33f);
     }
 }
