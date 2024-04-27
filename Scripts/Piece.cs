@@ -476,7 +476,7 @@ public partial class Piece : BasePiece
                     situation = CellSituation.SeesFriendlyPiece;
                     break;
                 }
-                else if (blockedPos != player && blockedPos >= 0)
+                else if (blockedPos != player && blockedPos > 0)
                 {
                     Piece blockingPiece = (Piece)_checkPiece.Call(moveCheck);
 
@@ -509,7 +509,7 @@ public partial class Piece : BasePiece
                 new Vector2I(2, -1),
                 new Vector2I(2, 1),
                 new Vector2I(1, 2),
-                new Vector2I(1, 2),
+                new Vector2I(-1, 2),
                 new Vector2I(-2, -1),
                 new Vector2I(-2, 1)
             };
@@ -528,7 +528,6 @@ public partial class Piece : BasePiece
                 CellSituation situation = CellSituation.Path;
                 int moveCheck = GameBoard.CheckBoardCells(movePos);
                 int blockedPos = moveCheck / 1000;
-                int checkId = moveCheck % 10;
 
                 if (blockedPos == player)
                 {
@@ -536,7 +535,7 @@ public partial class Piece : BasePiece
                     controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
                     situation = CellSituation.SeesFriendlyPiece;
                 }
-                else if (blockedPos != player && blockedPos >= 0 && checkId != 1)
+                else if (blockedPos != player && blockedPos > 0)
                 {
                     Piece blockingPiece = (Piece)_checkPiece.Call(moveCheck);
 
@@ -545,6 +544,10 @@ public partial class Piece : BasePiece
                         controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
                         situation = CellSituation.SeesEnemyKing;
                     }
+                }
+                else if (blockedPos <= 0)
+                {
+                    controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
                 }
 
                 UpdateCheckCells(situation, controlledPositions);
@@ -650,14 +653,14 @@ public partial class Piece : BasePiece
         {
             directions = new Vector2I[]
             {
-            new Vector2I(-1, -2),
-            new Vector2I(1, -2),
-            new Vector2I(2, -1),
-            new Vector2I(2, 1),
-            new Vector2I(1, 2),
-            new Vector2I(1, 2),
-            new Vector2I(-2, -1),
-            new Vector2I(-2, 1)
+                new Vector2I(-1, -2),
+                new Vector2I(1, -2),
+                new Vector2I(2, -1),
+                new Vector2I(2, 1),
+                new Vector2I(1, 2),
+                new Vector2I(-1, 2),
+                new Vector2I(-2, -1),
+                new Vector2I(-2, 1)
             };
 
             foreach (Vector2I direction in directions)
@@ -811,7 +814,7 @@ public partial class Piece : BasePiece
 
     private void UpdateCheckCells(CellSituation situation, List<Vector2> controlledPositions)
     {
-        GD.Print($"{Name} is setting {situation} 873");
+        GD.Print($"{Name} is setting {situation} with {controlledPositions.Count} positions 873");
 
         CellSituation position = GameBoard.CheckCheckCells(Position);
 
@@ -842,23 +845,20 @@ public partial class Piece : BasePiece
             {
                 GameBoard.SetCheckCells(controlledPosition, CellSituation.SeesEnemyKing, Name);
             }
-            else
+            else if (situation == CellSituation.SeesEnemyKing)
             {
-                if (situation == CellSituation.SeesEnemyKing)
+                GameBoard.SetCheckCells(controlledPosition, CellSituation.KingInCheck, Name);
+            }
+            else if (situation == CellSituation.SeesFriendlyPiece)
+            {
+                CellSituation oldSituation = GameBoard.CheckCheckCells(controlledPosition);
+                if (oldSituation == CellSituation.NotProtected || oldSituation == CellSituation.Free)
                 {
-                    GameBoard.SetCheckCells(controlledPosition, CellSituation.KingInCheck, Name);
+                    GameBoard.SetCheckCells(controlledPosition, CellSituation.Protected, Name);
                 }
-                else if (situation == CellSituation.SeesFriendlyPiece)
+                else if (oldSituation == CellSituation.NotProtectedAndSees)
                 {
-                    CellSituation oldSituation = GameBoard.CheckCheckCells(controlledPosition);
-                    if (oldSituation == CellSituation.NotProtected || oldSituation == CellSituation.Free)
-                    {
-                        GameBoard.SetCheckCells(controlledPosition, CellSituation.Protected, Name);
-                    }
-                    else if (oldSituation == CellSituation.NotProtectedAndSees)
-                    {
-                        GameBoard.SetCheckCells(controlledPosition, CellSituation.ProtectedAndSees, Name);
-                    }
+                    GameBoard.SetCheckCells(controlledPosition, CellSituation.ProtectedAndSees, Name);
                 }
             }
         }
