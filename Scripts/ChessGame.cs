@@ -149,7 +149,7 @@ public partial class ChessGame : Node2D
             if (child is Player player)
             {
                 player.CheckFinished += CheckFinished;
-                //player.Checkmate += Checkmate;
+                player.Checkmate += Checkmate;
 
                 foreach (Node grandchild in player.GetChildren())
                 {

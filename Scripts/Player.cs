@@ -159,7 +159,7 @@ public partial class Player : Node2D
             {
                 if (!piece.CheckUnmovable())
                 {
-                    GD.PrintRich($"[color=red]Checkmate Check movable {piece}[/color]");
+                    GD.PrintRich($"[color=green]Checkmate Check movable {piece}[/color]");
                     return;
                 }
             }

@@ -599,7 +599,7 @@ public partial class Piece : BasePiece
                     break;
                 }
 
-                Vector2 movePos = Position + j * new Vector2(CellPixels, CellPixels) * directions[i];
+                Vector2 movePos = Position + j * new Vector2(CellPixels, CellPixels) * directions[i] * _playerDirectionVector;
 
                 bool outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * GameBoard.Length || movePos.Y > CellPixels * GameBoard.Height;
 
@@ -623,6 +623,7 @@ public partial class Piece : BasePiece
 
                     if (normalCapture || kingCapture) 
                     {
+                        GD.PrintRich($"[color=green]{Name} can capture[/color]");
                         return false;
                     }
                 }
@@ -633,6 +634,7 @@ public partial class Piece : BasePiece
 
                     if (kingMovement || normalMovement)
                     {
+                        GD.PrintRich($"[color=green]{Name} can move[/color]");
                         return false;
                     }
                 }
