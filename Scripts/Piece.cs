@@ -160,8 +160,6 @@ public partial class Piece : BasePiece
 
         EmitSignal(SignalName.PieceSelected);
 
-        GD.Print("Generating Movements");
-
         Vector2I[] directions =
         {
             new Vector2I(0, 1),
@@ -191,13 +189,11 @@ public partial class Piece : BasePiece
                 }
 
                 Vector2 movePos = Position + j * new Vector2(CellPixels, CellPixels) * directions[i] * _playerDirectionVector;
-                GD.Print($"MovementPosition: {movePos}");
 
                 bool outOfBounds = movePos.X < 0 || movePos.Y < 0 || movePos.X > CellPixels * GameBoard.Length || movePos.Y > CellPixels * GameBoard.Height;
 
                 if (outOfBounds)
                 {
-                    GD.Print("OutOfBounds");
                     break;
                 }
 
@@ -224,7 +220,6 @@ public partial class Piece : BasePiece
 
                     if (normalCapture || kingCapture) 
                     {
-                        GD.Print("Capture is posible");
                         Movement capture = (Movement)_capture.Instantiate();
                         AddChild(capture);
                         capture.Position = movePos;
@@ -239,7 +234,6 @@ public partial class Piece : BasePiece
 
                     if (kingMovement || normalMovement)
                     {
-                        GD.Print("Movement is posible");
                         Movement movement = (Movement)_movement.Instantiate();
                         AddChild(movement);
                         movement.Position = movePos;
@@ -290,7 +284,6 @@ public partial class Piece : BasePiece
 
                     if (blockedPos <= 0 && (!_isInCheck || (positionSituation == CellSituation.SeesEnemyKing && !_isKing) || (positionSituation == CellSituation.Free && _isKing)) && _knightMovement)
                     {
-                        GD.Print("Movement is posible");
                         Movement movement = (Movement)_movement.Instantiate();
                         AddChild(movement);
                         movement.Position = movePos;
@@ -298,7 +291,6 @@ public partial class Piece : BasePiece
                     }
                     else if (blockedPos > 0 && blockedPos != player && canTakePiece)
                     {
-                        GD.Print("Capture is posible");
                         Movement capture = (Movement)_capture.Instantiate();
                         AddChild(capture);
                         capture.Position = movePos;
@@ -471,7 +463,6 @@ public partial class Piece : BasePiece
 
                 if (blockedPos == player)
                 {
-                    GD.Print($"{Name} is setting {new Vector2I((int)(movePos.X / 32), (int)(movePos.Y / 32))} 540");
                     controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
                     situation = CellSituation.SeesFriendlyPiece;
                     break;
@@ -531,7 +522,6 @@ public partial class Piece : BasePiece
 
                 if (blockedPos == player)
                 {
-                    GD.Print($"{Name} is setting {new Vector2I((int)(movePos.X / 32), (int)(movePos.Y / 32))} 601");
                     controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
                     situation = CellSituation.SeesFriendlyPiece;
                 }
@@ -705,8 +695,6 @@ public partial class Piece : BasePiece
 
     private void CheckKingVissibility()
     {
-        GD.Print($"Piece {Name} is checking king vissibility");
-
         if (_isKing)
         {
             return;
@@ -745,7 +733,6 @@ public partial class Piece : BasePiece
                     Piece blockingPiece = (Piece)_checkPiece.Call(moveCheck);
                     if (blockingPiece.IsKing)
                     {
-                        GD.Print($"Piece {Name} sees king at {(Direction)(i + 1)} (Position = {Position}; i = {i}; j = {j}; Direction = {directions[i]}; movePos = {movePos})");
                         _seesKing = (Direction)i;
                         CheckBlockedDirections();
                     }
@@ -799,7 +786,6 @@ public partial class Piece : BasePiece
                     Piece blockingPiece = (Piece)_checkPiece.Call(moveCheck);
                     if (blockingPiece.CaptureDirections[i] >= j)
                     {
-                        GD.Print($"Piece {Name} is locked at {(Direction)i}");
                         _lockedDirection = new int[] { i, (i + 4) % 8 };
                     }
                     break;
@@ -814,8 +800,6 @@ public partial class Piece : BasePiece
 
     private void UpdateCheckCells(CellSituation situation, List<Vector2> controlledPositions)
     {
-        GD.Print($"{Name} is setting {situation} with {controlledPositions.Count} positions 873");
-
         CellSituation position = GameBoard.CheckCheckCells(Position);
 
         if (situation == CellSituation.SeesEnemyKing)
@@ -836,7 +820,6 @@ public partial class Piece : BasePiece
 
         foreach (Vector2 controlledPosition in controlledPositions)
         {
-            GD.Print($"{Name} is setting {controlledPosition} with {situation} 895");
             if (situation == CellSituation.Path || (controlledPosition != controlledPositions.Last() && situation == CellSituation.SeesFriendlyPiece))
             {
                 GameBoard.SetCheckCells(controlledPosition, CellSituation.Path, Name);
@@ -915,7 +898,7 @@ public partial class Piece : BasePiece
         _castlingDistance = (int)data["CastlingDistance"];
         _playerDirectionVector = new Vector2((float)data["PlayerDirectionX"], (float)data["PlayerDirectionY"]);
         _checkUpdatedCheck = (bool)data["CheckUpdatedCheck"];
-        _firstMovement = (bool)data["Unmovable"];
+        _firstMovement = (bool)data["FirstMovement"];
         _enPassant = (bool)data["EnPassant"];
         _canEnPassant = (bool)data["CanEnPassant"];
         _canBePromoted = (bool)data["CanBePromoted"];
@@ -930,7 +913,6 @@ public partial class Piece : BasePiece
 
     public void UpdateSprite()
     {
-        GD.Print("Setting texture");
         Sprite2D sprite = GetNode<Sprite2D>("Sprite2D");
         sprite.Texture = _textures[player];
     }

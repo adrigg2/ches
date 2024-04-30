@@ -22,8 +22,6 @@ public partial class Player : Node2D
 
     private bool _check = false;
 
-    private Dictionary<int, string> _pieceDict = new();
-
     public void SetFields(int playerNum, ChessGame game)
     {
         _playerNum = playerNum;
@@ -36,8 +34,6 @@ public partial class Player : Node2D
         AddToGroup("to_save");
         AddToGroup("players");
 
-        GD.Print(_playerNum, "player");
-
         if (_playerNum == 1)
         {
             _playerGroup = "white_pieces";
@@ -48,13 +44,6 @@ public partial class Player : Node2D
             _playerGroup = "black_pieces";
             PlayerSet(1, 0);
         }
-
-        _pieceDict.Add(0, "pawn");
-        _pieceDict.Add(1, "king");
-        _pieceDict.Add(2, "queen");
-        _pieceDict.Add(3, "rook");
-        _pieceDict.Add(4, "bishop");
-        _pieceDict.Add(5, "knight");
 
         if (Main.Settings.Timer)
         {
@@ -163,6 +152,7 @@ public partial class Player : Node2D
 
     public void CheckmateCheck()
     {
+        GD.PrintRich("[color=red]Checkmate Check[/color]");
         foreach (Node child in GetChildren())
         {
             if (child is Piece piece)
@@ -188,7 +178,6 @@ public partial class Player : Node2D
     public void RevertPieces(int[,] newSituation)
     {
         int cellSituation;
-        string pieceType;
         Vector2I position;
 
         foreach (var child in GetChildren())
@@ -207,7 +196,6 @@ public partial class Player : Node2D
                 if (cellSituation > 0 && cellSituation / 10 == _playerNum)
                 {
                     Piece piece = (Piece)_piece.Instantiate();
-                    pieceType = _pieceDict[cellSituation % 10];
                     position = new Vector2I(i, j);
                     GeneratePiece(piece, position, new Vector2I(0, 0));
                 }
