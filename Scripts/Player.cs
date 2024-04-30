@@ -122,7 +122,6 @@ public partial class Player : Node2D
 
         piece.CheckUpdated += CheckUpdate;
         piece.PlayerInCheck += PlayerInCheck;
-        piece.CheckmateCheck += CheckmateCheck;
 
         cell = icell + index * cells;
         ipos = SetPos(cell);
@@ -148,6 +147,7 @@ public partial class Player : Node2D
     {
         _check = isInCheck;
         GetTree().CallGroup(_playerGroup, "SetCheck", isInCheck);
+        CheckmateCheck();
     }
 
     public void CheckmateCheck()
@@ -159,6 +159,7 @@ public partial class Player : Node2D
             {
                 if (!piece.CheckUnmovable())
                 {
+                    GD.PrintRich($"[color=red]Checkmate Check movable {piece}[/color]");
                     return;
                 }
             }

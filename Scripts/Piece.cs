@@ -916,4 +916,9 @@ public partial class Piece : BasePiece
         Sprite2D sprite = GetNode<Sprite2D>("Sprite2D");
         sprite.Texture = _textures[player];
     }
+
+    public override string ToString()
+    {
+        return $"{Name} at ({(int)(Position.X / 32)}, {(int)(Position.Y / 32)})";
+    }
 }
