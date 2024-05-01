@@ -323,6 +323,6 @@ public partial class ChessGame : Node2D
 
     public Piece CheckPiece(int id)
     {
-        return _pieces[id % 1000];
+        return _pieces[Math.Abs(id % 1000)];
     }
 }

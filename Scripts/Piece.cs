@@ -224,6 +224,7 @@ public partial class Piece : BasePiece
                         AddChild(capture);
                         capture.Position = movePos;
                         capture.MoveSelected += MovementSelected;
+                        capture.SetCapture((Piece)_checkPiece.Call(moveCheck));
                         break;
                     }
                 }
@@ -294,6 +295,7 @@ public partial class Piece : BasePiece
                         Movement capture = (Movement)_capture.Instantiate();
                         AddChild(capture);
                         capture.Position = movePos;
+                        capture.SetCapture((Piece)_checkPiece.Call(moveCheck));
                         capture.MoveSelected += MovementSelected;
                     }
                 }
@@ -318,6 +320,8 @@ public partial class Piece : BasePiece
 
     public async void MovementSelected(Vector2 newPosition)
     {
+        EmitSignal(SignalName.PieceSelected);
+
         Tween tween = CreateTween();
 
         Vector2 oldPos;
@@ -406,22 +410,12 @@ public partial class Piece : BasePiece
         }
     }
 
-    public void Capture(Vector2 _capturePos, CharacterBody2D _capture)
+    public void Capture()
     {
-        if (_enPassant && (_capturePos == Position - new Vector2(0, CellPixels) || _capturePos == Position + new Vector2(0, CellPixels)))
-        {
-            Connect("tree_exited", new Callable(_capture, "Captured"));
-            EmitSignal(SignalName.ClearEnPassant, player);
-            GameBoard.SetBoardCells(Position, 0);
-            QueueFree();
-        }
-        else if (_capturePos == Position)
-        {
-            Connect("tree_exited", new Callable(_capture, "Captured"));
-            EmitSignal(SignalName.ClearEnPassant, player);
-            GameBoard.SetBoardCells(Position, 0);
-            QueueFree();
-        }
+        GD.PrintRich($"[color=red]Capturing {this}[/color]");
+        EmitSignal(SignalName.ClearEnPassant, player);
+        GameBoard.SetBoardCells(Position, 0);
+        QueueFree();
     }
 
     public void UpdateCheck()

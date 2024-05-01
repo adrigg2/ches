@@ -5,13 +5,7 @@ namespace Ches.Chess;
 public partial class Movement : CharacterBody2D
 {
     [Signal]
-    public delegate void PieceSelectedEventHandler();
-
-    [Signal]
     public delegate void MoveSelectedEventHandler(Vector2 movePosition);
-
-    [Signal]
-    public delegate void CaptureEventHandler();
 
     [Signal]
     public delegate void EnPassantGeneratedEventHandler(Vector2 enPassantPos);
@@ -22,7 +16,7 @@ public partial class Movement : CharacterBody2D
     private bool _isCastling;
     private bool _enPassant;
 
-    private Piece _castlingTarget;
+    private Piece _target;
 
     private Vector2 _castlingPosition;
 
@@ -42,9 +36,6 @@ public partial class Movement : CharacterBody2D
 
         _isCapture = (bool)GetMeta("Is_Capture");
 
-        Connect("PieceSelected", new Callable(master, "DisableMovement"));
-        Connect("Capture", new Callable(master, "Capture"));
-
         _originalScale = Scale;
     }
 
@@ -52,42 +43,31 @@ public partial class Movement : CharacterBody2D
     {
         if (@event.IsActionPressed("piece_interaction"))
         {
-            if (_isCapture)
+            if (_isCastling)
             {
-                GD.Print("---------CAPTURE UPDATE TILES---------");
-                EmitSignal(SignalName.Capture, Position, this);
+                _target.Castle(_castlingPosition);
             }
-            else
+            else if (_enPassant)
             {
-                EmitSignal(SignalName.MoveSelected, Position);
-                EmitSignal(SignalName.PieceSelected);
+                foreach (Vector2 pos in _enPassantPositions)
+                {
+                    EmitSignal(SignalName.EnPassantGenerated, pos);
+                }
+            }
+            else if (_isCapture)
+            {
+                _target.Capture();
+            }
 
-                if (_isCastling)
-                {
-                    _castlingTarget.Castle(_castlingPosition);
-                }
-                else if (_enPassant)
-                {
-                    foreach (Vector2 pos in _enPassantPositions)
-                    {
-                        EmitSignal(SignalName.EnPassantGenerated, pos);
-                    }
-                }
-            }
+            EmitSignal(SignalName.MoveSelected, Position);
             GD.Print("Move selected, update tiles");
         }
-    }
-
-    public void Captured()
-    {
-        EmitSignal(SignalName.MoveSelected, Position);
-        EmitSignal(SignalName.PieceSelected);
     }
 
     public void SetCastling(Piece target, Vector2 targetPostion)
     {
         _isCastling = true;
-        _castlingTarget = target;
+        _target = target;
         _castlingPosition = targetPostion;
     }
 
@@ -96,6 +76,12 @@ public partial class Movement : CharacterBody2D
         _enPassant = true;
         _enPassantPositions = enPassant;
         _enPassantPlayer = player;
+    }
+
+    public void SetCapture(Piece target)
+    {
+        _isCapture = true;
+        _target = target;
     }
 
     public override void _MouseEnter()
