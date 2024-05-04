@@ -120,27 +120,11 @@ public partial class Player : Node2D
 
         AddChild(piece);
 
-        piece.CheckUpdated += CheckUpdate;
         piece.PlayerInCheck += PlayerInCheck;
 
         cell = icell + index * cells;
         ipos = SetPos(cell);
         piece.Position = ipos;
-    }
-
-    public void CheckUpdate()
-    {
-        foreach (Node child in GetChildren())
-        {
-            if (child is Piece piece)
-            {
-                if (!piece.CheckUpdatedCheck)
-                {
-                    return;
-                }
-            }
-        }
-        EmitSignal(SignalName.CheckFinished);
     }
 
     public void PlayerInCheck(bool isInCheck)

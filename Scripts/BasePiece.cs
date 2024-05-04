@@ -8,7 +8,7 @@ public partial class BasePiece : StaticBody2D
     private Vector2 _originalScale;
 
     [Export]protected int id;
-	protected int player;
+	[Export] protected int player;
     protected int turn;
     
     protected Vector2 OriginalScale { get => _originalScale; set => _originalScale = value; }

@@ -2,7 +2,6 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Transactions;
 
 namespace Ches.Chess;
 public partial class Piece : BasePiece
@@ -28,9 +27,6 @@ public partial class Piece : BasePiece
 
     [Signal]
     public delegate void TurnFinishedEventHandler(int turn);
-
-    [Signal]
-    public delegate void CheckUpdatedEventHandler();
 
     [Signal]
     public delegate void PlayerInCheckEventHandler(bool isInCheck);
@@ -76,7 +72,6 @@ public partial class Piece : BasePiece
 
     public Callable CheckPiece { get => _checkPiece; set => _checkPiece = value; }
 
-    [Export] private bool _checkUpdatedCheck;
     private bool _firstMovement;
     [Export] private static bool _isInCheck = false;
     private bool _enPassant;
@@ -88,14 +83,12 @@ public partial class Piece : BasePiece
     [Export] private bool _knightMovement;
     [Export] private bool _knightCapture;
 
-    public bool CheckUpdatedCheck { get => _checkUpdatedCheck; }
     public bool IsKing { get => _isKing; }
     public bool CanBeCastled { get => _canBeCastled; }
 
     public void SetFields(int player)
     {
         this.player = player;
-        _checkUpdatedCheck = false;
         _firstMovement = true;
         _enPassant = false;
     }
@@ -372,7 +365,6 @@ public partial class Piece : BasePiece
         base.ChangeTurn(turn);
 
         this.turn = turn;
-        _checkUpdatedCheck = false;
 
         CheckKingVissibility();
 
@@ -867,7 +859,6 @@ public partial class Piece : BasePiece
             { "CaptureDirections", _captureDirections },
             { "PlayerDirectionX", _playerDirectionVector.X },
             { "PlayerDirectionY", _playerDirectionVector.Y },
-            { "CheckUpdatedCheck", _checkUpdatedCheck },
             { "FirstMovement", _firstMovement },
             { "EnPassant", _enPassant },
             { "CanEnPassant", _canEnPassant },
@@ -880,7 +871,7 @@ public partial class Piece : BasePiece
             { "KnightCapture", _knightCapture },
             { "Player", player },
             { "Id", id }
-        };
+        }; // Save textures, checkPiece, isInCheck? 
     }
 
     public void Load(Godot.Collections.Dictionary<string, Variant> data)
@@ -893,7 +884,6 @@ public partial class Piece : BasePiece
         _captureDirections = (int[])data["CaptureDirections"];
         _castlingDistance = (int)data["CastlingDistance"];
         _playerDirectionVector = new Vector2((float)data["PlayerDirectionX"], (float)data["PlayerDirectionY"]);
-        _checkUpdatedCheck = (bool)data["CheckUpdatedCheck"];
         _firstMovement = (bool)data["FirstMovement"];
         _enPassant = (bool)data["EnPassant"];
         _canEnPassant = (bool)data["CanEnPassant"];
