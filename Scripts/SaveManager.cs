@@ -1,12 +1,26 @@
 using Godot;
 using System;
+using System.Linq;
 
 namespace Ches;
 public partial class SaveManager : Node
 {
-	public static void SaveGame(Node caller)
+	public static void SaveGame(Node caller, string name = "")
 	{
-		using var saveGame = FileAccess.Open("user://savegame.save", FileAccess.ModeFlags.Write);
+        using (var saveDir = DirAccess.Open("user://saves/"))
+        {
+            if (saveDir == null)
+            {
+                DirAccess.Open("user://").MakeDir("saves");
+            }
+        }
+
+        if (name == "")
+        {
+            name = GenerateSaveName();
+        }
+
+		using var saveGame = FileAccess.Open($"user://saves/{name}", FileAccess.ModeFlags.Write);
 
 		var saveNodes = caller.GetTree().GetNodesInGroup("to_save");
 		foreach (var node in saveNodes)
@@ -23,9 +37,9 @@ public partial class SaveManager : Node
 		}
 	}
 
-    public static void LoadGame(Node caller)
+    public static void LoadGame(Node caller, string save)
     {
-        if (!FileAccess.FileExists("user://savegame.save"))
+        if (!FileAccess.FileExists($"user://saves/{save}"))
         {
             return;
         }
@@ -36,7 +50,7 @@ public partial class SaveManager : Node
             saveNode.QueueFree();
         }
 
-        using var saveGame = FileAccess.Open("user://savegame.save", FileAccess.ModeFlags.Read);
+        using var saveGame = FileAccess.Open($"user://saves/{save}", FileAccess.ModeFlags.Read);
 
         while (saveGame.GetPosition() < saveGame.GetLength())
         {
@@ -59,6 +73,38 @@ public partial class SaveManager : Node
 
             newObject.Call("Load", nodeData);
             caller.GetNode(nodeData["Parent"].ToString()).AddChild(newObject);
+        }
+    }
+
+    private static string GenerateSaveName()
+    {
+        using var dir = DirAccess.Open("user://saves/");
+
+        if (dir != null)
+        {
+            dir.ListDirBegin();
+            string[] fileNames = dir.GetFiles();
+
+            bool generated = false;
+            int attempt = 0;
+            string name = "savegame.save";
+            while (!generated)
+            {
+                if (fileNames.Contains(name))
+                {
+                    name = $"savegame{attempt}.save";
+                }
+                else
+                {
+                    generated = true;
+                }
+                attempt++;
+            }
+            return name;
+        }
+        else
+        {
+            throw new Exception("An error ocurred when loading saved games");
         }
     }
 }
