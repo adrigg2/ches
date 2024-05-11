@@ -86,7 +86,7 @@ public partial class SaveManager : Node
             string[] fileNames = dir.GetFiles();
 
             bool generated = false;
-            int attempt = 0;
+            int attempt = 1;
             string name = "savegame.save";
             while (!generated)
             {

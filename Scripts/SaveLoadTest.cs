@@ -14,6 +14,7 @@ public partial class SaveLoadTest : Node2D
 	{
 		PackedScene loadScreen = (PackedScene)ResourceLoader.Load("res://scenes/load_screen.tscn");
 		LoadScreen load = (LoadScreen)loadScreen.Instantiate();
+		load.Size = new Vector2(768, 384);
 		AddChild(load);
 	}
 }

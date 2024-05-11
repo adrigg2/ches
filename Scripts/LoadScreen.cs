@@ -38,7 +38,11 @@ public partial class LoadScreen : Control
     {
         Button button = new Button();
         _saveGames.AddChild(button);
-        button.Pressed += () => SaveManager.LoadGame(this, saveName);
+        button.Pressed += () =>
+        {
+            SaveManager.LoadGame(this, saveName);
+            QueueFree();
+        };
         button.Text = saveName;
     }
 }
