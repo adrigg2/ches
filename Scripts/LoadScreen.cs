@@ -20,7 +20,7 @@ public partial class LoadScreen : Control
                 {
                     GD.Print("Found a directory in save games folder");
                 }
-                else
+                else if (fileName.EndsWith(".save"))
                 {
                     GD.Print($"Found a save game: {fileName}");
                     CreateSaveButton(fileName);
@@ -43,6 +43,7 @@ public partial class LoadScreen : Control
             SaveManager.LoadGame(this, saveName);
             QueueFree();
         };
-        button.Text = saveName;
+
+        button.Text = saveName[..saveName.LastIndexOf(".")];
     }
 }
