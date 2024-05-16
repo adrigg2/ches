@@ -10,7 +10,7 @@ public partial class GameUI : Control
     public delegate void DrawSelectedEventHandler();
 
     [Signal]
-    public delegate void GameSavedEventHandler();
+    public delegate void GameSavedEventHandler(string name);
 
     [Signal]
     public delegate void GameRevertedEventHandler(int index);

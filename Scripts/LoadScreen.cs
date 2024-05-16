@@ -10,27 +10,25 @@ public partial class LoadScreen : Control
     {
         using var dir = DirAccess.Open("user://saves/");
 
-        if (dir != null)
-        {
-            dir.ListDirBegin();
-            string fileName = dir.GetNext();
-            while (fileName != "")
-            {
-                if (dir.CurrentIsDir())
-                {
-                    GD.Print("Found a directory in save games folder");
-                }
-                else if (fileName.EndsWith(".save"))
-                {
-                    GD.Print($"Found a save game: {fileName}");
-                    CreateSaveButton(fileName);
-                }
-                fileName = dir.GetNext();
-            }
-        }
-        else
+        if (dir == null)
         {
             throw new Exception("An error ocurred when loading saved games");
+        }
+
+        dir.ListDirBegin();
+        string fileName = dir.GetNext();
+        while (fileName != "")
+        {
+            if (dir.CurrentIsDir())
+            {
+                GD.Print("Found a directory in save games folder");
+            }
+            else if (fileName.EndsWith(".save"))
+            {
+                GD.Print($"Found a save game: {fileName}");
+                CreateSaveButton(fileName);
+            }
+            fileName = dir.GetNext();
         }
     }
 
