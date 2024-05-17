@@ -67,13 +67,14 @@ public partial class Main : Node
         {
             if (string.IsNullOrEmpty(node.SceneFilePath)) continue;
 
-            if (!node.HasMethod("Save")) continue;
+            if (node is ISaveable saveableNode)
+            {
+                var nodeData = saveableNode.Save();
 
-            var nodeData = node.Call("Save");
+                var jsonString = Json.Stringify(nodeData);
 
-            var jsonString = Json.Stringify(nodeData);
-
-            saveGame.StoreLine(jsonString);
+                saveGame.StoreLine(jsonString);
+            }
         }
     }
 
@@ -109,10 +110,12 @@ public partial class Main : Node
             var newObjectScene = GD.Load<PackedScene>(nodeData["Filename"].ToString());
             var newObject = newObjectScene.Instantiate<Node>();
 
-            if (!newObject.HasMethod("Load")) continue;
+            if (newObject is ISaveable loadableNode)
+            {
+                loadableNode.Load(nodeData);
+                GetNode(nodeData["Parent"].ToString()).AddChild(newObject);
+            }
 
-            newObject.Call("Load", nodeData);
-            GetNode(nodeData["Parent"].ToString()).AddChild(newObject);
         }
     }
 

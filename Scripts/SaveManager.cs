@@ -27,14 +27,15 @@ public partial class SaveManager : Node
 		{
 			if (string.IsNullOrEmpty(node.SceneFilePath)) continue;
 
-			if (!node.HasMethod("Save")) continue;
+            if (node is ISaveable saveableNode)
+            {
+                var nodeData = saveableNode.Save();
 
-			var nodeData = node.Call("Save");
+                var jsonString = Json.Stringify(nodeData);
 
-			var jsonString = Json.Stringify(nodeData);
-
-			saveGame.StoreLine(jsonString);
-		}
+                saveGame.StoreLine(jsonString);
+            }
+        }
 	}
 
     public static void LoadGame(Node caller, string save)
@@ -69,10 +70,11 @@ public partial class SaveManager : Node
             var newObjectScene = GD.Load<PackedScene>(nodeData["Filename"].ToString());
             var newObject = newObjectScene.Instantiate<Node>();
 
-            if (!newObject.HasMethod("Load")) continue;
-
-            newObject.Call("Load", nodeData);
-            caller.GetNode(nodeData["Parent"].ToString()).AddChild(newObject);
+            if (newObject is ISaveable loadableNode)
+            {
+                loadableNode.Load(nodeData);
+                caller.GetNode(nodeData["Parent"].ToString()).AddChild(newObject);
+            }
         }
     }
 

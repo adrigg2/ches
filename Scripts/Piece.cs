@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace Ches.Chess;
-public partial class Piece : BasePiece
+public partial class Piece : BasePiece, ISaveable
 {
     private enum Direction
     {
