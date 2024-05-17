@@ -9,7 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://gca3h7ok17i8" path="res://scenes/piece.tscn" id="6_k15a6"]
 [ext_resource type="TileSet" uid="uid://bq6f40jlbroyg" path="res://assets/tilesets/board_tiles.tres" id="7_vp8kj"]
 
-[node name="GameUI" type="Control" node_paths=PackedStringArray("_restart", "_draw", "_revert", "_reject", "_saveGame", "_endGame", "_timerLabel1", "_timerLabel2", "_revertMenu")]
+[node name="GameUI" type="Control" node_paths=PackedStringArray("_restart", "_draw", "_revert", "_reject", "_saveGame", "_loadGame", "_continue", "_endGame", "_timerLabel1", "_timerLabel2", "_revertMenu", "_pauseMenu")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -22,11 +22,14 @@ _restart = NodePath("Restart")
 _draw = NodePath("Draw")
 _revert = NodePath("Revert")
 _reject = NodePath("RejectButton")
-_saveGame = NodePath("Save")
+_saveGame = NodePath("PauseMenu/VBoxContainer/Save")
+_loadGame = NodePath("PauseMenu/VBoxContainer/Load")
+_continue = NodePath("PauseMenu/VBoxContainer/Continue")
 _endGame = NodePath("EndGame")
 _timerLabel1 = NodePath("TimerLabel1")
 _timerLabel2 = NodePath("TimerLabel2")
 _revertMenu = NodePath("RevertMenu")
+_pauseMenu = NodePath("PauseMenu")
 
 [node name="EndGame" type="Label" parent="."]
 visible = false
@@ -86,18 +89,6 @@ offset_top = 147.0
 offset_right = 156.0
 offset_bottom = 219.0
 icon = ExtResource("3_36jep")
-metadata/_edit_use_anchors_ = true
-
-[node name="Save" type="Button" parent="."]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.0260417
-anchor_top = 0.184896
-anchor_right = 0.0260417
-anchor_bottom = 0.184896
-offset_right = 136.0
-offset_bottom = 72.0
-text = "Save"
 metadata/_edit_use_anchors_ = true
 
 [node name="RejectButton" type="Button" parent="."]
@@ -183,3 +174,40 @@ text = "Return"
 layout_mode = 2
 size_flags_horizontal = 8
 text = ">"
+
+[node name="PauseMenu" type="Panel" parent="."]
+visible = false
+layout_mode = 0
+offset_right = 768.0
+offset_bottom = 384.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PauseMenu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="PauseMenu/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 45
+text = "Pause"
+horizontal_alignment = 1
+
+[node name="Save" type="Button" parent="PauseMenu/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+text = "Save"
+metadata/_edit_use_anchors_ = true
+
+[node name="Load" type="Button" parent="PauseMenu/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Load"
+
+[node name="Continue" type="Button" parent="PauseMenu/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Continue"

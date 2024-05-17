@@ -40,7 +40,7 @@ public partial class Main : Node
 		AddChild(_gameUI);
     }
 
-    private void SaveGame(string name = "")
+    private void SaveGame(string name)
     {
         using (var saveDir = DirAccess.Open("user://saves/"))
         {

@@ -21,10 +21,13 @@ public partial class GameUI : Control
     [Export] private Button _revert;
     [Export] private Button _reject;
     [Export] private Button _saveGame;
+    [Export] private Button _loadGame;
+    [Export] private Button _continue;
     [Export] private Label _endGame;
     [Export] private Label _timerLabel1;
     [Export] private Label _timerLabel2;
     [Export] private RevertMenu _revertMenu;
+    [Export] private Panel _pauseMenu;
 
     private Timer _timer1;
     private Timer _timer2;
@@ -35,7 +38,9 @@ public partial class GameUI : Control
         _draw.Pressed += () => EmitSignal(SignalName.DrawSelected);
         _revert.Pressed += Revert;
         _reject.Pressed += Reject;
-        _saveGame.Pressed += () => SaveManager.SaveGame(this);
+        _saveGame.Pressed += () => EmitSignal(SignalName.GameSaved, "");
+        _loadGame.Pressed += () => LoadGames();
+        _continue.Pressed += () => _pauseMenu.Visible = false;
         _revertMenu.PreviousBoardSelected += (index) => EmitSignal(SignalName.GameReverted, index);
 
 
@@ -65,6 +70,14 @@ public partial class GameUI : Control
         if (_timer2.TimeLeft != 0)
         {
             _timerLabel2.Text = $"{(int)_timer2.TimeLeft / 60} : {(int)_timer2.TimeLeft % 60}";
+        }
+    }
+
+    public override void _Input(InputEvent @event)
+    {
+        if (@event.IsActionPressed("pause_game"))
+        {
+            _pauseMenu.Visible = !_pauseMenu.Visible;
         }
     }
 
@@ -172,5 +185,13 @@ public partial class GameUI : Control
         {
             _timer2 = timer;
         }
+    }
+
+    private void LoadGames()
+    {
+        PackedScene loadScreen = (PackedScene)ResourceLoader.Load("res://scenes/load_screen.tscn");
+        LoadScreen load = (LoadScreen)loadScreen.Instantiate();
+        load.Size = new Vector2(768, 384);
+        AddChild(load);
     }
 }
