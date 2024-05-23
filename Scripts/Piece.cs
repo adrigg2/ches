@@ -407,7 +407,7 @@ public partial class Piece : BasePiece, ISaveable
         GD.PrintRich($"[color=red]Capturing {this}[/color]");
         EmitSignal(SignalName.ClearEnPassant, player);
         GameBoard.SetBoardCells(Position, 0);
-        QueueFree();
+        Delete();
     }
 
     public void UpdateCheck()

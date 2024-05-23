@@ -2,13 +2,13 @@ using Godot;
 using System;
 
 namespace Ches;
-public partial class BasePiece : StaticBody2D
+public abstract partial class BasePiece : StaticBody2D
 {
     private Tween _scaleTween;
     private Vector2 _originalScale;
 
     [Export]protected int id;
-	[Export] protected int player;
+    [Export] protected int player;
     protected int turn;
     
     protected Vector2 OriginalScale { get => _originalScale; set => _originalScale = value; }
@@ -21,10 +21,7 @@ public partial class BasePiece : StaticBody2D
         }
     }
 
-    protected virtual void Movement()
-    {
-
-    }
+    protected abstract void Movement();
 
     public override void _MouseEnter()
     {

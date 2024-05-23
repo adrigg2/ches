@@ -33,7 +33,7 @@ public partial class GameUI : Control
     private Timer _timer2;
 
     public override void _Ready()
-	{
+    {
         _restart.Pressed += Reset;
         _draw.Pressed += () => EmitSignal(SignalName.DrawSelected);
         _revert.Pressed += Revert;

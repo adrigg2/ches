@@ -6,38 +6,38 @@ using System.Linq;
 namespace Ches;
 public partial class Main : Node
 {
-	public static GameSettings Settings { get; set; }
+    public static GameSettings Settings { get; set; }
 
-	private ChessGame _game;
-	private GameUI _gameUI;
+    private ChessGame _game;
+    private GameUI _gameUI;
 
-	public override void _Ready()
-	{
-		GetNode<GameSetup>("MainMenu/GameSetup").GameStarted += GameStarted;
-	}
+    public override void _Ready()
+    {
+        GetNode<GameSetup>("MainMenu/GameSetup").GameStarted += GameStarted;
+    }
 
-	private void GameStarted(GameSettings settings)
-	{
-		GetNode<Control>("MainMenu").QueueFree();
-		PackedScene gameScene = (PackedScene)ResourceLoader.Load("res://scenes/chess_game.tscn");
-		PackedScene gameUIScene = (PackedScene)ResourceLoader.Load("res://scenes/game_ui.tscn");
+    private void GameStarted(GameSettings settings)
+    {
+        GetNode<Control>("MainMenu").QueueFree();
+        PackedScene gameScene = (PackedScene)ResourceLoader.Load("res://scenes/chess_game.tscn");
+        PackedScene gameUIScene = (PackedScene)ResourceLoader.Load("res://scenes/game_ui.tscn");
 
-		_game = (ChessGame)gameScene.Instantiate();
-		_gameUI = (GameUI)gameUIScene.Instantiate();
+        _game = (ChessGame)gameScene.Instantiate();
+        _gameUI = (GameUI)gameUIScene.Instantiate();
 
-		Settings = settings;
+        Settings = settings;
 
-		_gameUI.GameRestarted += () => _game.Reset();
-		_gameUI.DrawSelected += () => _game.AgreedDraw();
-		_gameUI.GameSaved += SaveGame;
-		_gameUI.GameReverted += (index) => _game.RevertGameStatus(index);
+        _gameUI.GameRestarted += () => _game.Reset();
+        _gameUI.DrawSelected += () => _game.AgreedDraw();
+        _gameUI.GameSaved += SaveGame;
+        _gameUI.GameReverted += (index) => _game.RevertGameStatus(index);
 
-		_game.TurnChanged += (turn, count) => _gameUI.ChangeTurn(turn, count);
-		_game.GameEnded += (loser) => _gameUI.GameEnded(loser);
-		_game.TimersSet += (timer, player) => _gameUI.SetTimers(timer, player);
+        _game.TurnChanged += (turn, count) => _gameUI.ChangeTurn(turn, count);
+        _game.GameEnded += (loser) => _gameUI.GameEnded(loser);
+        _game.TimersSet += (timer, player) => _gameUI.SetTimers(timer, player);
 
-		AddChild(_game);
-		AddChild(_gameUI);
+        AddChild(_game);
+        AddChild(_gameUI);
     }
 
     private void SaveGame(string name)

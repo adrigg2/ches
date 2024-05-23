@@ -30,7 +30,7 @@ public partial class Player : Node2D
     }
 
     public override void _Ready()
-	{
+    {
         AddToGroup("to_save");
         AddToGroup("players");
 

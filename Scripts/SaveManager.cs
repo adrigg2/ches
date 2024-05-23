@@ -5,8 +5,8 @@ using System.Linq;
 namespace Ches;
 public partial class SaveManager : Node
 {
-	public static void SaveGame(Node caller, string name = "")
-	{
+    public static void SaveGame(Node caller, string name = "")
+    {
         using (var saveDir = DirAccess.Open("user://saves/"))
         {
             if (saveDir == null)
@@ -20,12 +20,12 @@ public partial class SaveManager : Node
             name = GenerateSaveName();
         }
 
-		using var saveGame = FileAccess.Open($"user://saves/{name}", FileAccess.ModeFlags.Write);
+        using var saveGame = FileAccess.Open($"user://saves/{name}", FileAccess.ModeFlags.Write);
 
-		var saveNodes = caller.GetTree().GetNodesInGroup("to_save");
-		foreach (var node in saveNodes)
-		{
-			if (string.IsNullOrEmpty(node.SceneFilePath)) continue;
+        var saveNodes = caller.GetTree().GetNodesInGroup("to_save");
+        foreach (var node in saveNodes)
+        {
+            if (string.IsNullOrEmpty(node.SceneFilePath)) continue;
 
             if (node is ISaveable saveableNode)
             {
@@ -36,7 +36,7 @@ public partial class SaveManager : Node
                 saveGame.StoreLine(jsonString);
             }
         }
-	}
+    }
 
     public static void LoadGame(Node caller, string save)
     {
