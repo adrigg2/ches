@@ -4,22 +4,19 @@ namespace Ches.Chess;
 public partial class Board : TileMap
 {
     [Signal]
-    public delegate void BoardCellCountEventHandler(int rows, int columns);
-
-    [Signal]
     public delegate void PlayersSetEventHandler();
 
     [Signal]
     public delegate void TimersSetEventHandler(Timer timer, int player);
 
     private Vector2 _selectedPosition;
-    private int[,] _cells;
+    private int[,] _squares;
     private int _length;
     private int _height;
-    private CellSituation[,] _checkCells;
+    private SquareSituation[,] _checkSquares;
 
-    public int[,] Cells { get => _cells; set => _cells = value; }
-    public CellSituation[,] CheckCells { get => _checkCells; set => _checkCells = value; }
+    public int[,] Squares { get => _squares; set => _squares = value; }
+    public SquareSituation[,] CheckSquares { get => _checkSquares; set => _checkSquares = value; }
     public int Length { get => _length; }
     public int Height { get => _height; }
 
@@ -29,9 +26,10 @@ public partial class Board : TileMap
         _length = 8;
         _height = 8;
 
-        Piece.GameBoard = this;
+        _squares = new int[_height, _length];
+        _checkSquares = new SquareSituation[_height, _length];
 
-        EmitSignal(SignalName.BoardCellCount, 8, 8);
+        Piece.GameBoard = this;
 
         for (int i = 1; i < 3; i++)
         {
@@ -100,29 +98,29 @@ public partial class Board : TileMap
         ClearDynamicTiles();
     }
 
-    public int CheckBoardCells(Vector2 position)
+    public int CheckBoardSquares(Vector2 position)
     {
-        Vector2I cell = LocalToMap(position);
-        return _cells[cell.X, cell.Y];
+        Vector2I square = LocalToMap(position);
+        return _squares[square.X, square.Y];
     }
 
-    public CellSituation CheckCheckCells(Vector2 position)
+    public SquareSituation CheckCheckSquares(Vector2 position)
     {
-        Vector2I cell = LocalToMap(position);
-        return _checkCells[cell.X, cell.Y];
+        Vector2I square = LocalToMap(position);
+        return _checkSquares[square.X, square.Y];
     }
 
-    public void SetBoardCells(Vector2 position, int value)
+    public void SetBoardSquares(Vector2 position, int value)
     {
-        Vector2I cell = LocalToMap(position);
-        GD.Print($"Setting {cell} to {value} in BoardCells");
-        _cells[cell.X, cell.Y] = value;
+        Vector2I square = LocalToMap(position);
+        GD.Print($"Setting {square} to {value} in BoardCells");
+        _squares[square.X, square.Y] = value;
     }
 
-    public void SetCheckCells(Vector2 position, CellSituation value, string caller) // Remove caller parameter
+    public void SetCheckSquares(Vector2 position, SquareSituation value)
     {
-        Vector2I cell = LocalToMap(position);
-        GD.Print($"{caller} is setting {cell} to {value} in CheckCells");
-        _checkCells[cell.X, cell.Y] = value;
+        Vector2I square = LocalToMap(position);
+        GD.Print($"Setting {square} to {value} in CheckCells");
+        _checkSquares[square.X, square.Y] = value;
     }
 }

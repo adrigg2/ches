@@ -113,17 +113,17 @@ public partial class Player : Node2D
         GeneratePiece(queen, new Vector2I(3, secondRow), new Vector2I(0, 0));
     }
 
-    public void GeneratePiece(Piece piece, Vector2I icell, Vector2I cells, int index = 0)
+    public void GeneratePiece(Piece piece, Vector2I isquare, Vector2I squares, int index = 0)
     {
         Vector2 ipos;
-        Vector2I cell;
+        Vector2I square;
 
         AddChild(piece);
 
         piece.PlayerInCheck += PlayerInCheck;
 
-        cell = icell + index * cells;
-        ipos = SetPos(cell);
+        square = isquare + index * squares;
+        ipos = SetPos(square);
         piece.Position = ipos;
     }
 
@@ -162,7 +162,7 @@ public partial class Player : Node2D
     // FIXME: use SetFields when respawning old pieces
     public void RevertPieces(int[,] newSituation)
     {
-        int cellSituation;
+        int squareSituation;
         Vector2I position;
 
         foreach (var child in GetChildren())
@@ -177,8 +177,8 @@ public partial class Player : Node2D
         {
             for (int j = 0; j < newSituation.GetLength(1); j++)
             {
-                cellSituation = newSituation[i, j];
-                if (cellSituation > 0 && cellSituation / 10 == _playerNum)
+                squareSituation = newSituation[i, j];
+                if (squareSituation > 0 && squareSituation / 10 == _playerNum)
                 {
                     Piece piece = (Piece)_piece.Instantiate();
                     position = new Vector2I(i, j);

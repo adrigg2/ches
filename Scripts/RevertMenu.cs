@@ -89,7 +89,7 @@ public partial class RevertMenu : Panel
     private void SetBoard()
     {
         int[,] board = _boardHistory[_boardHistoryIndex].Board;
-        int cellSituation;
+        int squareSituation;
 
         foreach (var piece in _board.GetChildren())
         {
@@ -100,8 +100,8 @@ public partial class RevertMenu : Panel
         {
             for (int j = 0; j < board.GetLength(1); j++)
             {
-                cellSituation = board[i, j];
-                if (cellSituation > 0)
+                squareSituation = board[i, j];
+                if (squareSituation > 0)
                 {
                     Piece piece = (Piece)_piece.Instantiate();
 
@@ -110,8 +110,8 @@ public partial class RevertMenu : Panel
                         piece.Scale = new Vector2(-1, -1);
                     }
 
-                    piece.SetMeta("Player", cellSituation / 10);
-                    piece.SetMeta("Piece_Type", _pieceDict[cellSituation % 10]);
+                    piece.SetMeta("Player", squareSituation / 10);
+                    piece.SetMeta("Piece_Type", _pieceDict[squareSituation % 10]);
                     _board.AddChild(piece);
                     piece.Position = _board.MapToLocal(new Vector2I(i, j));
                     piece.SetScript(new Variant());

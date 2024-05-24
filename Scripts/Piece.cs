@@ -140,7 +140,7 @@ public partial class Piece : BasePiece, ISaveable
 
     public void SetInitialTurn(int turn)
     {
-        GameBoard.SetBoardCells(Position, id);
+        GameBoard.SetBoardSquares(Position, id);
         this.turn = turn;
     }
 
@@ -190,9 +190,9 @@ public partial class Piece : BasePiece, ISaveable
                     break;
                 }
 
-                int moveCheck = GameBoard.CheckBoardCells(movePos);
+                int moveCheck = GameBoard.CheckBoardSquares(movePos);
                 int blockedPos = moveCheck / 1000;
-                CellSituation positionSituation = GameBoard.CheckCheckCells(movePos);
+                SquareSituation positionSituation = GameBoard.CheckCheckSquares(movePos);
 
                 if (blockedPos == player)
                 {
@@ -208,8 +208,8 @@ public partial class Piece : BasePiece, ISaveable
                 }
                 else if (j <= _captureDirections[i] && (blockedPos > 0 || blockedPos < 0 && _canEnPassant))
                 {
-                    bool kingCapture = _isKing && (positionSituation == CellSituation.NotProtected || positionSituation == CellSituation.NotProtectedAndSees);
-                    bool normalCapture = !_isKing && (!_isInCheck || positionSituation == CellSituation.ProtectedAndSees || positionSituation == CellSituation.NotProtectedAndSees);
+                    bool kingCapture = _isKing && (positionSituation == SquareSituation.NotProtected || positionSituation == SquareSituation.NotProtectedAndSees);
+                    bool normalCapture = !_isKing && (!_isInCheck || positionSituation == SquareSituation.ProtectedAndSees || positionSituation == SquareSituation.NotProtectedAndSees);
 
                     if (normalCapture || kingCapture) 
                     {
@@ -223,8 +223,8 @@ public partial class Piece : BasePiece, ISaveable
                 }
                 else if (j <= _movementDirections[i] && blockedPos <= 0)
                 {
-                    bool kingMovement = _isKing && positionSituation == CellSituation.Free;
-                    bool normalMovement = !_isKing && (!_isInCheck || positionSituation == CellSituation.SeesEnemyKing);
+                    bool kingMovement = _isKing && positionSituation == SquareSituation.Free;
+                    bool normalMovement = !_isKing && (!_isInCheck || positionSituation == SquareSituation.SeesEnemyKing);
 
                     if (kingMovement || normalMovement)
                     {
@@ -271,12 +271,12 @@ public partial class Piece : BasePiece, ISaveable
                 bool notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * GameBoard.Length && movePos.Y < CellPixels * GameBoard.Height;
                 if (notOutOfBounds)
                 {
-                    int moveCheck = GameBoard.CheckBoardCells(movePos);
+                    int moveCheck = GameBoard.CheckBoardSquares(movePos);
                     int blockedPos = moveCheck / 1000;
-                    CellSituation positionSituation = GameBoard.CheckCheckCells(movePos);
-                    bool canTakePiece = _knightCapture && (!_isKing && (!_isInCheck || positionSituation == CellSituation.ProtectedAndSees || positionSituation == CellSituation.NotProtectedAndSees)) || (_isKing && (positionSituation == CellSituation.NotProtected || positionSituation == CellSituation.NotProtectedAndSees));
+                    SquareSituation positionSituation = GameBoard.CheckCheckSquares(movePos);
+                    bool canTakePiece = _knightCapture && (!_isKing && (!_isInCheck || positionSituation == SquareSituation.ProtectedAndSees || positionSituation == SquareSituation.NotProtectedAndSees)) || (_isKing && (positionSituation == SquareSituation.NotProtected || positionSituation == SquareSituation.NotProtectedAndSees));
 
-                    if (blockedPos <= 0 && (!_isInCheck || (positionSituation == CellSituation.SeesEnemyKing && !_isKing) || (positionSituation == CellSituation.Free && _isKing)) && _knightMovement)
+                    if (blockedPos <= 0 && (!_isInCheck || (positionSituation == SquareSituation.SeesEnemyKing && !_isKing) || (positionSituation == SquareSituation.Free && _isKing)) && _knightMovement)
                     {
                         Movement movement = (Movement)_movement.Instantiate();
                         AddChild(movement);
@@ -406,7 +406,7 @@ public partial class Piece : BasePiece, ISaveable
     {
         GD.PrintRich($"[color=red]Capturing {this}[/color]");
         EmitSignal(SignalName.ClearEnPassant, player);
-        GameBoard.SetBoardCells(Position, 0);
+        GameBoard.SetBoardSquares(Position, 0);
         Delete();
     }
 
@@ -432,7 +432,7 @@ public partial class Piece : BasePiece, ISaveable
         for (int i = 0; i < directions.Length; i++)
         {
             List<Vector2> controlledPositions = new List<Vector2>();
-            CellSituation situation = CellSituation.Path;
+            SquareSituation situation = SquareSituation.Path;
             for (int j = 1; j <= _captureDirections[i]; j++)
             {
                 Vector2 movePos = Position + j * new Vector2(CellPixels, CellPixels) * directions[i] * _playerDirectionVector;
@@ -444,13 +444,13 @@ public partial class Piece : BasePiece, ISaveable
                     break;
                 }
 
-                int moveCheck = GameBoard.CheckBoardCells(movePos);
+                int moveCheck = GameBoard.CheckBoardSquares(movePos);
                 int blockedPos = moveCheck / 1000;
 
                 if (blockedPos == player)
                 {
                     controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
-                    situation = CellSituation.SeesFriendlyPiece;
+                    situation = SquareSituation.SeesFriendlyPiece;
                     break;
                 }
                 else if (blockedPos != player && blockedPos > 0)
@@ -460,7 +460,7 @@ public partial class Piece : BasePiece, ISaveable
                     if (blockingPiece.IsKing) 
                     {
                         controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
-                        situation = CellSituation.SeesEnemyKing;
+                        situation = SquareSituation.SeesEnemyKing;
                         break;
                     }
                     else
@@ -474,7 +474,7 @@ public partial class Piece : BasePiece, ISaveable
                 }
             }
 
-            UpdateCheckCells(situation, controlledPositions);
+            UpdateCheckSquares(situation, controlledPositions);
         }
 
         if (_knightCapture)
@@ -502,14 +502,14 @@ public partial class Piece : BasePiece, ISaveable
                 }
 
                 List<Vector2> controlledPositions = new List<Vector2>();
-                CellSituation situation = CellSituation.Path;
-                int moveCheck = GameBoard.CheckBoardCells(movePos);
+                SquareSituation situation = SquareSituation.Path;
+                int moveCheck = GameBoard.CheckBoardSquares(movePos);
                 int blockedPos = moveCheck / 1000;
 
                 if (blockedPos == player)
                 {
                     controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
-                    situation = CellSituation.SeesFriendlyPiece;
+                    situation = SquareSituation.SeesFriendlyPiece;
                 }
                 else if (blockedPos != player && blockedPos > 0)
                 {
@@ -518,7 +518,7 @@ public partial class Piece : BasePiece, ISaveable
                     if (blockingPiece.IsKing) 
                     {
                         controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
-                        situation = CellSituation.SeesEnemyKing;
+                        situation = SquareSituation.SeesEnemyKing;
                     }
                 }
                 else if (blockedPos <= 0)
@@ -526,18 +526,18 @@ public partial class Piece : BasePiece, ISaveable
                     controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
                 }
 
-                UpdateCheckCells(situation, controlledPositions);
+                UpdateCheckSquares(situation, controlledPositions);
             }
         }
     }
 
     public void CheckCheckState()
     {
-        CellSituation check = GameBoard.CheckCheckCells(Position);
+        SquareSituation check = GameBoard.CheckCheckSquares(Position);
 
         GD.Print($"{player} is checking check");
 
-        if (check == CellSituation.KingInCheck)
+        if (check == SquareSituation.KingInCheck)
         {
             GD.Print($"{player} is in check");
             _isInCheck = true;
@@ -594,9 +594,9 @@ public partial class Piece : BasePiece, ISaveable
                     break;
                 }
 
-                int moveCheck = GameBoard.CheckBoardCells(movePos);
+                int moveCheck = GameBoard.CheckBoardSquares(movePos);
                 int blockedPos = moveCheck / 1000;
-                CellSituation positionSituation = GameBoard.CheckCheckCells(movePos);
+                SquareSituation positionSituation = GameBoard.CheckCheckSquares(movePos);
 
                 if (blockedPos == player)
                 {
@@ -604,8 +604,8 @@ public partial class Piece : BasePiece, ISaveable
                 }
                 else if (j <= _captureDirections[i] && (blockedPos > 0 || blockedPos < 0 && _canEnPassant))
                 {
-                    bool kingCapture = _isKing && (positionSituation == CellSituation.NotProtected || positionSituation == CellSituation.NotProtectedAndSees);
-                    bool normalCapture = !_isKing && (!_isInCheck || positionSituation == CellSituation.ProtectedAndSees || positionSituation == CellSituation.NotProtectedAndSees);
+                    bool kingCapture = _isKing && (positionSituation == SquareSituation.NotProtected || positionSituation == SquareSituation.NotProtectedAndSees);
+                    bool normalCapture = !_isKing && (!_isInCheck || positionSituation == SquareSituation.ProtectedAndSees || positionSituation == SquareSituation.NotProtectedAndSees);
 
                     if (normalCapture || kingCapture) 
                     {
@@ -615,8 +615,8 @@ public partial class Piece : BasePiece, ISaveable
                 }
                 else if (j <= _movementDirections[i] && blockedPos <= 0)
                 {
-                    bool kingMovement = _isKing && positionSituation == CellSituation.Free;
-                    bool normalMovement = !_isKing && (!_isInCheck || positionSituation == CellSituation.SeesEnemyKing);
+                    bool kingMovement = _isKing && positionSituation == SquareSituation.Free;
+                    bool normalMovement = !_isKing && (!_isInCheck || positionSituation == SquareSituation.SeesEnemyKing);
 
                     if (kingMovement || normalMovement)
                     {
@@ -647,12 +647,12 @@ public partial class Piece : BasePiece, ISaveable
                 bool notOutOfBounds = movePos.X > 0 && movePos.Y > 0 && movePos.X < CellPixels * GameBoard.Length && movePos.Y < CellPixels * GameBoard.Height;
                 if (notOutOfBounds)
                 {
-                    int moveCheck = GameBoard.CheckBoardCells(movePos);
+                    int moveCheck = GameBoard.CheckBoardSquares(movePos);
                     int blockedPos = moveCheck / 1000;
-                    CellSituation positionSituation = GameBoard.CheckCheckCells(movePos);
-                    bool canTakePiece = (!_isKing && (positionSituation == CellSituation.ProtectedAndSees || positionSituation == CellSituation.NotProtectedAndSees)) || (_isKing && (positionSituation == CellSituation.NotProtected || positionSituation == CellSituation.NotProtectedAndSees));
+                    SquareSituation positionSituation = GameBoard.CheckCheckSquares(movePos);
+                    bool canTakePiece = (!_isKing && (positionSituation == SquareSituation.ProtectedAndSees || positionSituation == SquareSituation.NotProtectedAndSees)) || (_isKing && (positionSituation == SquareSituation.NotProtected || positionSituation == SquareSituation.NotProtectedAndSees));
 
-                    if (blockedPos <= 0 && (!_isInCheck || (positionSituation == CellSituation.SeesEnemyKing && !_isKing)) && _knightMovement)
+                    if (blockedPos <= 0 && (!_isInCheck || (positionSituation == SquareSituation.SeesEnemyKing && !_isKing)) && _knightMovement)
                     {
                         return false;
                     }
@@ -713,7 +713,7 @@ public partial class Piece : BasePiece, ISaveable
                     break;
                 }
 
-                int moveCheck = GameBoard.CheckBoardCells(movePos);
+                int moveCheck = GameBoard.CheckBoardSquares(movePos);
                 int blockedPos = moveCheck / 1000;
 
                 if (blockedPos == player)
@@ -766,7 +766,7 @@ public partial class Piece : BasePiece, ISaveable
                     break;
                 }
 
-                int moveCheck = GameBoard.CheckBoardCells(movePos);
+                int moveCheck = GameBoard.CheckBoardSquares(movePos);
                 int blockedPos = moveCheck / 1000;
 
                 if (blockedPos != player && blockedPos > 0)
@@ -786,50 +786,50 @@ public partial class Piece : BasePiece, ISaveable
         }
     }
 
-    private void UpdateCheckCells(CellSituation situation, List<Vector2> controlledPositions)
+    private void UpdateCheckSquares(SquareSituation situation, List<Vector2> controlledPositions)
     {
-        CellSituation position = GameBoard.CheckCheckCells(Position);
+        SquareSituation position = GameBoard.CheckCheckSquares(Position);
 
-        if (situation == CellSituation.SeesEnemyKing)
+        if (situation == SquareSituation.SeesEnemyKing)
         {
-            if (position == CellSituation.Protected)
+            if (position == SquareSituation.Protected)
             {
-                GameBoard.SetCheckCells(Position, CellSituation.ProtectedAndSees, Name);
+                GameBoard.SetCheckSquares(Position, SquareSituation.ProtectedAndSees);
             }
             else
             {
-                GameBoard.SetCheckCells(Position, CellSituation.NotProtectedAndSees, Name);
+                GameBoard.SetCheckSquares(Position, SquareSituation.NotProtectedAndSees);
             }
         }
-        else if (position != CellSituation.Protected && position != CellSituation.ProtectedAndSees && position != CellSituation.NotProtectedAndSees)
+        else if (position != SquareSituation.Protected && position != SquareSituation.ProtectedAndSees && position != SquareSituation.NotProtectedAndSees)
         {
-            GameBoard.SetCheckCells(Position, CellSituation.NotProtected, Name);
+            GameBoard.SetCheckSquares(Position, SquareSituation.NotProtected);
         }
 
         foreach (Vector2 controlledPosition in controlledPositions)
         {
-            if (situation == CellSituation.Path || (controlledPosition != controlledPositions.Last() && situation == CellSituation.SeesFriendlyPiece))
+            if (situation == SquareSituation.Path || (controlledPosition != controlledPositions.Last() && situation == SquareSituation.SeesFriendlyPiece))
             {
-                GameBoard.SetCheckCells(controlledPosition, CellSituation.Path, Name);
+                GameBoard.SetCheckSquares(controlledPosition, SquareSituation.Path);
             }
-            else if (controlledPosition != controlledPositions.Last() && situation == CellSituation.SeesEnemyKing)
+            else if (controlledPosition != controlledPositions.Last() && situation == SquareSituation.SeesEnemyKing)
             {
-                GameBoard.SetCheckCells(controlledPosition, CellSituation.SeesEnemyKing, Name);
+                GameBoard.SetCheckSquares(controlledPosition, SquareSituation.SeesEnemyKing);
             }
-            else if (situation == CellSituation.SeesEnemyKing)
+            else if (situation == SquareSituation.SeesEnemyKing)
             {
-                GameBoard.SetCheckCells(controlledPosition, CellSituation.KingInCheck, Name);
+                GameBoard.SetCheckSquares(controlledPosition, SquareSituation.KingInCheck);
             }
-            else if (situation == CellSituation.SeesFriendlyPiece)
+            else if (situation == SquareSituation.SeesFriendlyPiece)
             {
-                CellSituation oldSituation = GameBoard.CheckCheckCells(controlledPosition);
-                if (oldSituation == CellSituation.NotProtected || oldSituation == CellSituation.Free)
+                SquareSituation oldSituation = GameBoard.CheckCheckSquares(controlledPosition);
+                if (oldSituation == SquareSituation.NotProtected || oldSituation == SquareSituation.Free)
                 {
-                    GameBoard.SetCheckCells(controlledPosition, CellSituation.Protected, Name);
+                    GameBoard.SetCheckSquares(controlledPosition, SquareSituation.Protected);
                 }
-                else if (oldSituation == CellSituation.NotProtectedAndSees)
+                else if (oldSituation == SquareSituation.NotProtectedAndSees)
                 {
-                    GameBoard.SetCheckCells(controlledPosition, CellSituation.ProtectedAndSees, Name);
+                    GameBoard.SetCheckSquares(controlledPosition, SquareSituation.ProtectedAndSees);
                 }
             }
         }
