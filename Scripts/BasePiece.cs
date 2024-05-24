@@ -4,6 +4,19 @@ using System;
 namespace Ches;
 public abstract partial class BasePiece : StaticBody2D
 {
+    protected enum Direction
+    {
+        None = -1,
+        Top,
+        TopRight,
+        Right,
+        BottomRight,
+        Bottom,
+        BottomLeft,
+        Left,
+        TopLeft
+    }
+
     private Tween _scaleTween;
     private Vector2 _originalScale;
 

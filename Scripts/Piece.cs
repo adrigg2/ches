@@ -6,19 +6,6 @@ using System.Linq;
 namespace Ches.Chess;
 public partial class Piece : BasePiece, ISaveable
 {
-    private enum Direction
-    {
-        None = -1,
-        Top,
-        TopRight,
-        Right,
-        BottomRight,
-        Bottom,
-        BottomLeft,
-        Left,
-        TopLeft
-    }
-
     [Signal]
     public delegate void PieceSelectedEventHandler();
 
