@@ -41,7 +41,7 @@ public partial class Piece : BasePiece, ISaveable
     private static int _lastPieceID = 0;
 
     public int[] CaptureDirections { get => (int[])_captureDirections.Clone(); }
-    public int ID { get => id % 1000; }
+    public int ID { get => id; }
 
     [Export] private Direction _seesKing;
 

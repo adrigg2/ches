@@ -1,17 +1,11 @@
-[gd_scene load_steps=6 format=3 uid="uid://f10u74n575bj"]
+[gd_scene load_steps=3 format=3 uid="uid://f10u74n575bj"]
 
-[ext_resource type="Script" path="res://scripts/Piece.cs" id="1_vrm6u"]
-[ext_resource type="PackedScene" uid="uid://34he5epnjvfu" path="res://scenes/movement.tscn" id="2_qboc7"]
-[ext_resource type="PackedScene" uid="uid://udrochcokmvr" path="res://scenes/capture.tscn" id="3_fg8qy"]
-[ext_resource type="PackedScene" uid="uid://dvgrvy1lc6671" path="res://scenes/promotion_selection.tscn" id="4_4pd8j"]
+[ext_resource type="Script" path="res://scripts/CheckersPiece.cs" id="1_ywd1l"]
 [ext_resource type="Shape2D" uid="uid://dg5lhu0e8vi5l" path="res://assets/resources/piece_shape.tres" id="5_jw521"]
 
-[node name="Piece" type="StaticBody2D"]
+[node name="CheckersPiece" type="StaticBody2D"]
 input_pickable = true
-script = ExtResource("1_vrm6u")
-_movement = ExtResource("2_qboc7")
-_capture = ExtResource("3_fg8qy")
-_promotion = ExtResource("4_4pd8j")
+script = ExtResource("1_ywd1l")
 metadata/Piece_Type = "pawn"
 metadata/Player = 0
 

@@ -9,14 +9,22 @@ public partial class CheckersPiece : BasePiece, ISaveable
 
     private Vector2 _direction;
     private bool _king;
+    [Export]private Dictionary<int, Texture2D> _textures;
+    private CheckersBoard _board;
 
-    public void SetFields(bool king)
+    public int ID { get => id; }
+
+    public void SetFields(bool king, CheckersBoard board)
     {
         _king = king;
+        _board = board;
     }
 
     public override void _Ready()
     {
+        AddToGroup("pieces");
+        AddToGroup("to_save");
+
         if (!_king)
         {
             id = player * 1000 + _lastPieceID;
@@ -26,6 +34,15 @@ public partial class CheckersPiece : BasePiece, ISaveable
             id = player * 1000 + 100 + _lastPieceID;
         }
         _lastPieceID++;
+
+        GetNode<Sprite2D>("Sprite2D").Texture = _textures[id % 100];
+    }
+
+    private void SetInitialTurn(int turn)
+    {
+        Vector2I position = _board.LocalToMap(Position);
+        _board[position.X, position.Y] = id;
+        this.turn = turn;
     }
 
     protected override void Movement()
