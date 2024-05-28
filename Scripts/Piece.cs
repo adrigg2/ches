@@ -198,7 +198,7 @@ public partial class Piece : BasePiece, ISaveable
                     bool kingCapture = _isKing && (positionSituation == SquareSituation.NotProtected || positionSituation == SquareSituation.NotProtectedAndSees);
                     bool normalCapture = !_isKing && (!_isInCheck || positionSituation == SquareSituation.ProtectedAndSees || positionSituation == SquareSituation.NotProtectedAndSees);
 
-                    if (normalCapture || kingCapture) 
+                    if (normalCapture || kingCapture)
                     {
                         Movement capture = (Movement)_capture.Instantiate();
                         AddChild(capture);
@@ -279,11 +279,11 @@ public partial class Piece : BasePiece, ISaveable
                         capture.MoveSelected += MovementSelected;
                     }
                 }
-            } 
+            }
         }
     }
 
-    private void GenerateCastling(Vector2I direction, Dictionary <Vector2, Movement> occupiedPositions, Piece target)
+    private void GenerateCastling(Vector2I direction, Dictionary<Vector2, Movement> occupiedPositions, Piece target)
     {
         Vector2 movePos = Position + _castlingDistance * new Vector2(CellPixels, CellPixels) * direction * _playerDirectionVector;
         Movement movement = (Movement)_movement.Instantiate();
@@ -444,7 +444,7 @@ public partial class Piece : BasePiece, ISaveable
                 {
                     Piece blockingPiece = (Piece)_checkPiece.Call(moveCheck);
 
-                    if (blockingPiece.IsKing) 
+                    if (blockingPiece.IsKing)
                     {
                         controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
                         situation = SquareSituation.SeesEnemyKing;
@@ -502,7 +502,7 @@ public partial class Piece : BasePiece, ISaveable
                 {
                     Piece blockingPiece = (Piece)_checkPiece.Call(moveCheck);
 
-                    if (blockingPiece.IsKing) 
+                    if (blockingPiece.IsKing)
                     {
                         controlledPositions.Add(new Vector2(movePos.X, movePos.Y));
                         situation = SquareSituation.SeesEnemyKing;
@@ -594,7 +594,7 @@ public partial class Piece : BasePiece, ISaveable
                     bool kingCapture = _isKing && (positionSituation == SquareSituation.NotProtected || positionSituation == SquareSituation.NotProtectedAndSees);
                     bool normalCapture = !_isKing && (!_isInCheck || positionSituation == SquareSituation.ProtectedAndSees || positionSituation == SquareSituation.NotProtectedAndSees);
 
-                    if (normalCapture || kingCapture) 
+                    if (normalCapture || kingCapture)
                     {
                         GD.PrintRich($"[color=green]{Name} can capture[/color]");
                         return false;
@@ -737,7 +737,7 @@ public partial class Piece : BasePiece, ISaveable
 
         for (int i = 0; i < 8; i++)
         {
-            if (!(_seesKing == (Direction)i ||  _seesKing == (Direction)((i + 4) % 8)))
+            if (!(_seesKing == (Direction)i || _seesKing == (Direction)((i + 4) % 8)))
             {
                 continue;
             }

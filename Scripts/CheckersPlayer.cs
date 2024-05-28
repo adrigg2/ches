@@ -1,6 +1,4 @@
-using Ches.Chess;
 using Godot;
-using System;
 using System.Collections.Generic;
 
 namespace Ches.Checkers;
@@ -40,7 +38,7 @@ public partial class CheckersPlayer : Node2D
         {
             for (int i = 5; i < 8; i++)
             {
-                for (int j = i - 7; j < 8; j+= 2)
+                for (int j = i - 7; j < 8; j += 2)
                 {
                     if (j >= 0)
                     {

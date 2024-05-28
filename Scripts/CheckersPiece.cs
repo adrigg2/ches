@@ -1,6 +1,7 @@
 using Godot;
 using Godot.Collections;
 using System;
+using SysGeneric = System.Collections.Generic;
 
 namespace Ches.Checkers;
 public partial class CheckersPiece : BasePiece, ISaveable
@@ -9,8 +10,10 @@ public partial class CheckersPiece : BasePiece, ISaveable
 
     private Vector2 _direction;
     private bool _king;
-    [Export]private Dictionary<int, Texture2D> _textures;
+    [Export] private Dictionary<int, Texture2D> _textures;
     private CheckersBoard _board;
+    [Export] private PackedScene _movement;
+    [Export] private PackedScene _capture;
 
     public int ID { get => id; }
 
@@ -47,7 +50,80 @@ public partial class CheckersPiece : BasePiece, ISaveable
 
     protected override void Movement()
     {
-        throw new NotImplementedException();
+        SysGeneric.List<Vector2> validMovements = new();
+
+        if (!_king)
+        {
+            for (int i = -1; i < 2; i += 2)
+            {
+                Vector2 movePos = Position + new Vector2(i, 1) * _direction;
+                if (CheckPosition(movePos, i))
+                {
+                    validMovements.Add(movePos);
+                }
+            }
+        }
+        else
+        {
+            for (int i = -1; i < 2; i += 2)
+            {
+                for (int j = -1; j > -9; j--)
+                {
+                    Vector2 movePos = Position + new Vector2(j, j * i) * _direction;
+                    
+                    if (CheckPosition(movePos, j, j * i) && !validMovements.Contains(movePos))
+                    {
+                        validMovements.Add(movePos);
+                    }
+                    else if (!CheckPosition(movePos, j, j * i))
+                    {
+                        break;
+                    }
+                }
+            }
+
+            for (int i = -1; i < 2; i += 2)
+            {
+                for (int j = 1; j < 9; j++)
+                {
+                    Vector2 movePos = Position + new Vector2(j, j * i) * _direction;
+                    if (CheckPosition(movePos, j, j * i) && !validMovements.Contains(movePos))
+                    {
+                        validMovements.Add(movePos);
+                    }
+                    else if (!CheckPosition(movePos, j, j * i))
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+
+        bool CheckPosition(Vector2 position, int xIncrease, int yIncrease = 1)
+        {
+            bool availablePosition = false;
+            bool notOutOfBounds = Position.X >= 0 && Position.X < 8 && Position.Y >= 0 && Position.Y < 8;
+            if (notOutOfBounds && CheckBoard(Position) == 0)
+            {
+                availablePosition = true;
+            }
+            else if (notOutOfBounds && CheckBoard(Position) / 1000 != player)
+            {
+                Position += new Vector2(xIncrease, yIncrease).Normalized() * (float)Math.Sqrt(2) * _direction;
+                notOutOfBounds = Position.X >= 0 && Position.X < 8 && Position.Y >= 0 && Position.Y < 8;
+                if (notOutOfBounds && CheckBoard(Position) == 0)
+                {
+                    availablePosition = true;
+                }
+            }
+            return availablePosition;
+        }
+    }
+
+    private int CheckBoard(Vector2 position)
+    {
+        Vector2I positionI = _board.LocalToMap(Position);
+        return _board[positionI.X, positionI.Y];
     }
 
     public Dictionary<string, Variant> Save()

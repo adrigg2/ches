@@ -1,5 +1,4 @@
 using Godot;
-using System;
 using System.Collections.Generic;
 
 namespace Ches.Checkers;
@@ -7,7 +6,7 @@ public partial class CheckersGame : Node2D
 {
     private Dictionary<int, CheckersPiece> _pieces;
     private int _turn;
-    [Export]private CheckersBoard _board;
+    [Export] private CheckersBoard _board;
 
     public override void _Ready()
     {

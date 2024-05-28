@@ -1,5 +1,4 @@
 using Godot;
-using System.Collections.Generic;
 
 namespace Ches.Chess;
 public partial class Player : Node2D

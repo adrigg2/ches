@@ -29,7 +29,7 @@ public partial class MainMenu : Control
 
     private void OnlineSelected()
     {
-        
+
     }
 
     private void OptionsSelected()

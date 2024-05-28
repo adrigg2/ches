@@ -13,7 +13,7 @@ public partial class PromotionSelection : Control
     public Piece PieceToPromote { get => _pieceToPromote; set => _pieceToPromote = value; }
 
     public override void _Ready()
-	{
+    {
         Button queen = GetNode<Button>("SelectionContainer/Queen");
         Button rook = GetNode<Button>("SelectionContainer/Rook");
         Button bishop = GetNode<Button>("SelectionContainer/Bishop");

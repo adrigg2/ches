@@ -176,12 +176,12 @@ public partial class GameUI : Control
     public void SetTimers(Timer timer, int player)
     {
         GD.Print("Setting timers");
-        
+
         if (player == 1)
         {
             _timer1 = timer;
         }
-        else 
+        else
         {
             _timer2 = timer;
         }

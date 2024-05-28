@@ -62,7 +62,7 @@ public partial class Board : TileMap
         GD.Print($"{cellCoords} {cellAtlas} {piece} update tiles");
         if (cellAtlas == new Vector2I(0, 3))
         {
-            if (_selectedPosition != new Vector2(-1,-1))
+            if (_selectedPosition != new Vector2(-1, -1))
             {
                 EraseCell(1, LocalToMap(_selectedPosition));
             }
@@ -85,7 +85,7 @@ public partial class Board : TileMap
 
     public void Reset()
     {
-        foreach(Node child in GetChildren())
+        foreach (Node child in GetChildren())
         {
             if (child is Player player)
             {

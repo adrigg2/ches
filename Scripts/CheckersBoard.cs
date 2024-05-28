@@ -1,5 +1,4 @@
 using Godot;
-using System;
 
 namespace Ches.Checkers;
 public partial class CheckersBoard : TileMap

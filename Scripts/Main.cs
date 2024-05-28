@@ -1,5 +1,5 @@
-using Godot;
 using Ches.Chess;
+using Godot;
 using System;
 using System.Linq;
 

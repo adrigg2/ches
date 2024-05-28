@@ -241,7 +241,7 @@ public partial class ChessGame : Node2D
     public void RevertGameStatus(int boardIndex)
     {
         int[,] board = BoardHistory[boardIndex].Board;
-        
+
         int lastBoardHistory = BoardHistory.Count - 1;
 
         while (lastBoardHistory > boardIndex)
