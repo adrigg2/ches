@@ -6,6 +6,20 @@ using SysGeneric = System.Collections.Generic;
 namespace Ches.Checkers;
 public partial class CheckersPiece : BasePiece, ISaveable
 {
+    private struct PosibleMovement
+    {
+        public PosibleMovement(bool isCapture, Vector2 position, Vector2? capturePosition)
+        {
+            IsCapture = isCapture;
+            Position = position;
+            CapturePosition = capturePosition;
+        }
+
+        public bool IsCapture { get; set; }
+        public Vector2 Position { get; set; }
+        public Vector2? CapturePosition { get; set; }
+    }
+
     private static int _lastPieceID = 0;
 
     private Vector2 _direction;
@@ -50,16 +64,17 @@ public partial class CheckersPiece : BasePiece, ISaveable
 
     protected override void Movement()
     {
-        SysGeneric.List<Vector2> validMovements = new();
+        SysGeneric.List<PosibleMovement> validMovements = new();
 
         if (!_king)
         {
             for (int i = -1; i < 2; i += 2)
             {
                 Vector2 movePos = Position + new Vector2(i, 1) * _direction;
-                if (CheckPosition(movePos, i))
+                var (availablePosition, movement) = CheckPosition(movePos, i);
+                if (availablePosition)
                 {
-                    validMovements.Add(movePos);
+                    validMovements.Add(movement);
                 }
             }
         }
@@ -70,12 +85,13 @@ public partial class CheckersPiece : BasePiece, ISaveable
                 for (int j = -1; j > -9; j--)
                 {
                     Vector2 movePos = Position + new Vector2(j, j * i) * _direction;
-                    
-                    if (CheckPosition(movePos, j, j * i) && !validMovements.Contains(movePos))
+
+                    var (availablePosition, movement) = CheckPosition(movePos, j, j * i);
+                    if (availablePosition && !validMovements.Exists(move => move.Position == movePos))
                     {
-                        validMovements.Add(movePos);
+                        validMovements.Add(movement);
                     }
-                    else if (!CheckPosition(movePos, j, j * i))
+                    else if (!availablePosition)
                     {
                         break;
                     }
@@ -87,11 +103,13 @@ public partial class CheckersPiece : BasePiece, ISaveable
                 for (int j = 1; j < 9; j++)
                 {
                     Vector2 movePos = Position + new Vector2(j, j * i) * _direction;
-                    if (CheckPosition(movePos, j, j * i) && !validMovements.Contains(movePos))
+
+                    var (availablePosition, movement) = CheckPosition(movePos, j, j * i);
+                    if (availablePosition && !validMovements.Exists(move => move.Position == movePos))
                     {
-                        validMovements.Add(movePos);
+                        validMovements.Add(movement);
                     }
-                    else if (!CheckPosition(movePos, j, j * i))
+                    else if (!availablePosition)
                     {
                         break;
                     }
@@ -99,9 +117,31 @@ public partial class CheckersPiece : BasePiece, ISaveable
             }
         }
 
-        bool CheckPosition(Vector2 position, int xIncrease, int yIncrease = 1)
+        bool capture = false;
+        if (validMovements.Exists(move => move.IsCapture))
+        {
+            validMovements.RemoveAll(move => !move.IsCapture);
+            capture = true;
+        }
+
+        foreach (var move in validMovements)
+        {
+            Chess.Movement movement = (Chess.Movement)_movement.Instantiate();
+            movement.Position = move.Position;
+            
+            if (capture)
+            {
+                movement.SetCapture(move.CapturePosition); //FIXME: use piece id to retrieve piece
+            }
+        }
+
+        (bool, PosibleMovement) CheckPosition(Vector2 position, int xIncrease, int yIncrease = 1)
         {
             bool availablePosition = false;
+            bool capture = false;
+            Vector2 movementPosition = position;
+            Vector2? capturePosition = null;
+
             bool notOutOfBounds = Position.X >= 0 && Position.X < 8 && Position.Y >= 0 && Position.Y < 8;
             if (notOutOfBounds && CheckBoard(Position) == 0)
             {
@@ -109,14 +149,19 @@ public partial class CheckersPiece : BasePiece, ISaveable
             }
             else if (notOutOfBounds && CheckBoard(Position) / 1000 != player)
             {
-                Position += new Vector2(xIncrease, yIncrease).Normalized() * (float)Math.Sqrt(2) * _direction;
+                position += new Vector2(xIncrease, yIncrease).Normalized() * (float)Math.Sqrt(2) * _direction;
+
+                Vector2 posibleCapture = position;
+
                 notOutOfBounds = Position.X >= 0 && Position.X < 8 && Position.Y >= 0 && Position.Y < 8;
                 if (notOutOfBounds && CheckBoard(Position) == 0)
                 {
                     availablePosition = true;
+                    capture = true;
+                    capturePosition = posibleCapture;
                 }
             }
-            return availablePosition;
+            return (availablePosition, new PosibleMovement(capture, movementPosition, capturePosition));
         }
     }
 
