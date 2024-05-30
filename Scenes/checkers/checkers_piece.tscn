@@ -1,0 +1,26 @@
+[gd_scene load_steps=7 format=3 uid="uid://f10u74n575bj"]
+
+[ext_resource type="Script" path="res://scripts/checkers/CheckersPiece.cs" id="1_e0y04"]
+[ext_resource type="Texture2D" uid="uid://dng3bb4h1657f" path="res://assets/sprites/checkers/whiteChecker.png" id="2_damt1"]
+[ext_resource type="Texture2D" uid="uid://cb2ggqc3u0i2m" path="res://assets/sprites/checkers/whiteKing.png" id="3_gvji8"]
+[ext_resource type="Texture2D" uid="uid://sssoo2ghgmkr" path="res://assets/sprites/checkers/blackChecker.png" id="4_6ss2g"]
+[ext_resource type="Texture2D" uid="uid://fwh22e80lsgq" path="res://assets/sprites/checkers/blackKing.png" id="5_pm1mx"]
+[ext_resource type="Shape2D" uid="uid://dg5lhu0e8vi5l" path="res://assets/resources/piece_shape.tres" id="6_p4od0"]
+
+[node name="CheckersPiece" type="StaticBody2D"]
+input_pickable = true
+script = ExtResource("1_e0y04")
+_textures = {
+10: ExtResource("2_damt1"),
+11: ExtResource("3_gvji8"),
+20: ExtResource("4_6ss2g"),
+21: ExtResource("5_pm1mx")
+}
+metadata/Piece_Type = "pawn"
+metadata/Player = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+region_rect = Rect2(0, 0, 64, 128)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = ExtResource("6_p4od0")
