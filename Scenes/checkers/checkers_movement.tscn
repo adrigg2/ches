@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://du7me6bodq82"]
+
+[ext_resource type="Script" path="res://scripts/checkers/CheckersMovement.cs" id="1_q4hq8"]
+[ext_resource type="Texture2D" uid="uid://kmghm31rdfpi" path="res://assets/sprites/movement.png" id="2_1g2k1"]
+[ext_resource type="Shape2D" uid="uid://dg5lhu0e8vi5l" path="res://assets/resources/piece_shape.tres" id="3_4773x"]
+
+[node name="Movement" type="CharacterBody2D"]
+input_pickable = true
+motion_mode = 1
+script = ExtResource("1_q4hq8")
+metadata/Is_Capture = false
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(1, 1, 1, 0.686275)
+texture = ExtResource("2_1g2k1")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = ExtResource("3_4773x")
