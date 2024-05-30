@@ -43,6 +43,7 @@ folder_colors={
 "res://assets/translations/": "green",
 "res://scenes/": "blue",
 "res://scripts/": "yellow",
+"res://scripts/checkers/": "pink",
 "res://scripts/custom_resources/": "green",
 "res://scripts/enums/": "teal",
 "res://scripts/interfaces/": "purple"

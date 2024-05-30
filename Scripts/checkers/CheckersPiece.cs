@@ -64,6 +64,10 @@ public partial class CheckersPiece : BasePiece, ISaveable
 
     protected override void Movement()
     {
+        if (turn != player) return;
+
+        EmitSignal(SignalName.PieceSelected);
+
         SysGeneric.List<PosibleMovement> validMovements = new();
 
         if (!_king)
@@ -126,7 +130,7 @@ public partial class CheckersPiece : BasePiece, ISaveable
 
         foreach (var move in validMovements)
         {
-            Chess.Movement movement = (Chess.Movement)_movement.Instantiate();
+            CheckersMovement movement = (CheckersMovement)_movement.Instantiate();
             movement.Position = move.Position;
             
             if (capture)
@@ -165,9 +169,17 @@ public partial class CheckersPiece : BasePiece, ISaveable
         }
     }
 
+    public override void Capture()
+    {
+        GD.PrintRich($"[color=red]Capturing {this}[/color]");
+        Vector2I position = _board.LocalToMap(Position);
+        _board[position.X, position.Y] = 0;
+        Delete();
+    }
+
     private int CheckBoard(Vector2 position)
     {
-        Vector2I positionI = _board.LocalToMap(Position);
+        Vector2I positionI = _board.LocalToMap(position);
         return _board[positionI.X, positionI.Y];
     }
 

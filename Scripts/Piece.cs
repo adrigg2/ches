@@ -7,9 +7,6 @@ namespace Ches.Chess;
 public partial class Piece : BasePiece, ISaveable
 {
     [Signal]
-    public delegate void PieceSelectedEventHandler();
-
-    [Signal]
     public delegate void PieceMovedEventHandler(Vector2 position, Vector2 oldPosition, int player);
 
     [Signal]
@@ -389,7 +386,7 @@ public partial class Piece : BasePiece, ISaveable
         }
     }
 
-    public void Capture()
+    public override void Capture()
     {
         GD.PrintRich($"[color=red]Capturing {this}[/color]");
         EmitSignal(SignalName.ClearEnPassant, player);
@@ -820,15 +817,6 @@ public partial class Piece : BasePiece, ISaveable
                 }
             }
         }
-    }
-
-    public void Delete()
-    {
-        foreach (StringName group in GetGroups())
-        {
-            RemoveFromGroup(group);
-        }
-        QueueFree();
     }
 
     public Godot.Collections.Dictionary<string, Variant> Save()

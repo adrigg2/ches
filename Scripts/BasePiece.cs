@@ -3,6 +3,9 @@ using Godot;
 namespace Ches;
 public abstract partial class BasePiece : StaticBody2D
 {
+    [Signal]
+    public delegate void PieceSelectedEventHandler();
+
     protected enum Direction
     {
         None = -1,
@@ -35,6 +38,8 @@ public abstract partial class BasePiece : StaticBody2D
 
     protected abstract void Movement();
 
+    public abstract void Capture();
+
     public override void _MouseEnter()
     {
         if (player != turn)
@@ -66,5 +71,14 @@ public abstract partial class BasePiece : StaticBody2D
     public virtual void ChangeTurn(int turn)
     {
         _scaleTween?.Kill();
+    }
+
+    public void Delete()
+    {
+        foreach (StringName group in GetGroups())
+        {
+            RemoveFromGroup(group);
+        }
+        QueueFree();
     }
 }
