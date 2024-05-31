@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace Ches.Chess;
-public partial class ChessGame : Node2D
+public partial class ChessGame : Node2D, ISaveable
 {
     [Signal]
     public delegate void TurnChangedEventHandler(int turn, int situationCount);
@@ -20,7 +20,7 @@ public partial class ChessGame : Node2D
     [Export] private Label _debugTracker2;
     [Export] private Camera2D _camera;
 
-    public static List<BoardState> BoardHistory { get; set; } = new(); //Check why static
+    public static List<BoardState> BoardHistory { get; set; } = new();
     private Dictionary<int, Piece> _pieces;
 
     [Export] private int _turn;
@@ -303,5 +303,21 @@ public partial class ChessGame : Node2D
     public Piece CheckPiece(int id)
     {
         return _pieces[Math.Abs(id % 1000)];
+    }
+
+    public Godot.Collections.Dictionary<string, Variant> Save()
+    {
+        return new Godot.Collections.Dictionary<string, Variant>
+        {
+            { "Filename", SceneFilePath },
+            { "Parent", GetParent().GetPath() },
+            { "PosX", Position.X },
+            { "PosY", Position.Y }
+        }; //Find a way to store BoardHistory
+    }
+
+    public void Load(Godot.Collections.Dictionary<string, Variant> data)
+    {
+        Position = new Vector2((float)data["PosX"], (float)data["PosY"]);
     }
 }

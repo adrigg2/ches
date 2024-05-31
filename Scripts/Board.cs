@@ -1,4 +1,5 @@
 using Godot;
+using Godot.Collections;
 
 namespace Ches.Chess;
 public partial class Board : TileMap

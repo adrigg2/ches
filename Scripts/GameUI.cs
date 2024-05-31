@@ -189,9 +189,9 @@ public partial class GameUI : Control
 
     private void LoadGames()
     {
+        _pauseMenu.Visible = false;
         PackedScene loadScreen = (PackedScene)ResourceLoader.Load("res://scenes/load_screen.tscn");
         LoadScreen load = (LoadScreen)loadScreen.Instantiate();
-        load.Size = new Vector2(768, 384);
         AddChild(load);
     }
 }
