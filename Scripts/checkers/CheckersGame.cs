@@ -10,6 +10,8 @@ public partial class CheckersGame : Node2D
 
     public override void _Ready()
     {
+        _pieces = new Dictionary<int, CheckersPiece>();
+
         for (int i = 1; i < 3; i++)
         {
             CheckersPlayer player = new CheckersPlayer(i);

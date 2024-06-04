@@ -4,8 +4,9 @@
 [ext_resource type="TileSet" uid="uid://bq6f40jlbroyg" path="res://assets/tilesets/board_tiles.tres" id="2_qdjg7"]
 [ext_resource type="Script" path="res://scripts/checkers/CheckersBoard.cs" id="3_s114x"]
 
-[node name="ChessGame" type="Node2D"]
+[node name="CheckersGame" type="Node2D" node_paths=PackedStringArray("_board")]
 script = ExtResource("1_7l4ji")
+_board = NodePath("Board")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(384, 192)

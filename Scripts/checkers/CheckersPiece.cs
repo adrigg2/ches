@@ -135,7 +135,7 @@ public partial class CheckersPiece : BasePiece, ISaveable
             
             if (capture)
             {
-                movement.SetCapture(move.CapturePosition); //FIXME: use piece id to retrieve piece
+                //movement.SetCapture(move.CapturePosition); //FIXME: use piece id to retrieve piece
             }
         }
 
