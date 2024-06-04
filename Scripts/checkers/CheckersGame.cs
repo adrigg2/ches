@@ -10,16 +10,13 @@ public partial class CheckersGame : Node2D
 
     public override void _Ready()
     {
+        GD.Print("Game _Ready");
         _pieces = new Dictionary<int, CheckersPiece>();
 
-        for (int i = 1; i < 3; i++)
+        List<CheckersPiece> pieces = _board.GeneratePlayers();
+        foreach (var piece in pieces)
         {
-            CheckersPlayer player = new CheckersPlayer(i);
-            List<CheckersPiece> pieces = player.GeneratePieces(_board);
-            foreach (CheckersPiece piece in pieces)
-            {
-                _pieces.Add(piece.ID, piece);
-            }
+            _pieces.Add(piece.ID, piece);
         }
     }
 }

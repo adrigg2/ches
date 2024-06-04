@@ -17,7 +17,6 @@ public partial class CheckersMovement : CharacterBody2D
 
     public override void _Ready()
     {
-        Node2D master = GetNode<Node2D>("../../../..");
         TileMap newParent = GetNode<TileMap>("../../..");
 
         GetParent().RemoveChild(this);

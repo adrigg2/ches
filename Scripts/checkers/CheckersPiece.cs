@@ -31,14 +31,16 @@ public partial class CheckersPiece : BasePiece, ISaveable
 
     public int ID { get => id; }
 
-    public void SetFields(bool king, CheckersBoard board)
+    public void SetFields(bool king, CheckersBoard board, int player)
     {
         _king = king;
         _board = board;
+        this.player = player;
     }
 
     public override void _Ready()
     {
+        GD.Print("Piece _Ready");
         AddToGroup("pieces");
         AddToGroup("to_save");
 
@@ -52,7 +54,7 @@ public partial class CheckersPiece : BasePiece, ISaveable
         }
         _lastPieceID++;
 
-        GetNode<Sprite2D>("Sprite2D").Texture = _textures[id % 100];
+        GetNode<Sprite2D>("Sprite2D").Texture = _textures[id / 100];
     }
 
     private void SetInitialTurn(int turn)

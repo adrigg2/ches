@@ -11,22 +11,27 @@ public partial class CheckersPlayer : Node2D
     public CheckersPlayer(int playerNum)
     {
         _playerNum = playerNum;
-        _piece = (PackedScene)ResourceLoader.Load("res://scenes/checkers_piece.tscn");
+        _piece = (PackedScene)ResourceLoader.Load("res://scenes/checkers/checkers_piece.tscn");
+    }
+
+    public override void _Ready()
+    {
+        GD.Print("Player _Ready");
     }
 
     public List<CheckersPiece> GeneratePieces(CheckersBoard board)
     {
         List<CheckersPiece> pieces = new();
-        if (_playerNum == 1)
+        if (_playerNum == 2)
         {
             for (int i = 0; i < 3; i++)
             {
-                for (int j = i - 1; j < 8; i += 2)
+                for (int j = i - 1; j < 8; j += 2)
                 {
                     if (j >= 0)
                     {
                         CheckersPiece piece = (CheckersPiece)_piece.Instantiate();
-                        piece.SetFields(false, board);
+                        piece.SetFields(false, board, _playerNum);
                         piece.Position = board.MapToLocal(new Vector2I(j, i));
                         AddChild(piece);
                         pieces.Add(piece);
@@ -43,7 +48,7 @@ public partial class CheckersPlayer : Node2D
                     if (j >= 0)
                     {
                         CheckersPiece piece = (CheckersPiece)_piece.Instantiate();
-                        piece.SetFields(false, board);
+                        piece.SetFields(false, board, _playerNum);
                         piece.Position = board.MapToLocal(new Vector2I(j, i));
                         AddChild(piece);
                         pieces.Add(piece);
