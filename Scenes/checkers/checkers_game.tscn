@@ -4,9 +4,10 @@
 [ext_resource type="TileSet" uid="uid://bq6f40jlbroyg" path="res://assets/tilesets/board_tiles.tres" id="2_qdjg7"]
 [ext_resource type="Script" path="res://scripts/checkers/CheckersBoard.cs" id="3_s114x"]
 
-[node name="CheckersGame" type="Node2D" node_paths=PackedStringArray("_board")]
+[node name="CheckersGame" type="Node2D" node_paths=PackedStringArray("_board", "_debugTracker")]
 script = ExtResource("1_7l4ji")
 _board = NodePath("Board")
+_debugTracker = NodePath("DebugWindow/DebugTracker")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(384, 192)
@@ -28,18 +29,9 @@ size = Vector2i(768, 384)
 current_screen = 1
 
 [node name="DebugTracker" type="Label" parent="DebugWindow"]
-offset_left = 512.0
-offset_right = 552.0
+offset_right = 40.0
 offset_bottom = 24.0
 scale = Vector2(3.19449, 1.39672)
-theme_override_font_sizes/font_size = 17
-autowrap_mode = 2
-metadata/_edit_use_anchors_ = true
-
-[node name="DebugTracker2" type="Label" parent="DebugWindow"]
-offset_right = 40.0
-offset_bottom = 34.0
-scale = Vector2(3.20036, 1.04143)
 theme_override_font_sizes/font_size = 17
 autowrap_mode = 2
 metadata/_edit_use_anchors_ = true

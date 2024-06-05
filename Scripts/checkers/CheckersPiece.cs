@@ -57,7 +57,7 @@ public partial class CheckersPiece : BasePiece, ISaveable
         GetNode<Sprite2D>("Sprite2D").Texture = _textures[id / 100];
     }
 
-    private void SetInitialTurn(int turn)
+    public void SetInitialTurn(int turn)
     {
         Vector2I position = _board.LocalToMap(Position);
         _board[position.X, position.Y] = id;
