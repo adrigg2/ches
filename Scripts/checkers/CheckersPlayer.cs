@@ -19,7 +19,7 @@ public partial class CheckersPlayer : Node2D
         GD.Print("Player _Ready");
     }
 
-    public List<CheckersPiece> GeneratePieces(CheckersBoard board)
+    public List<CheckersPiece> GeneratePieces(CheckersBoard board, CheckersGame game)
     {
         List<CheckersPiece> pieces = new();
         if (_playerNum == 2)
@@ -31,7 +31,7 @@ public partial class CheckersPlayer : Node2D
                     if (j >= 0)
                     {
                         CheckersPiece piece = (CheckersPiece)_piece.Instantiate();
-                        piece.SetFields(false, board, _playerNum);
+                        piece.SetFields(false, board, _playerNum, game);
                         piece.Position = board.MapToLocal(new Vector2I(j, i));
                         AddChild(piece);
                         pieces.Add(piece);
@@ -48,7 +48,7 @@ public partial class CheckersPlayer : Node2D
                     if (j >= 0)
                     {
                         CheckersPiece piece = (CheckersPiece)_piece.Instantiate();
-                        piece.SetFields(false, board, _playerNum);
+                        piece.SetFields(false, board, _playerNum, game);
                         piece.Position = board.MapToLocal(new Vector2I(j, i));
                         AddChild(piece);
                         pieces.Add(piece);

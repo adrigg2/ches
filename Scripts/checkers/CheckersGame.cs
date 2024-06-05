@@ -15,6 +15,7 @@ public partial class CheckersGame : Node2D
     {
         GD.Print("Game _Ready");
         _pieces = new Dictionary<int, CheckersPiece>();
+        _turn = 1;
 
         List<CheckersPiece> pieces = _board.GeneratePlayers();
         foreach (var piece in pieces)
@@ -52,5 +53,10 @@ public partial class CheckersGame : Node2D
             }
             _debugTracker.Text += "\n";
         }
+    }
+
+    public CheckersPiece CheckPiece(int id)
+    {
+        return _pieces[id];
     }
 }

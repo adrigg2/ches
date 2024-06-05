@@ -28,7 +28,7 @@ public partial class CheckersBoard : TileMap
         {
             CheckersPlayer player = new(i);
             AddChild(player);
-            pieces.AddRange(player.GeneratePieces(this));
+            pieces.AddRange(player.GeneratePieces(this, GetParent<CheckersGame>()));
         }
         return pieces;
     }
