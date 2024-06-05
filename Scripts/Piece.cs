@@ -27,7 +27,7 @@ public partial class Piece : BasePiece, ISaveable
     [Signal]
     public delegate void ClearEnPassantEventHandler(int player);
 
-    const int CellPixels = 32;
+    private const int CellPixels = 32; // Move to board?
 
     [Export] private int[] _lockedDirection;
     [Export] private int _firstMovementBonus;

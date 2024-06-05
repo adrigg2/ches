@@ -20,9 +20,11 @@ public partial class CheckersPiece : BasePiece, ISaveable
         public int? CaptureID { get; set; }
     }
 
+    private const int CellPixels = 32; // Move to board?
+
     private static int _lastPieceID = 0;
 
-    private Vector2 _direction;
+    private Vector2I _direction;
     private bool _king;
     [Export] private Dictionary<int, Texture2D> _textures;
     private CheckersBoard _board;
@@ -59,12 +61,12 @@ public partial class CheckersPiece : BasePiece, ISaveable
 
         if (player == 1)
         {
-            _direction = new Vector2(-1, -1);
+            _direction = new Vector2I(1, -1);
             //AddToGroup("white_pieces");
         }
         else
         {
-            _direction = new Vector2(1, 1);
+            _direction = new Vector2I(1, 1);
             //AddToGroup("black_pieces");
         }
 
@@ -94,8 +96,10 @@ public partial class CheckersPiece : BasePiece, ISaveable
         {
             for (int i = -1; i < 2; i += 2)
             {
-                Vector2 movePos = Position + new Vector2(i, 1) * _direction; // Multiply vector by cells size OR make the operation with LocalToMap(Position) and reversing afterwards
+                Vector2I movePosI = _board.LocalToMap(Position) + new Vector2I(i, 1) * _direction;
+                Vector2 movePos = _board.MapToLocal(movePosI);
                 var (availablePosition, movement) = CheckPosition(movePos, i);
+                GD.Print($"Generating move {movePosI}, available: {availablePosition}");
                 if (availablePosition)
                 {
                     validMovements.Add(movement);
@@ -108,7 +112,8 @@ public partial class CheckersPiece : BasePiece, ISaveable
             {
                 for (int j = -1; j > -9; j--)
                 {
-                    Vector2 movePos = Position + new Vector2(j, j * i) * _direction;
+                    Vector2I movePosI = _board.LocalToMap(Position) + new Vector2I(j, j * i) * _direction;
+                    Vector2 movePos = _board.MapToLocal(movePosI);
 
                     var (availablePosition, movement) = CheckPosition(movePos, j, j * i);
                     if (availablePosition && !validMovements.Exists(move => move.Position == movePos))
@@ -126,7 +131,8 @@ public partial class CheckersPiece : BasePiece, ISaveable
             {
                 for (int j = 1; j < 9; j++)
                 {
-                    Vector2 movePos = Position + new Vector2(j, j * i) * _direction;
+                    Vector2I movePosI = _board.LocalToMap(Position) + new Vector2I(j, j * i) * _direction;
+                    Vector2 movePos = _board.MapToLocal(movePosI);
 
                     var (availablePosition, movement) = CheckPosition(movePos, j, j * i);
                     if (availablePosition && !validMovements.Exists(move => move.Position == movePos))
@@ -168,19 +174,19 @@ public partial class CheckersPiece : BasePiece, ISaveable
             Vector2 movementPosition = position;
             int? capturePosition = null;
 
-            bool notOutOfBounds = Position.X >= 0 && Position.X < 8 && Position.Y >= 0 && Position.Y < 8;
-            if (notOutOfBounds && CheckBoard(Position) == 0)
+            bool notOutOfBounds = position.X >= 0 && position.X < 8 * CellPixels && position.Y >= 0 && position.Y < 8 * CellPixels;
+            if (notOutOfBounds && CheckBoard(position) == 0)
             {
                 availablePosition = true;
             }
-            else if (notOutOfBounds && CheckBoard(Position) / 1000 != player)
+            else if (notOutOfBounds && CheckBoard(position) / 1000 != player)
             {
                 position += new Vector2(xIncrease, yIncrease).Normalized() * (float)Math.Sqrt(2) * _direction;
 
-                int posibleCapture = CheckBoard(Position);
+                int posibleCapture = CheckBoard(position);
 
-                notOutOfBounds = Position.X >= 0 && Position.X < 8 && Position.Y >= 0 && Position.Y < 8;
-                if (notOutOfBounds && CheckBoard(Position) == 0)
+                notOutOfBounds = position.X >= 0 && position.X < 8 * CellPixels && position.Y >= 0 && position.Y < 8 * CellPixels;
+                if (notOutOfBounds && CheckBoard(position) == 0)
                 {
                     availablePosition = true;
                     capture = true;
