@@ -4,10 +4,11 @@
 [ext_resource type="TileSet" uid="uid://bq6f40jlbroyg" path="res://assets/tilesets/board_tiles.tres" id="2_qdjg7"]
 [ext_resource type="Script" path="res://scripts/checkers/CheckersBoard.cs" id="3_s114x"]
 
-[node name="CheckersGame" type="Node2D" node_paths=PackedStringArray("_board", "_debugTracker")]
+[node name="CheckersGame" type="Node2D" node_paths=PackedStringArray("_board", "_debugTracker", "_camera")]
 script = ExtResource("1_7l4ji")
 _board = NodePath("Board")
 _debugTracker = NodePath("DebugWindow/DebugTracker")
+_camera = NodePath("Camera2D")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(384, 192)

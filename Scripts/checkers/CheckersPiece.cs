@@ -6,6 +6,9 @@ using SysGeneric = System.Collections.Generic;
 namespace Ches.Checkers;
 public partial class CheckersPiece : BasePiece, ISaveable
 {
+    [Signal]
+    public delegate void TurnFinishedEventHandler();
+
     private struct PosibleMovement
     {
         public PosibleMovement(bool isCapture, Vector2 position, int? captureID)
@@ -158,6 +161,7 @@ public partial class CheckersPiece : BasePiece, ISaveable
         {
             CheckersMovement movement = (CheckersMovement)_movement.Instantiate();
             movement.Position = move.Position;
+            movement.MoveSelected += Move;
             
             if (capture)
             {
@@ -194,6 +198,31 @@ public partial class CheckersPiece : BasePiece, ISaveable
                 }
             }
             return (availablePosition, new PosibleMovement(capture, movementPosition, capturePosition));
+        }
+    }
+
+    public void Move(Vector2 position)
+    {
+        Position = position;
+        EmitSignal(SignalName.PieceSelected);
+        EmitSignal(SignalName.TurnFinished);
+    }
+
+    public override void ChangeTurn(int turn)
+    {
+        base.ChangeTurn(turn);
+
+        this.turn = turn;
+
+        if (this.turn == 2)
+        {
+            Scale = new Vector2(-1, -1);
+            OriginalScale = Scale;
+        }
+        else if (this.turn == 1)
+        {
+            Scale = new Vector2(1, 1);
+            OriginalScale = Scale;
         }
     }
 
