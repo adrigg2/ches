@@ -78,8 +78,7 @@ public partial class CheckersPiece : BasePiece, ISaveable
 
     public void SetInitialTurn(int turn)
     {
-        Vector2I position = _board.LocalToMap(Position);
-        _board[position.X, position.Y] = id;
+        _board[Position] = id;
         this.turn = turn;
     }
 
@@ -203,8 +202,11 @@ public partial class CheckersPiece : BasePiece, ISaveable
 
     public void Move(Vector2 position)
     {
+        Vector2 oldPosition = Position;
         Position = position;
         EmitSignal(SignalName.PieceSelected);
+        _board[Position] = id;
+        _board[oldPosition] = 0;
         EmitSignal(SignalName.TurnFinished);
     }
 

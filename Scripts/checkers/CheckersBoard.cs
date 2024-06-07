@@ -13,6 +13,20 @@ public partial class CheckersBoard : TileMap
 
     public int this[int i, int j] { get => _squares[i, j]; set => _squares[i, j] = value; }
 
+    public int this[Vector2 position]
+    {
+        get
+        {
+            Vector2I positionI = LocalToMap(position);
+            return _squares[positionI.X, positionI.Y];
+        }
+        set
+        {
+            Vector2I positionI = LocalToMap(position);
+            _squares[positionI.X, positionI.Y] = value;
+        }
+    }
+
     public override void _Ready()
     {
         GD.Print("Board _Ready");
