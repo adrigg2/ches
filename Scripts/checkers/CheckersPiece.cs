@@ -9,6 +9,9 @@ public partial class CheckersPiece : BasePiece, ISaveable
     [Signal]
     public delegate void TurnFinishedEventHandler();
 
+    [Signal]
+    public delegate void PieceCapturedEventHandler();
+
     private struct PosibleMovement
     {
         public PosibleMovement(bool isCapture, Vector2 position, int? captureID)
@@ -101,7 +104,7 @@ public partial class CheckersPiece : BasePiece, ISaveable
                 Vector2I movePosI = _board.LocalToMap(Position) + new Vector2I(i, 1) * _direction;
                 Vector2 movePos = _board.MapToLocal(movePosI);
                 var (availablePosition, movement) = CheckPosition(movePos, i);
-                GD.Print($"Generating move {movePosI}, available: {availablePosition}");
+                GD.Print($"Generating move {movePosI}, available: {availablePosition}, capture: {movement.IsCapture}");
                 if (availablePosition)
                 {
                     validMovements.Add(movement);
@@ -175,7 +178,7 @@ public partial class CheckersPiece : BasePiece, ISaveable
             bool availablePosition = false;
             bool capture = false;
             Vector2 movementPosition = position;
-            int? capturePosition = null;
+            int? captureID = null;
 
             bool notOutOfBounds = position.X >= 0 && position.X < 8 * CellPixels && position.Y >= 0 && position.Y < 8 * CellPixels;
             if (notOutOfBounds && CheckBoard(position) == 0)
@@ -184,19 +187,20 @@ public partial class CheckersPiece : BasePiece, ISaveable
             }
             else if (notOutOfBounds && CheckBoard(position) / 1000 != player)
             {
-                position += new Vector2(xIncrease, yIncrease).Normalized() * (float)Math.Sqrt(2) * _direction;
-
                 int posibleCapture = CheckBoard(position);
+
+                position += new Vector2(xIncrease, yIncrease).Normalized() * (float)Math.Sqrt(2) * _direction * new Vector2(CellPixels, CellPixels);
 
                 notOutOfBounds = position.X >= 0 && position.X < 8 * CellPixels && position.Y >= 0 && position.Y < 8 * CellPixels;
                 if (notOutOfBounds && CheckBoard(position) == 0)
                 {
                     availablePosition = true;
                     capture = true;
-                    capturePosition = posibleCapture;
+                    captureID = posibleCapture;
+                    movementPosition = position;
                 }
             }
-            return (availablePosition, new PosibleMovement(capture, movementPosition, capturePosition));
+            return (availablePosition, new PosibleMovement(capture, movementPosition, captureID));
         }
     }
 
@@ -231,6 +235,7 @@ public partial class CheckersPiece : BasePiece, ISaveable
     public override void Capture()
     {
         GD.PrintRich($"[color=red]Capturing {this}[/color]");
+        EmitSignal(SignalName.PieceCaptured);
         Vector2I position = _board.LocalToMap(Position);
         _board[position.X, position.Y] = 0;
         Delete();
@@ -250,5 +255,10 @@ public partial class CheckersPiece : BasePiece, ISaveable
     public void Load(Dictionary<string, Variant> data)
     {
         throw new NotImplementedException();
+    }
+
+    public override string ToString()
+    {
+        return $"Piece at ({(int)(Position.X / 32)}, {(int)(Position.Y / 32)}) from {player}";
     }
 }

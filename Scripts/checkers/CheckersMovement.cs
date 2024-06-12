@@ -22,8 +22,6 @@ public partial class CheckersMovement : CharacterBody2D
         GetParent().RemoveChild(this);
         newParent.AddChild(this);
 
-        _isCapture = (bool)GetMeta("Is_Capture");
-
         _originalScale = Scale;
     }
 
@@ -34,15 +32,17 @@ public partial class CheckersMovement : CharacterBody2D
             if (_isCapture)
             {
                 _target.Capture();
+                GD.Print("Target captured");
             }
 
             EmitSignal(SignalName.MoveSelected, Position);
-            GD.Print("Move selected, update tiles");
+            GD.Print($"Move selected");
         }
     }
 
     public void SetCapture(CheckersPiece target)
     {
+        GD.Print($"Setting capture for {target}");
         _isCapture = true;
         _target = target;
     }

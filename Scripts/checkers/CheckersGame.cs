@@ -23,6 +23,7 @@ public partial class CheckersGame : Node2D
         {
             piece.PieceSelected += DisableMovement;
             piece.TurnFinished += ChangeTurn;
+            piece.PieceCaptured += () => _pieces.Remove(piece.ID);
             piece.SetInitialTurn(_turn);
             _pieces.Add(piece.ID, piece);
         }
