@@ -31,10 +31,17 @@ public partial class CheckersPiece : BasePiece, ISaveable
     private static int _lastPieceID = 0;
 
     private Vector2I _direction;
+
     private bool _king;
+    private bool _canCapture;
+    private static bool _thereIsCapture;
+
     [Export] private Dictionary<int, Texture2D> _textures;
+
     private CheckersBoard _board;
+
     private CheckersGame _game; //Temporary, find better solution
+
     [Export] private PackedScene _movement;
     [Export] private PackedScene _capture;
 
@@ -87,7 +94,7 @@ public partial class CheckersPiece : BasePiece, ISaveable
 
     protected override void Movement()
     {
-        if (turn != player)
+        if (turn != player || (_thereIsCapture && !_canCapture))
         {
             GD.Print($"Not my turn: turn: {turn} player: {player}");
             return;
@@ -173,11 +180,13 @@ public partial class CheckersPiece : BasePiece, ISaveable
             }
 
             AddChild(movement);
-        }        
+        }
     }
 
     public void Move(Vector2 position)
     {
+        _thereIsCapture = false;
+
         Vector2 oldPosition = Position;
         Position = position;
         EmitSignal(SignalName.PieceSelected);
@@ -202,6 +211,8 @@ public partial class CheckersPiece : BasePiece, ISaveable
             Scale = new Vector2(1, 1);
             OriginalScale = Scale;
         }
+
+        CheckCapturePossibility();
     }
 
     public override void Capture()
@@ -227,6 +238,78 @@ public partial class CheckersPiece : BasePiece, ISaveable
     public void Load(Dictionary<string, Variant> data)
     {
         throw new NotImplementedException();
+    }
+
+    private void CheckCapturePossibility()
+    {
+        if (!_king)
+        {
+            for (int i = -1; i < 2; i += 2)
+            {
+                Vector2I movePosI = _board.LocalToMap(Position) + new Vector2I(i, 1) * _direction;
+                Vector2 movePos = _board.MapToLocal(movePosI);
+                PosibleMovement? movement = CheckPosition(movePos, i);
+                GD.Print($"Generating move {movePosI}, available: {movement is null}, capture: {movement?.IsCapture ?? false}");
+                if (movement is PosibleMovement posibleMovement)
+                {
+                    if (posibleMovement.IsCapture)
+                    {
+                        _thereIsCapture = true;
+                        _canCapture = true;
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (int i = -1; i < 2; i += 2)
+            {
+                for (int j = -1; j > -9; j--)
+                {
+                    Vector2I movePosI = _board.LocalToMap(Position) + new Vector2I(j, j * i) * _direction;
+                    Vector2 movePos = _board.MapToLocal(movePosI);
+
+                    PosibleMovement? movement = CheckPosition(movePos, i);
+                    GD.Print($"Generating move {movePosI}, available: {movement is null}, capture: {movement?.IsCapture ?? false}");
+                    if (movement is PosibleMovement posibleMovement)
+                    {
+                        if (posibleMovement.IsCapture)
+                        {
+                            _thereIsCapture = true;
+                            _canCapture = true;
+                        }
+                    }
+                    else if (movement is null)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            for (int i = -1; i < 2; i += 2)
+            {
+                for (int j = 1; j < 9; j++)
+                {
+                    Vector2I movePosI = _board.LocalToMap(Position) + new Vector2I(j, j * i) * _direction;
+                    Vector2 movePos = _board.MapToLocal(movePosI);
+
+                    PosibleMovement? movement = CheckPosition(movePos, j, j * i);
+                    GD.Print($"Generating move {movePosI}, available: {movement is null}, capture: {movement?.IsCapture ?? false}");
+                    if (movement is PosibleMovement posibleMovement)
+                    {
+                        if (posibleMovement.IsCapture)
+                        {
+                            _thereIsCapture = true;
+                            _canCapture = true;
+                        }
+                    }
+                    else if (movement is null)
+                    {
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     private PosibleMovement? CheckPosition(Vector2 position, int xIncrease, int yIncrease = 1)
