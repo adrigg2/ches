@@ -217,7 +217,10 @@ public partial class CheckersPiece : BasePiece, ISaveable
             OriginalScale = Scale;
         }
 
-        CheckCapturePossibility();
+        if (this.turn == player)
+        {
+            CheckCapturePossibility();
+        }
     }
 
     public override void Capture()
