@@ -29,10 +29,11 @@ public partial class CheckersPiece : BasePiece, ISaveable
     private const int CellPixels = 32; // Move to board?
 
     private static int _lastPieceID = 0;
+    private static int[] _promotionRows = { 0, 7 };
 
     private Vector2I _direction;
 
-    private bool _king;
+    private bool _king; // Use vectors/arrays to customize piece mobility (like in chess) (?)
     private bool _canCapture;
     private static bool _thereIsCapture;
 
@@ -45,7 +46,7 @@ public partial class CheckersPiece : BasePiece, ISaveable
     [Export] private PackedScene _movement;
     [Export] private PackedScene _capture;
 
-    public int ID { get => id; }
+    public int ID { get => id % 100; }
 
     public void SetFields(bool king, CheckersBoard board, int player, CheckersGame game)
     {
@@ -83,8 +84,8 @@ public partial class CheckersPiece : BasePiece, ISaveable
             //AddToGroup("black_pieces");
         }
 
-        GetNode<Sprite2D>("Sprite2D").Texture = _textures[id / 100];
-    }
+        UpdateTexture();
+    }    
 
     public void SetInitialTurn(int turn)
     {
@@ -192,6 +193,10 @@ public partial class CheckersPiece : BasePiece, ISaveable
         EmitSignal(SignalName.PieceSelected);
         _board[Position] = id;
         _board[oldPosition] = 0;
+
+        int row = (int)Position.Y / CellPixels;
+        if (row == _promotionRows[player - 1]) Promote();
+
         EmitSignal(SignalName.TurnFinished);
     }
 
@@ -323,7 +328,7 @@ public partial class CheckersPiece : BasePiece, ISaveable
         }
         else if (notOutOfBounds && CheckBoard(position) / 1000 != player)
         {
-            int posibleCapture = CheckBoard(position);
+            int posibleCapture = CheckBoard(position) % 100;
 
             position += new Vector2(xIncrease, yIncrease).Normalized() * (float)Math.Sqrt(2) * _direction * new Vector2(CellPixels, CellPixels);
 
@@ -334,6 +339,18 @@ public partial class CheckersPiece : BasePiece, ISaveable
             }
         }
         return posibleMovement;
+    }
+
+    private void Promote()
+    {
+        id += 100;
+        _king = true;
+        UpdateTexture();
+    }
+
+    private void UpdateTexture()
+    {
+        GetNode<Sprite2D>("Sprite2D").Texture = _textures[id / 100];
     }
 
     public override string ToString()
