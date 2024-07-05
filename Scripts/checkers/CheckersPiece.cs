@@ -123,15 +123,28 @@ public partial class CheckersPiece : BasePiece, ISaveable
         {
             for (int i = -1; i < 2; i += 2)
             {
+                bool captureInDiagonal = false;
+                int? captureID = null;
                 for (int j = -1; j > -9; j--)
                 {
                     Vector2I movePosI = _board.LocalToMap(Position) + new Vector2I(j, j * i) * _direction;
                     Vector2 movePos = _board.MapToLocal(movePosI);
 
-                    PosibleMovement? movement = CheckPosition(movePos, i);
+                    PosibleMovement? movement = CheckPosition(movePos, i, capture: captureInDiagonal);
                     GD.Print($"Generating move {movePosI}, available: {movement is null}, capture: {movement?.IsCapture ?? false}");
                     if (movement is PosibleMovement posibleMovement && !validMovements.Exists(move => move.Position == movePos))
                     {
+                        if (!captureInDiagonal)
+                        {
+                            captureInDiagonal = posibleMovement.IsCapture;
+                            captureID = posibleMovement.CaptureID;
+                        }
+                        else
+                        {
+                            posibleMovement.IsCapture = true;
+                            posibleMovement.CaptureID = captureID;
+                        }
+
                         validMovements.Add(posibleMovement);
                     }
                     else if (movement is null)
@@ -143,15 +156,28 @@ public partial class CheckersPiece : BasePiece, ISaveable
 
             for (int i = -1; i < 2; i += 2)
             {
+                bool captureInDiagonal = false;
+                int? captureID = null;
                 for (int j = 1; j < 9; j++)
                 {
                     Vector2I movePosI = _board.LocalToMap(Position) + new Vector2I(j, j * i) * _direction;
                     Vector2 movePos = _board.MapToLocal(movePosI);
 
-                    PosibleMovement? movement = CheckPosition(movePos, j, j * i);
+                    PosibleMovement? movement = CheckPosition(movePos, j, j * i, capture: captureInDiagonal);
                     GD.Print($"Generating move {movePosI}, available: {movement is null}, capture: {movement?.IsCapture ?? false}");
                     if (movement is PosibleMovement posibleMovement && !validMovements.Exists(move => move.Position == movePos))
                     {
+                        if (!captureInDiagonal)
+                        {
+                            captureInDiagonal = posibleMovement.IsCapture;
+                            captureID = posibleMovement.CaptureID;
+                        }
+                        else
+                        {
+                            posibleMovement.IsCapture = true;
+                            posibleMovement.CaptureID = captureID;
+                        }
+
                         validMovements.Add(posibleMovement);
                     }
                     else if (movement is null)
@@ -320,7 +346,7 @@ public partial class CheckersPiece : BasePiece, ISaveable
         }
     }
 
-    private PosibleMovement? CheckPosition(Vector2 position, int xIncrease, int yIncrease = 1)
+    private PosibleMovement? CheckPosition(Vector2 position, int xIncrease, int yIncrease = 1, bool capture = false)
     {
         PosibleMovement? posibleMovement = null;
 
@@ -329,7 +355,7 @@ public partial class CheckersPiece : BasePiece, ISaveable
         {
             posibleMovement = new PosibleMovement(position);
         }
-        else if (notOutOfBounds && CheckBoard(position) / 1000 != player)
+        else if (notOutOfBounds && CheckBoard(position) / 1000 != player && !capture)
         {
             int posibleCapture = CheckBoard(position) % 100;
 
